@@ -1,0 +1,401 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
+  --color-brand: var(--brand);
+  --color-brand-2: var(--brand-2);
+  --color-brand-ink: var(--brand-ink);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-instrument-serif);
+  --font-heading: var(--font-geist-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.55);
+  --radius-md: calc(var(--radius) * 0.85);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 2.6);
+  --radius-4xl: calc(var(--radius) * 3.4);
+}
+
+:root {
+  /* === Vårddelen — Calm caring editorial ===
+     Vit bakgrund, sage-teal toner, signaturgradient mint→deep-teal.
+     Vård/omsorgs-känsla: lugn, trygg, modern. */
+
+  /* Atmosfär */
+  --background: #ffffff;
+  --foreground: #0e2826;
+  --surface: #ffffff;
+  --surface-soft: #f7faf8;        /* sektioner med mild teal-papperston */
+  --surface-warm: #effaf5;        /* lite kraftigare mint-bakgrund */
+  --tint-1: #f1fbf6;
+  --tint-2: #ddf3ea;
+  --tint-3: #bce8d6;              /* chip-bakgrund */
+
+  /* Texttoner */
+  --text-strong: #0e2826;
+  --text-body: #243231;
+  --text-muted: #5d6f6d;
+  --text-dim: #8da19f;
+  --text-faint: #c1cfcd;
+
+  /* Brand (logotyp-gradient sage→deep teal) */
+  --brand: #5BC2A7;
+  --brand-2: #1E8E84;
+  --brand-ink: #114842;           /* länkar och stark text */
+  --brand-deep: #06322C;
+
+  /* Borders */
+  --rule: #e6ece9;
+  --rule-soft: #f0f4f1;
+  --rule-strong: #d4ddd9;
+
+  /* shadcn-kompatibla kanaler */
+  --card: #ffffff;
+  --card-foreground: #0e2826;
+  --popover: #ffffff;
+  --popover-foreground: #0e2826;
+  --primary: #1E8E84;
+  --primary-foreground: #ffffff;
+  --secondary: #f7faf8;
+  --secondary-foreground: #0e2826;
+  --muted: #f7faf8;
+  --muted-foreground: #5d6f6d;
+  --accent: #bce8d6;
+  --accent-foreground: #114842;
+  --destructive: #d92d20;
+  --border: #e6ece9;
+  --input: #d4ddd9;
+  --ring: rgba(30, 142, 132, 0.4);
+  --chart-1: #5BC2A7;
+  --chart-2: #1E8E84;
+  --chart-3: #114842;
+  --chart-4: #9ad9c4;
+  --chart-5: #2fa194;
+  --radius: 0.75rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0e2826;
+  --sidebar-primary: #1E8E84;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #bce8d6;
+  --sidebar-accent-foreground: #114842;
+  --sidebar-border: #e6ece9;
+  --sidebar-ring: rgba(30, 142, 132, 0.4);
+
+  /* Skuggor — flerlagrade för premium-djup */
+  --shadow-sm: 0 1px 2px rgba(17,24,28,0.04);
+  --shadow-md: 0 1px 3px rgba(17,24,28,0.05), 0 1px 2px rgba(17,24,28,0.03);
+  --shadow-lg: 0 1px 2px rgba(17,24,28,0.04), 0 10px 24px -10px rgba(17,24,28,0.10);
+  --shadow-xl: 0 1px 2px rgba(17,24,28,0.04), 0 24px 48px -16px rgba(17,24,28,0.14);
+  --shadow-glow: 0 18px 40px -16px rgba(30, 142, 132, 0.32);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/40;
+  }
+  html {
+    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color-scheme: light;
+    background-color: var(--background);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--text-body);
+    font-feature-settings: "ss01" 1, "cv01" 1, "cv11" 1;
+  }
+  h1, h2, h3, h4, h5 {
+    color: var(--text-strong);
+    @apply tracking-tight;
+    letter-spacing: -0.022em;
+  }
+  ::selection {
+    background-color: #bce8d6;
+    color: var(--text-strong);
+  }
+  /* Smooth scroll men respektera reduced motion */
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+}
+
+@keyframes rd-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes rd-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes rd-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes rd-blob-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(3%, -2%) scale(1.05); }
+  66% { transform: translate(-2%, 3%) scale(0.97); }
+}
+
+@layer utilities {
+  /* Display-text — Instrument Serif italic, för signaturord i rubriker */
+  .rd-display {
+    font-family: var(--font-instrument-serif), Georgia, "Times New Roman", serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  /* Signaturgradient — sage-mint → deep teal */
+  .rd-brand-gradient {
+    background-image: linear-gradient(135deg, #5BC2A7 0%, #1E8E84 100%);
+  }
+  .rd-brand-gradient-warm {
+    background-image: linear-gradient(135deg, #9ad9c4 0%, #1E8E84 60%, #114842 100%);
+  }
+  .rd-brand-gradient-soft {
+    background-image:
+      radial-gradient(ellipse 65% 50% at 50% 0%, rgba(91, 194, 167, 0.22), transparent 65%),
+      radial-gradient(ellipse 45% 35% at 85% 25%, rgba(30, 142, 132, 0.14), transparent 70%),
+      radial-gradient(ellipse 35% 30% at 10% 30%, rgba(154, 217, 196, 0.22), transparent 70%),
+      linear-gradient(180deg, #f6fcf9 0%, #ffffff 70%);
+  }
+  .rd-text-brand {
+    background: linear-gradient(135deg, #1E8E84 0%, #114842 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Premium-skuggor */
+  .rd-shadow-sm { box-shadow: var(--shadow-sm); }
+  .rd-shadow-md { box-shadow: var(--shadow-md); }
+  .rd-shadow-lg { box-shadow: var(--shadow-lg); }
+  .rd-shadow-xl { box-shadow: var(--shadow-xl); }
+  .rd-shadow-glow { box-shadow: var(--shadow-glow); }
+
+  /* Card-kärna — vit, mjuk skugga, fin border */
+  .rd-card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+  }
+  .rd-card-hover {
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 160ms ease;
+  }
+  .rd-card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: #dcdcdc;
+  }
+
+  /* Subtila staggered fade-in:s */
+  .rd-fade-up {
+    animation: rd-fade-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .rd-fade-in {
+    animation: rd-fade-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .rd-fade-up-delay-1 { animation-delay: 0.06s; }
+  .rd-fade-up-delay-2 { animation-delay: 0.12s; }
+  .rd-fade-up-delay-3 { animation-delay: 0.18s; }
+  .rd-fade-up-delay-4 { animation-delay: 0.24s; }
+  .rd-fade-up-delay-5 { animation-delay: 0.30s; }
+
+  /* Företagskort i lista — Merinfo-stil, hover ljus tint, ingen aktiv ram */
+  .rd-card-row {
+    background-color: #ffffff;
+    transition: background-color 160ms ease;
+  }
+  .rd-card-row:hover {
+    background-color: #f1fbf6;
+  }
+
+  /* Utvald (poang > 0) — subtil mint-tint + accent-streck till vänster */
+  .rd-card-featured {
+    background-color: #f6fcf9;
+    padding-left: calc(1rem + 4px);
+  }
+  @media (min-width: 640px) {
+    .rd-card-featured {
+      padding-left: calc(1.25rem + 4px);
+    }
+  }
+  .rd-card-featured:hover {
+    background-color: #ddf3ea;
+  }
+
+  /* Rich-text rendering (saniterad infotext från databasen) */
+  .rd-rich-text b,
+  .rd-rich-text strong {
+    color: var(--text-strong);
+    font-weight: 600;
+  }
+  .rd-rich-text a {
+    color: var(--brand-ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+  .rd-rich-text a:hover {
+    color: var(--brand-deep);
+  }
+  .rd-rich-text p {
+    margin: 0.75em 0;
+  }
+  .rd-rich-text p:first-child { margin-top: 0; }
+  .rd-rich-text p:last-child { margin-bottom: 0; }
+  .rd-rich-text br {
+    line-height: 1;
+  }
+  .rd-rich-text ul, .rd-rich-text ol {
+    margin: 0.75em 0;
+    padding-left: 1.5em;
+  }
+  .rd-rich-text li {
+    margin: 0.25em 0;
+  }
+  .rd-rich-text h2, .rd-rich-text h3, .rd-rich-text h4 {
+    color: var(--text-strong);
+    font-weight: 600;
+    margin: 1em 0 0.5em;
+  }
+  .rd-rich-text h2 { font-size: 1.05em; }
+  .rd-rich-text h3 { font-size: 1em; }
+  .rd-rich-text h4 { font-size: 0.95em; }
+
+  /* Listrad — vänster orange bar glider in */
+  .rd-row {
+    position: relative;
+    transition: background-color 160ms ease;
+  }
+  .rd-row::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background-image: linear-gradient(180deg, #5BC2A7, #1E8E84);
+    opacity: 0;
+    transform: scaleY(0.4);
+    transform-origin: center;
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+  .rd-row:hover::before,
+  .rd-row:focus-visible::before {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  .rd-row:hover,
+  .rd-row:focus-visible {
+    background-color: #f1fbf6;
+  }
+
+  /* Sökboxen — vit, ljus skugga, teal focus-ring */
+  .rd-search-box {
+    box-shadow:
+      0 1px 2px rgba(17, 24, 28, 0.04),
+      0 10px 32px -16px rgba(30, 142, 132, 0.22);
+    transition: box-shadow 220ms ease, border-color 160ms ease;
+  }
+  .rd-search-box:focus-within {
+    border-color: rgba(30, 142, 132, 0.6) !important;
+    box-shadow:
+      0 0 0 4px rgba(30, 142, 132, 0.14),
+      0 14px 40px -12px rgba(30, 142, 132, 0.34);
+  }
+
+  /* CTA-knappskugga */
+  .rd-cta-shadow {
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.45) inset,
+      0 4px 14px -4px rgba(30, 142, 132, 0.55);
+  }
+
+  /* Skeleton — mjuk teal shimmer */
+  .rd-skeleton {
+    background: linear-gradient(
+      90deg,
+      #eef3f0 0%,
+      #f4faf6 50%,
+      #eef3f0 100%
+    );
+    background-size: 200% 100%;
+    animation: rd-shimmer 1.6s linear infinite;
+  }
+
+  /* Drifting hero-blob */
+  .rd-blob {
+    animation: rd-blob-drift 18s ease-in-out infinite;
+  }
+
+  /* "Premium grid" — subtilt punktmönster */
+  .rd-dot-grid {
+    background-image: radial-gradient(rgba(17,24,28,0.07) 1px, transparent 1px);
+    background-size: 22px 22px;
+    background-position: 0 0;
+  }
+
+  /* Initial-ring för företagsprofil */
+  .rd-monogram {
+    background-image: linear-gradient(135deg, #9ad9c4 0%, #1E8E84 65%, #114842 100%);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.4) inset,
+      0 -8px 24px rgba(255,255,255,0.2) inset,
+      0 14px 32px -10px rgba(30, 142, 132, 0.55);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-fade-up,
+  .rd-fade-in,
+  .rd-skeleton,
+  .rd-blob {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+}
