@@ -55,76 +55,76 @@
 }
 
 :root {
-  /* === Vårddelen — Calm caring editorial ===
-     Vit bakgrund, sage-teal toner, signaturgradient mint→deep-teal.
-     Vård/omsorgs-känsla: lugn, trygg, modern. */
+  /* === Vårddelen — Red caring editorial ===
+     Vit bakgrund, varma rödtoner, signaturgradient ljus-röd → djup-röd.
+     Healthcare-känsla via hjärta-symbolik, rött för action/CTA. */
 
   /* Atmosfär */
   --background: #ffffff;
-  --foreground: #0e2826;
+  --foreground: #1A1A2E;
   --surface: #ffffff;
-  --surface-soft: #f7faf8;        /* sektioner med mild teal-papperston */
-  --surface-warm: #effaf5;        /* lite kraftigare mint-bakgrund */
-  --tint-1: #f1fbf6;
-  --tint-2: #ddf3ea;
-  --tint-3: #bce8d6;              /* chip-bakgrund */
+  --surface-soft: #F5F5F7;        /* ljusgrå sektion-bakgrund */
+  --surface-warm: #FFF5F5;        /* extra mild rödton för featured */
+  --tint-1: #FFF5F5;
+  --tint-2: #FFE5E7;
+  --tint-3: #FCC8CC;              /* chip-bakgrund (svag röd) */
 
   /* Texttoner */
-  --text-strong: #0e2826;
-  --text-body: #243231;
-  --text-muted: #5d6f6d;
-  --text-dim: #8da19f;
-  --text-faint: #c1cfcd;
+  --text-strong: #1A1A2E;
+  --text-body: #2A2A3E;
+  --text-muted: #5A5A6E;
+  --text-dim: #8A8A9E;
+  --text-faint: #C0C0CE;
 
-  /* Brand (logotyp-gradient sage→deep teal) */
-  --brand: #5BC2A7;
-  --brand-2: #1E8E84;
-  --brand-ink: #114842;           /* länkar och stark text */
-  --brand-deep: #06322C;
+  /* Brand (rött tema) */
+  --brand: #E11D27;               /* primär röd — CTA/accent */
+  --brand-2: #C8102E;             /* mörkröd — topbar, hover */
+  --brand-ink: #8B0F1A;           /* länk-röd för text/läsbarhet */
+  --brand-deep: #5C0810;          /* djupröd — pressed/strong */
 
   /* Borders */
-  --rule: #e6ece9;
-  --rule-soft: #f0f4f1;
-  --rule-strong: #d4ddd9;
+  --rule: #E8E8EC;
+  --rule-soft: #F0F0F4;
+  --rule-strong: #D6D6DC;
 
   /* shadcn-kompatibla kanaler */
   --card: #ffffff;
-  --card-foreground: #0e2826;
+  --card-foreground: #1A1A2E;
   --popover: #ffffff;
-  --popover-foreground: #0e2826;
-  --primary: #1E8E84;
+  --popover-foreground: #1A1A2E;
+  --primary: #E11D27;
   --primary-foreground: #ffffff;
-  --secondary: #f7faf8;
-  --secondary-foreground: #0e2826;
-  --muted: #f7faf8;
-  --muted-foreground: #5d6f6d;
-  --accent: #bce8d6;
-  --accent-foreground: #114842;
-  --destructive: #d92d20;
-  --border: #e6ece9;
-  --input: #d4ddd9;
-  --ring: rgba(30, 142, 132, 0.4);
-  --chart-1: #5BC2A7;
-  --chart-2: #1E8E84;
-  --chart-3: #114842;
-  --chart-4: #9ad9c4;
-  --chart-5: #2fa194;
+  --secondary: #F5F5F7;
+  --secondary-foreground: #1A1A2E;
+  --muted: #F5F5F7;
+  --muted-foreground: #5A5A6E;
+  --accent: #FCC8CC;
+  --accent-foreground: #8B0F1A;
+  --destructive: #B91C1C;
+  --border: #E8E8EC;
+  --input: #D6D6DC;
+  --ring: rgba(225, 29, 39, 0.4);
+  --chart-1: #E11D27;
+  --chart-2: #C8102E;
+  --chart-3: #8B0F1A;
+  --chart-4: #F87171;
+  --chart-5: #DC2626;
   --radius: 0.75rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #0e2826;
-  --sidebar-primary: #1E8E84;
+  --sidebar-foreground: #1A1A2E;
+  --sidebar-primary: #E11D27;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #bce8d6;
-  --sidebar-accent-foreground: #114842;
-  --sidebar-border: #e6ece9;
-  --sidebar-ring: rgba(30, 142, 132, 0.4);
+  --sidebar-accent: #FCC8CC;
+  --sidebar-accent-foreground: #8B0F1A;
+  --sidebar-border: #E8E8EC;
+  --sidebar-ring: rgba(225, 29, 39, 0.4);
 
   /* Skuggor — flerlagrade för premium-djup */
   --shadow-sm: 0 1px 2px rgba(17,24,28,0.04);
   --shadow-md: 0 1px 3px rgba(17,24,28,0.05), 0 1px 2px rgba(17,24,28,0.03);
   --shadow-lg: 0 1px 2px rgba(17,24,28,0.04), 0 10px 24px -10px rgba(17,24,28,0.10);
   --shadow-xl: 0 1px 2px rgba(17,24,28,0.04), 0 24px 48px -16px rgba(17,24,28,0.14);
-  --shadow-glow: 0 18px 40px -16px rgba(30, 142, 132, 0.32);
+  --shadow-glow: 0 18px 40px -16px rgba(225, 29, 39, 0.32);
 }
 
 @layer base {
@@ -150,7 +150,7 @@
     letter-spacing: -0.022em;
   }
   ::selection {
-    background-color: #bce8d6;
+    background-color: #FCC8CC;
     color: var(--text-strong);
   }
   /* Smooth scroll men respektera reduced motion */
@@ -187,25 +187,26 @@
     letter-spacing: -0.01em;
   }
 
-  /* Signaturgradient — sage-mint → deep teal */
+  /* Signaturgradient — ljus röd → djup röd */
   .rd-brand-gradient {
-    background-image: linear-gradient(135deg, #5BC2A7 0%, #1E8E84 100%);
+    background-image: linear-gradient(135deg, #E11D27 0%, #C8102E 100%);
   }
   .rd-brand-gradient-warm {
-    background-image: linear-gradient(135deg, #9ad9c4 0%, #1E8E84 60%, #114842 100%);
+    background-image: linear-gradient(135deg, #F87171 0%, #E11D27 60%, #8B0F1A 100%);
   }
   .rd-brand-gradient-soft {
     background-image:
-      radial-gradient(ellipse 65% 50% at 50% 0%, rgba(91, 194, 167, 0.22), transparent 65%),
-      radial-gradient(ellipse 45% 35% at 85% 25%, rgba(30, 142, 132, 0.14), transparent 70%),
-      radial-gradient(ellipse 35% 30% at 10% 30%, rgba(154, 217, 196, 0.22), transparent 70%),
-      linear-gradient(180deg, #f6fcf9 0%, #ffffff 70%);
+      radial-gradient(ellipse 65% 50% at 50% 0%, rgba(225, 29, 39, 0.10), transparent 65%),
+      radial-gradient(ellipse 45% 35% at 85% 25%, rgba(200, 16, 46, 0.08), transparent 70%),
+      radial-gradient(ellipse 35% 30% at 10% 30%, rgba(248, 113, 113, 0.10), transparent 70%),
+      linear-gradient(180deg, #ffffff 0%, #ffffff 70%);
   }
   .rd-text-brand {
-    background: linear-gradient(135deg, #1E8E84 0%, #114842 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    /* Använd solid röd istället för gradient — bättre kontrast på vit */
+    color: #E11D27;
+    background: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
   }
 
   /* Premium-skuggor */
@@ -246,18 +247,18 @@
   .rd-fade-up-delay-4 { animation-delay: 0.24s; }
   .rd-fade-up-delay-5 { animation-delay: 0.30s; }
 
-  /* Företagskort i lista — Merinfo-stil, hover ljus tint, ingen aktiv ram */
+  /* Företagskort i lista — hover ljus rosa-tint, ingen aktiv ram */
   .rd-card-row {
     background-color: #ffffff;
     transition: background-color 160ms ease;
   }
   .rd-card-row:hover {
-    background-color: #f1fbf6;
+    background-color: #FFF5F5;
   }
 
-  /* Utvald (poang > 0) — subtil mint-tint + accent-streck till vänster */
+  /* Utvald (poang > 0) — subtil rosa-tint + accent-streck till vänster */
   .rd-card-featured {
-    background-color: #f6fcf9;
+    background-color: #FFF5F5;
     padding-left: calc(1rem + 4px);
   }
   @media (min-width: 640px) {
@@ -266,7 +267,7 @@
     }
   }
   .rd-card-featured:hover {
-    background-color: #ddf3ea;
+    background-color: #FFE5E7;
   }
 
   /* Rich-text rendering (saniterad infotext från databasen) */
@@ -318,7 +319,7 @@
     position: absolute;
     inset: 0 auto 0 0;
     width: 3px;
-    background-image: linear-gradient(180deg, #5BC2A7, #1E8E84);
+    background-image: linear-gradient(180deg, #E11D27, #C8102E);
     opacity: 0;
     transform: scaleY(0.4);
     transform-origin: center;
@@ -331,37 +332,37 @@
   }
   .rd-row:hover,
   .rd-row:focus-visible {
-    background-color: #f1fbf6;
+    background-color: #FFF5F5;
   }
 
-  /* Sökboxen — vit, ljus skugga, teal focus-ring */
+  /* Sökboxen — vit, ljus skugga, röd focus-ring */
   .rd-search-box {
     box-shadow:
       0 1px 2px rgba(17, 24, 28, 0.04),
-      0 10px 32px -16px rgba(30, 142, 132, 0.22);
+      0 10px 32px -16px rgba(225, 29, 39, 0.18);
     transition: box-shadow 220ms ease, border-color 160ms ease;
   }
   .rd-search-box:focus-within {
-    border-color: rgba(30, 142, 132, 0.6) !important;
+    border-color: rgba(225, 29, 39, 0.6) !important;
     box-shadow:
-      0 0 0 4px rgba(30, 142, 132, 0.14),
-      0 14px 40px -12px rgba(30, 142, 132, 0.34);
+      0 0 0 4px rgba(225, 29, 39, 0.12),
+      0 14px 40px -12px rgba(225, 29, 39, 0.30);
   }
 
   /* CTA-knappskugga */
   .rd-cta-shadow {
     box-shadow:
       0 1px 0 rgba(255, 255, 255, 0.45) inset,
-      0 4px 14px -4px rgba(30, 142, 132, 0.55);
+      0 4px 14px -4px rgba(225, 29, 39, 0.55);
   }
 
-  /* Skeleton — mjuk teal shimmer */
+  /* Skeleton — mjuk grå shimmer */
   .rd-skeleton {
     background: linear-gradient(
       90deg,
-      #eef3f0 0%,
-      #f4faf6 50%,
-      #eef3f0 100%
+      #eeeef1 0%,
+      #f6f6f8 50%,
+      #eeeef1 100%
     );
     background-size: 200% 100%;
     animation: rd-shimmer 1.6s linear infinite;
@@ -379,13 +380,21 @@
     background-position: 0 0;
   }
 
+  /* Full-bleed — låter en sektion bryta ut ur föräldraelementets max-width
+     och täcka hela viewporten. Används av startsidans hero/grå-sektion. */
+  .rd-full-bleed {
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    width: 100vw;
+  }
+
   /* Initial-ring för företagsprofil */
   .rd-monogram {
-    background-image: linear-gradient(135deg, #9ad9c4 0%, #1E8E84 65%, #114842 100%);
+    background-image: linear-gradient(135deg, #F87171 0%, #E11D27 65%, #8B0F1A 100%);
     box-shadow:
       0 1px 0 rgba(255,255,255,0.4) inset,
       0 -8px 24px rgba(255,255,255,0.2) inset,
-      0 14px 32px -10px rgba(30, 142, 132, 0.55);
+      0 14px 32px -10px rgba(225, 29, 39, 0.55);
   }
 }
 

@@ -1,7 +1,18 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Heart } from "lucide-react";
 import "./globals.css";
 import { SiteNav, MobileBottomNav } from "@/components/site-nav";
+
+function HeartIcon() {
+  return (
+    <Heart
+      className="size-6 text-[var(--brand)]"
+      fill="currentColor"
+      strokeWidth={0}
+    />
+  );
+}
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,21 +73,18 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-white text-[var(--text-body)]">
         <SiteNav />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-24 pt-2 md:pb-12 md:pt-6">
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-24 md:pb-12">
           {children}
         </main>
         <footer className="border-t border-[var(--rule)] bg-[var(--surface-soft)]">
           <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-[2fr_1fr_1fr] sm:gap-10">
             <div className="space-y-3">
               <div className="flex items-center gap-2.5">
-                <span
-                  aria-hidden
-                  className="inline-flex size-7 items-center justify-center rounded-lg rd-brand-gradient text-[13px] font-bold text-white"
-                >
-                  V
+                <span aria-hidden className="inline-flex size-7 items-center justify-center">
+                  <HeartIcon />
                 </span>
                 <span className="text-sm font-semibold text-[var(--text-strong)]">
-                  Vårddelen
+                  Vårddelen<span className="text-[var(--brand)]">.se</span>
                 </span>
               </div>
               <p className="max-w-sm text-sm text-[var(--text-muted)]">

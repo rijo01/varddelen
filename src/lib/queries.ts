@@ -350,6 +350,12 @@ export async function searchForetag(
   opts: {
     kommun?: string;
     ng1?: number;
+    /**
+     * Lista av ng1 (för kategori-sök från startsidan). Måste vara en delmängd
+     * av VARD_BRANSCHER — kommer från vard-kategorier.ts. När detta finns
+     * skippar vi bransch-uppslag på sökordet och filtrerar direkt på listan.
+     */
+    ng1List?: readonly number[];
     aeantMin?: number;
     aeantMax?: number;
     page?: number;
@@ -362,6 +368,13 @@ export async function searchForetag(
   const to = from + pageSize;
   const cleaned = query.trim();
 
+  // När kategori-filter är aktivt och söktermen är tom — lista hela kategorin
+  // sorterat på poang+aeant. Detta är "browse a category"-fallet från start-
+  // sidans kategori-kort.
+  if (opts.ng1List && opts.ng1List.length > 0 && cleaned.length < 2) {
+    return runKategoriBrowse(opts.ng1List, opts, page, pageSize, from, to);
+  }
+
   if (cleaned.length < 2) {
     return { rows: [], hasMore: false, page, pageSize };
   }
@@ -369,9 +382,10 @@ export async function searchForetag(
   // 1. Smart bransch-uppslag — endast för enord (annars riskerar vi att
   //    "Stockholm restaurang" hijackas av Restaurang-branschen och returnerar
   //    21000 träffar istället för den specifika krogen användaren letar efter).
+  //    Hoppa även om kategori-filter är aktivt — kategorin styr bransch.
   const isSingleWord = !/\s/.test(cleaned);
   const branschInfo =
-    !opts.ng1 && isSingleWord
+    !opts.ng1 && !opts.ng1List && isSingleWord
       ? await findBranschIdsForQuery(cleaned)
       : { ids: [] as number[], primaryName: null as string | null };
 
@@ -381,6 +395,56 @@ export async function searchForetag(
 
   // Ren fulltext-sökning (företagsnamn, multi-word, eller bransch saknas)
   return runTextSearch(cleaned, opts, page, pageSize, from, to);
+}
+
+/**
+ * Browse en hel kategori utan söktext — t.ex. när användaren klickar på
+ * kategori-kortet "HVB & Behandlingshem" på startsidan. Listar företag i
+ * de ng1 som ingår i kategorin, sorterat på poäng (premium först) sedan
+ * antal anställda.
+ */
+async function runKategoriBrowse(
+  ng1List: readonly number[],
+  opts: { kommun?: string; aeantMin?: number; aeantMax?: number },
+  page: number,
+  pageSize: number,
+  from: number,
+  to: number,
+): Promise<{
+  rows: Foretag[];
+  hasMore: boolean;
+  page: number;
+  pageSize: number;
+  matchedBransch: null;
+}> {
+  const supa = getSupabaseAnon();
+  // Använd aeant >= 2 av samma index-skäl som ng1.in()-queryn i runBranschSearch.
+  const minAeant = Math.max(2, opts.aeantMin ?? 2);
+  let q = supa
+    .from(VIEW)
+    .select(COLUMNS_LIST)
+    .in("ng1", ng1List as number[])
+    .gte("aeant", minAeant);
+  if (opts.kommun) q = q.eq("kommun", opts.kommun);
+  if (opts.aeantMax && opts.aeantMax > 0) q = q.lte("aeant", opts.aeantMax);
+  const { data, error } = await q
+    .order("poang", { ascending: false, nullsFirst: false })
+    .order("aeant", { ascending: false, nullsFirst: false })
+    .order("cfarnr", { ascending: true })
+    .range(from, to);
+  if (error || !data) {
+    console.error("runKategoriBrowse", error);
+    return { rows: [], hasMore: false, page, pageSize, matchedBransch: null };
+  }
+  const rows = data as Partial<PublikRow>[];
+  const hasMore = rows.length > pageSize;
+  return {
+    rows: rows.slice(0, pageSize).map(mapRow),
+    hasMore,
+    page,
+    pageSize,
+    matchedBransch: null,
+  };
 }
 
 async function runBranschSearch(

@@ -3,12 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { Home, Search, MapPin, Layers } from "lucide-react";
+import { Home, Search, MapPin, Layers, Phone, Heart, Globe } from "lucide-react";
 import { SearchBar } from "@/components/search-bar";
 
 /**
- * Sticky top-nav: kompakt logotyp + (icke-startsida) inbäddad sökbar + meny.
- * Döljer söket på startsidan eftersom hjältesöket redan är synligt där.
+ * Toppen av sajten består av två rader:
+ *   1. Topbar (mörkröd, tunn) — kontakt-info, scrollar bort med sidan
+ *   2. Header (vit, sticky) — logo, nav, login + anslut-knapp
+ *
+ * När användaren scrollar gömmer vi topbaren och låter header:n ligga kvar
+ * högst upp som tidigare. Söket bakas in i header:n förutom på startsidan,
+ * där hero-sektionen redan har en stor sökbar.
  */
 export function SiteNav() {
   const pathname = usePathname();
@@ -23,59 +28,114 @@ export function SiteNav() {
   }, []);
 
   return (
-    <header
-      className={`sticky top-0 z-40 border-b transition-colors duration-200 ${
-        scrolled
-          ? "border-[var(--rule)] bg-white/85 backdrop-blur supports-[backdrop-filter]:bg-white/70"
-          : "border-transparent bg-white/60 backdrop-blur-sm"
-      }`}
-    >
-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:gap-5">
-        <Link
-          href="/"
-          aria-label="Vårddelen, till startsidan"
-          className="flex shrink-0 items-center gap-2.5 text-[var(--text-strong)]"
-        >
-          <span
-            aria-hidden
-            className="relative inline-flex size-8 items-center justify-center overflow-hidden rounded-xl rd-brand-gradient text-base font-bold text-white shadow-[0_4px_12px_-4px_rgba(30,142,132,0.6)]"
+    <>
+      {/* ===== Topbar — mörkröd, scrollar bort ===== */}
+      <div className="bg-[var(--brand-2)] text-white">
+        <div className="mx-auto flex h-9 max-w-6xl items-center justify-between gap-4 px-4 text-[12px]">
+          <span className="hidden truncate sm:inline">
+            Sök- och placeringstjänst inom vård och omsorg
+          </span>
+          <span className="text-white/80 sm:hidden">Vård & omsorg i Sverige</span>
+          <a
+            href="tel:0311309700"
+            className="inline-flex items-center gap-1.5 font-medium text-white transition hover:text-white/90"
           >
-            <span className="relative z-10">V</span>
+            <Phone aria-hidden className="size-3.5" />
+            031-130 970
+          </a>
+        </div>
+      </div>
+
+      {/* ===== Header — vit, sticky ===== */}
+      <header
+        className={`sticky top-0 z-40 border-b transition-colors duration-200 ${
+          scrolled
+            ? "border-[var(--rule)] bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.06)]"
+            : "border-[var(--rule-soft)] bg-white"
+        }`}
+      >
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 lg:gap-6">
+          {/* Logo */}
+          <Link
+            href="/"
+            aria-label="Vårddelen.se, till startsidan"
+            className="flex shrink-0 items-center gap-2.5 text-[var(--text-strong)]"
+          >
             <span
               aria-hidden
-              className="absolute inset-x-0 top-0 h-1/2 bg-white/25"
-            />
-          </span>
-          <span className="hidden text-[15px] font-semibold tracking-tight sm:inline">
-            Vårddelen
-          </span>
-        </Link>
+              className="relative inline-flex size-10 items-center justify-center"
+            >
+              <Heart
+                className="size-9 text-[var(--brand)] drop-shadow-[0_2px_6px_rgba(225,29,39,0.30)]"
+                fill="currentColor"
+                strokeWidth={0}
+              />
+            </span>
+            <span className="flex flex-col leading-tight">
+              <span className="text-[17px] font-bold tracking-tight">
+                Vårddelen<span className="text-[var(--brand)]">.se</span>
+              </span>
+              <span className="hidden text-[11px] font-medium text-[var(--text-muted)] sm:inline">
+                Söktjänst inom vård och omsorg
+              </span>
+            </span>
+          </Link>
 
-        <div className="flex-1">
-          {!isHome ? (
-            <div className="flex justify-center sm:justify-start">
-              <Suspense fallback={null}>
-                <SearchBar variant="single" />
-              </Suspense>
-            </div>
-          ) : null}
+          {/* Centrerat sök (visas inte på startsidan eftersom hero har det) */}
+          <div className="flex-1">
+            {!isHome ? (
+              <div className="flex justify-center sm:justify-start lg:pl-6">
+                <Suspense fallback={null}>
+                  <SearchBar variant="single" />
+                </Suspense>
+              </div>
+            ) : null}
+          </div>
+
+          {/* Nav-länkar (desktop) */}
+          <nav className="hidden shrink-0 items-center gap-0.5 text-[13px] lg:flex">
+            <NavLink href="/sok" label="Sök verksamhet" current={pathname === "/sok"} />
+            <NavLink href="#" label="För verksamheter" current={false} />
+            <NavLink href="#" label="Nyheter & artiklar" current={false} />
+            <NavLink href="#" label="Om oss" current={false} />
+          </nav>
+
+          {/* Höger: språkväljare + login + anslut */}
+          <div className="hidden shrink-0 items-center gap-2 lg:flex">
+            <button
+              type="button"
+              aria-label="Byt språk"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-[12px] font-medium text-[var(--text-muted)] transition hover:bg-[var(--surface-soft)] hover:text-[var(--text-strong)]"
+            >
+              <Globe aria-hidden className="size-3.5" />
+              SV
+            </button>
+            <Link
+              href="#"
+              className="inline-flex h-9 items-center rounded-md border border-[var(--rule)] bg-white px-3 text-[13px] font-semibold text-[var(--text-strong)] transition hover:border-[var(--brand)]/40 hover:text-[var(--brand-ink)]"
+            >
+              Logga in
+            </Link>
+            <Link
+              href="#"
+              className="inline-flex h-9 items-center rounded-md bg-[var(--brand)] px-3.5 text-[13px] font-semibold text-white transition hover:bg-[var(--brand-2)] active:scale-[0.99]"
+            >
+              Anslut verksamhet
+            </Link>
+          </div>
+
+          {/* Tablet — kompakta knappar utan språk */}
+          <div className="hidden shrink-0 items-center gap-2 md:flex lg:hidden">
+            <Link
+              href="#"
+              className="inline-flex h-9 items-center rounded-md bg-[var(--brand)] px-3 text-[12px] font-semibold text-white transition hover:bg-[var(--brand-2)]"
+            >
+              Anslut
+            </Link>
+          </div>
         </div>
-
-        <nav className="hidden shrink-0 items-center gap-0.5 text-sm md:flex">
-          <NavLink href="/" label="Hem" current={pathname === "/"} />
-          <NavLink
-            href="/kommuner"
-            label="Kommuner"
-            current={pathname.startsWith("/kommun")}
-          />
-          <NavLink
-            href="/branscher"
-            label="Branscher"
-            current={pathname.startsWith("/bransch")}
-          />
-        </nav>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }
 
@@ -92,10 +152,10 @@ function NavLink({
     <Link
       href={href}
       aria-current={current ? "page" : undefined}
-      className={`rounded-lg px-3 py-1.5 transition-colors ${
+      className={`rounded-md px-2.5 py-1.5 font-medium transition-colors ${
         current
-          ? "text-[var(--brand-ink)] bg-[var(--tint-3)]"
-          : "text-[var(--text-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--text-strong)]"
+          ? "text-[var(--brand-ink)] bg-[var(--tint-2)]"
+          : "text-[var(--text-body)] hover:bg-[var(--surface-soft)] hover:text-[var(--text-strong)]"
       }`}
     >
       {label}
@@ -105,7 +165,6 @@ function NavLink({
 
 /**
  * Mobil bottom-nav — fixerad nederst på små skärmar.
- * Bygger på premiumkänslan: glassbakgrund, mjuk skugga upp, brand-färg för aktiv.
  */
 export function MobileBottomNav() {
   const pathname = usePathname();
@@ -126,7 +185,7 @@ export function MobileBottomNav() {
     },
     {
       href: "/branscher",
-      label: "Branscher",
+      label: "Kategorier",
       icon: Layers,
       match: (p: string) => p.startsWith("/bransch"),
     },

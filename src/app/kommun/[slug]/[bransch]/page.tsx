@@ -122,8 +122,8 @@ export default async function BranschPage({
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 70% 60% at 50% 0%, rgba(91,194,167,0.13), transparent 65%),"
-              + "linear-gradient(180deg, #f6fcf9 0%, #ffffff 70%)",
+              "radial-gradient(ellipse 70% 60% at 50% 0%, rgba(225,29,39,0.08), transparent 65%),"
+              + "linear-gradient(180deg, #FFF5F5 0%, #ffffff 70%)",
           }}
         />
         <div className="relative space-y-4 p-6 sm:p-9">

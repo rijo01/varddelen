@@ -50,8 +50,8 @@ export default function KommunerPage() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 70% 60% at 50% 0%, rgba(91,194,167,0.16), transparent 65%),"
-              + "linear-gradient(180deg, #f6fcf9 0%, #ffffff 70%)",
+              "radial-gradient(ellipse 70% 60% at 50% 0%, rgba(225,29,39,0.10), transparent 65%),"
+              + "linear-gradient(180deg, #FFF5F5 0%, #ffffff 70%)",
           }}
         />
         <div className="relative space-y-4 p-6 sm:p-9">
@@ -101,7 +101,7 @@ export default function KommunerPage() {
                   className="pointer-events-none absolute -right-6 -top-6 size-24 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                   style={{
                     background:
-                      "radial-gradient(circle, rgba(91,194,167,0.45), transparent 70%)",
+                      "radial-gradient(circle, rgba(225,29,39,0.30), transparent 70%)",
                   }}
                 />
                 <div className="space-y-1.5">

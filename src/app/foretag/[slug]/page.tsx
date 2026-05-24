@@ -190,11 +190,11 @@ export default async function ForetagPage({ params }: { params: Params }) {
             className="pointer-events-none absolute inset-0 -z-0"
             style={{
               background: featured
-                ? "radial-gradient(ellipse 70% 50% at 0% 0%, rgba(91,194,167,0.22), transparent 65%),"
-                  + "radial-gradient(ellipse 50% 40% at 100% 0%, rgba(30,142,132,0.12), transparent 70%),"
-                  + "linear-gradient(180deg, #effaf5 0%, #ffffff 60%)"
-                : "radial-gradient(ellipse 70% 50% at 0% 0%, rgba(91,194,167,0.15), transparent 65%),"
-                  + "linear-gradient(180deg, #f6fcf9 0%, #ffffff 60%)",
+                ? "radial-gradient(ellipse 70% 50% at 0% 0%, rgba(225,29,39,0.16), transparent 65%),"
+                  + "radial-gradient(ellipse 50% 40% at 100% 0%, rgba(200,16,46,0.08), transparent 70%),"
+                  + "linear-gradient(180deg, #FFE5E7 0%, #ffffff 60%)"
+                : "radial-gradient(ellipse 70% 50% at 0% 0%, rgba(225,29,39,0.10), transparent 65%),"
+                  + "linear-gradient(180deg, #FFF5F5 0%, #ffffff 60%)",
             }}
           />
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start">
@@ -209,7 +209,7 @@ export default async function ForetagPage({ params }: { params: Params }) {
             ) : (
               <div
                 aria-hidden
-                className="inline-flex size-20 shrink-0 items-center justify-center rounded-3xl text-3xl font-bold text-white shadow-[0_8px_24px_-8px_rgba(30,142,132,0.55)] ring-1 ring-white/40 sm:size-24 sm:text-[2.25rem]"
+                className="inline-flex size-20 shrink-0 items-center justify-center rounded-3xl text-3xl font-bold text-white shadow-[0_8px_24px_-8px_rgba(225,29,39,0.55)] ring-1 ring-white/40 sm:size-24 sm:text-[2.25rem]"
                 style={{ backgroundImage: monogramGradient(f.cfarnr) }}
               >
                 {initialFor(name)}
@@ -219,7 +219,7 @@ export default async function ForetagPage({ params }: { params: Params }) {
             <div className="min-w-0 flex-1 space-y-3">
               <div className="flex flex-wrap items-center gap-2">
                 {featured && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full rd-brand-gradient px-2.5 py-1 text-[11px] font-semibold text-white shadow-[0_4px_10px_-4px_rgba(30,142,132,0.5)]">
+                  <span className="inline-flex items-center gap-1.5 rounded-full rd-brand-gradient px-2.5 py-1 text-[11px] font-semibold text-white shadow-[0_4px_10px_-4px_rgba(225,29,39,0.5)]">
                     <Sparkles className="size-3.5" aria-hidden />
                     Utvald
                   </span>

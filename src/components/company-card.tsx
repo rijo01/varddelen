@@ -64,7 +64,7 @@ export function CompanyCard({
         href={href}
         aria-hidden
         tabIndex={-1}
-        className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl text-lg font-bold text-white shadow-[0_4px_12px_-4px_rgba(30,142,132,0.5)] ring-1 ring-white/40 sm:size-14 sm:text-xl"
+        className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl text-lg font-bold text-white shadow-[0_4px_12px_-4px_rgba(225,29,39,0.5)] ring-1 ring-white/40 sm:size-14 sm:text-xl"
         style={{ backgroundImage: monogramGradient(foretag.cfarnr) }}
       >
         {initialFor(name)}

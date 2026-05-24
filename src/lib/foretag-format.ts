@@ -64,12 +64,12 @@ export function initialFor(rawName: string | null | undefined): string {
 
 /** Stabil gradient-färg per företag baserat på cfarnr (deterministisk). */
 export function monogramGradient(cfarnr: number): string {
-  // 4 fördefinierade gradienter i sage/teal-skalan — alla matchar Vårddelens brand
+  // 4 fördefinierade gradienter i röd-skalan — alla matchar Vårddelens brand
   const palettes = [
-    "linear-gradient(135deg, #9ad9c4 0%, #1E8E84 65%, #114842 100%)",
-    "linear-gradient(135deg, #5BC2A7 0%, #1E8E84 100%)",
-    "linear-gradient(135deg, #79CFB5 0%, #2A6E78 100%)",
-    "linear-gradient(135deg, #B8E5D5 0%, #2F8276 100%)",
+    "linear-gradient(135deg, #F87171 0%, #E11D27 65%, #8B0F1A 100%)",
+    "linear-gradient(135deg, #E11D27 0%, #C8102E 100%)",
+    "linear-gradient(135deg, #FCA5A5 0%, #DC2626 100%)",
+    "linear-gradient(135deg, #FECACA 0%, #B91C1C 100%)",
   ];
   return palettes[cfarnr % palettes.length] ?? palettes[0];
 }

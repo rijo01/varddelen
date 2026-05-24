@@ -8,6 +8,7 @@ import {
   searchForetag,
 } from "@/lib/queries";
 import { getBranschName } from "@/lib/branscher";
+import { getKategoriBySlug } from "@/lib/vard-kategorier";
 import { JsonLd, buildBreadcrumb } from "@/components/json-ld";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { SearchBar } from "@/components/search-bar";
@@ -23,6 +24,8 @@ type Search = Promise<{
   q?: string;
   kommun?: string;
   bransch?: string;
+  /** Kategori-slug från startsidans kort (vard-kategorier.ts). */
+  kategori?: string;
   aeantMin?: string;
   aeantMax?: string;
   page?: string;
@@ -57,6 +60,7 @@ export default async function SokPage({
   const ng1 = sp.bransch ? Number(sp.bransch) : undefined;
   const aeantMin = sp.aeantMin ? Number(sp.aeantMin) : undefined;
   const aeantMax = sp.aeantMax ? Number(sp.aeantMax) : undefined;
+  const kategori = sp.kategori ? getKategoriBySlug(sp.kategori) : null;
 
   const filterState: FilterState = {
     q: sp.q,
@@ -66,14 +70,23 @@ export default async function SokPage({
     aeantMax: sp.aeantMax,
   };
 
+  // Title för breadcrumb + JSON-LD speglar antingen sökord eller kategorinamn.
+  const pageLabel = query
+    ? `Sökresultat: ${query}`
+    : kategori
+      ? kategori.name
+      : "Sök";
   const breadcrumbItems = [
     { name: "Vårddelen", href: "/" },
-    { name: query ? `Sökresultat: ${query}` : "Sök" },
+    { name: pageLabel },
   ];
   const breadcrumbJsonLd = buildBreadcrumb([
     { name: "Vårddelen", url: SITE_URL },
-    { name: query ? `Sökresultat: ${query}` : "Sök", url: `${SITE_URL}/sok` },
+    { name: pageLabel, url: `${SITE_URL}/sok` },
   ]);
+
+  // Visa resultaten även när det inte finns query, så länge en kategori valts.
+  const showResults = Boolean(query) || Boolean(kategori);
 
   return (
     <div className="space-y-6">
@@ -87,17 +100,18 @@ export default async function SokPage({
         </Suspense>
       </div>
 
-      {!query ? (
+      {!showResults ? (
         <EmptyState />
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[16rem_1fr] lg:gap-8">
           <FilterPanel state={filterState} pathname="/sok" />
           <Suspense
-            key={`${query}|${sp.kommun ?? ""}|${ng1 ?? ""}|${aeantMin ?? ""}|${aeantMax ?? ""}|${sp.page ?? "1"}`}
-            fallback={<ResultsSkeleton query={query} />}
+            key={`${query}|${sp.kategori ?? ""}|${sp.kommun ?? ""}|${ng1 ?? ""}|${aeantMin ?? ""}|${aeantMax ?? ""}|${sp.page ?? "1"}`}
+            fallback={<ResultsSkeleton query={query || kategori?.name || ""} />}
           >
             <ResultsAsync
               query={query}
+              kategoriSlug={kategori?.slug ?? null}
               kommun={kommun}
               ng1={ng1}
               aeantMin={aeantMin}
@@ -114,6 +128,7 @@ export default async function SokPage({
 
 async function ResultsAsync({
   query,
+  kategoriSlug,
   kommun,
   ng1,
   aeantMin,
@@ -122,6 +137,7 @@ async function ResultsAsync({
   filterState,
 }: {
   query: string;
+  kategoriSlug: string | null;
   kommun: ReturnType<typeof kommunBySlug>;
   ng1?: number;
   aeantMin?: number;
@@ -130,10 +146,12 @@ async function ResultsAsync({
   filterState: FilterState;
 }) {
   const page = Math.max(1, Number(pageStr) || 1);
+  const kategori = kategoriSlug ? getKategoriBySlug(kategoriSlug) : null;
 
   const { rows, hasMore, matchedBransch } = await searchForetag(query, {
     kommun: kommun?.code,
     ng1,
+    ng1List: kategori?.ng1,
     aeantMin,
     aeantMax,
     page,
@@ -142,36 +160,49 @@ async function ResultsAsync({
 
   const branschName = ng1 ? await getBranschName(ng1) : null;
   const offset = (page - 1) * PAGE_SIZE;
+  // När vi browsar en kategori — visa kategorinamnet som rubrik istället för "".
+  const headerQuery = query || kategori?.name || "";
 
   return (
     <div className="min-w-0 space-y-5">
       <header className="rd-fade-up space-y-1">
         <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--brand-2)]">
-          Sökresultat
+          {kategori && !query ? "Kategori" : "Sökresultat"}
         </p>
         <h1 className="text-2xl font-semibold tracking-tight text-[var(--text-strong)] sm:text-[1.75rem]">
-          &ldquo;{query}&rdquo;
+          {query ? <>&ldquo;{headerQuery}&rdquo;</> : headerQuery}
         </h1>
         <p className="text-sm text-[var(--text-muted)]">
           {rows.length === 0
-            ? "Inga företag matchade din sökning."
-            : matchedBransch && !ng1
+            ? "Inga vårdföretag matchade."
+            : kategori && !query
               ? (
                 <>
-                  Visar företag inom{" "}
+                  Visar {rows.length} vårdföretag inom{" "}
                   <span className="font-medium text-[var(--text-strong)]">
-                    {matchedBransch}
+                    {kategori.name}
                   </span>
-                  {kommun ? ` i ${kommun.name}` : " i hela Sverige"}. Sorterat efter
-                  antal anställda.
+                  {kommun ? ` i ${kommun.name}` : " i hela Sverige"}. Sorterat
+                  efter poäng och antal anställda.
                 </>
               )
-              : (
-                <>
-                  Visar {rows.length} träff{rows.length === 1 ? "" : "ar"} (sida{" "}
-                  {page}). Sorterat efter antal anställda.
-                </>
-              )}
+              : matchedBransch && !ng1
+                ? (
+                  <>
+                    Visar företag inom{" "}
+                    <span className="font-medium text-[var(--text-strong)]">
+                      {matchedBransch}
+                    </span>
+                    {kommun ? ` i ${kommun.name}` : " i hela Sverige"}. Sorterat efter
+                    antal anställda.
+                  </>
+                )
+                : (
+                  <>
+                    Visar {rows.length} träff{rows.length === 1 ? "" : "ar"} (sida{" "}
+                    {page}). Sorterat efter antal anställda.
+                  </>
+                )}
         </p>
       </header>
 

@@ -79,8 +79,8 @@ export default async function KommunPage({ params }: { params: Params }) {
           className="pointer-events-none absolute inset-0 -z-0"
           style={{
             background:
-              "radial-gradient(ellipse 80% 60% at 0% 0%, rgba(91,194,167,0.16), transparent 65%),"
-              + "linear-gradient(180deg, #f6fcf9 0%, #ffffff 70%)",
+              "radial-gradient(ellipse 80% 60% at 0% 0%, rgba(225,29,39,0.10), transparent 65%),"
+              + "linear-gradient(180deg, #FFF5F5 0%, #ffffff 70%)",
           }}
         />
         <div
