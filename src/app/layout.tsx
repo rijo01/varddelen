@@ -130,6 +130,14 @@ export default function RootLayout({
                     Fritextsök
                   </a>
                 </li>
+                <li>
+                  <a
+                    href="/kontakt"
+                    className="text-[var(--text-body)] hover:text-[var(--brand-ink)]"
+                  >
+                    Kontakta oss
+                  </a>
+                </li>
               </ul>
             </div>
             <div className="space-y-2">

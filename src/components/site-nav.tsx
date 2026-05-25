@@ -97,7 +97,7 @@ export function SiteNav() {
             <NavLink href="/sok" label="Sök verksamhet" current={pathname === "/sok"} />
             <NavLink href="#" label="För verksamheter" current={false} />
             <NavLink href="#" label="Nyheter & artiklar" current={false} />
-            <NavLink href="#" label="Om oss" current={false} />
+            <NavLink href="/kontakt" label="Kontakta oss" current={pathname === "/kontakt"} />
           </nav>
 
           {/* Höger: språkväljare + login + anslut */}
