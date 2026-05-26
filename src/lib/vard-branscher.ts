@@ -22,7 +22,7 @@ export const VARD_BRANSCHER: readonly number[] = [
   87902, // Heldygnsvård med boende för vuxna med missbruksproblem
   87202, // Boende för personer med fysiska funktionshinder
   86230, // Tandläkarverksamhet
-  86904, // Verksamhet utförd av kuratorer, psykologer och psykoterapeuter
+  86904, // Tandläkare (DB t_bransch.beskrivning — folktandvården m.fl. ligger här)
   86211, // Specialistläkarverksamhet vid sjukhus
   86212, // Specialistläkarverksamhet, ej vid sjukhus
   86905, // Sluten sjukvård, ej på sjukhus
@@ -30,18 +30,22 @@ export const VARD_BRANSCHER: readonly number[] = [
   86102, // Specialiserad slutenvård
   86903, // Medicinsk laboratorieverksamhet m.m.
   86103, // Rehabilitering på sjukhus
-  84123, // Offentlig förvaltning av vård och omsorg
   86222, // Specialistläkarverksamhet inom hudsjukvård
   86221, // Specialistläkarverksamhet inom kirurgi
   87302, // Vård och omsorg i särskilda boendeformer för funktionshindrade
   88910, // Dagbarnvård och förskoleverksamhet (omsorg)
-  84124, // Offentlig förvaltning av utbildning, kultur och socialt skydd
   86902, // Verksamhet utförd av sjukgymnaster
   // Borttagna 2026-05-24 — båda labeled "Kroppsvård" i t_bransch
   // (gym/massage/frisör/solarium), hör inte hemma i en vårdkatalog:
   //   - branschid 96040
   //   - branschid 85510 (SCB-namn är "Sport- och fritidsutbildning" men i
   //     denna DB ligger samma typ av skönhetsverksamhet som 96040 här)
+  // Borttagna 2026-05-26 — offentlig förvaltning, inte vårdgivare:
+  //   - 84123  Offentlig förvaltning av vård och omsorg
+  //            (drog in landsting/kommuner som "vårdföretag" — Malmö kommun,
+  //            Västra Götalands läns landsting m.fl.)
+  //   - 84124  Offentlig förvaltning av utbildning, kultur och socialt skydd
+  //            (drog in Stockholms kommun 1 602 anst som "vårdföretag")
   2,     // Företagshälsovård (verifierat via t_bransch)
   56293, // Catering för catering till äldreomsorg m.m.
   47730, // Apotek

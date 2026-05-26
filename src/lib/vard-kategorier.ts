@@ -34,9 +34,9 @@ export const VARD_KATEGORIER: ReadonlyArray<VardKategori> = [
     name: "Hälso- & sjukvård",
     description: "Vårdcentraler, specialistläkare, sjukgymnaster, slutenvård",
     // 86909, 86905, 86212, 86222, 86211, 86903, 86102, 86103, 86221, 86902 = läkare/sjukvård/rehab
-    // 84123 = offentlig förvaltning av vård, 2 = företagshälsovård
-    ng1: [86909, 86905, 86212, 86222, 86211, 86903, 86102, 86103, 86221, 86902, 84123, 2],
-    count: 20887,
+    // 2 = företagshälsovård
+    ng1: [86909, 86905, 86212, 86222, 86211, 86903, 86102, 86103, 86221, 86902, 2],
+    count: 22010,
     icon: Stethoscope,
   },
   {
@@ -44,9 +44,9 @@ export const VARD_KATEGORIER: ReadonlyArray<VardKategori> = [
     name: "LSS & funktionshinder",
     description: "Boende & stöd för personer med funktionshinder",
     // 87201 = utvecklingsstörda LSS, 87202 = fysiska, 87203 = psykiska
-    // 87302 = särskilda boendeformer funktionshindrade, 84124 = admin omsorg
-    ng1: [87201, 87202, 87203, 87302, 84124],
-    count: 4817,
+    // 87302 = särskilda boendeformer funktionshindrade
+    ng1: [87201, 87202, 87203, 87302],
+    count: 4551,
     icon: Accessibility,
   },
   {
@@ -54,7 +54,7 @@ export const VARD_KATEGORIER: ReadonlyArray<VardKategori> = [
     name: "Tandvård",
     description: "Tandläkare, tandhygienister, specialisttandvård",
     ng1: [86230, 86904],
-    count: 4011,
+    count: 4275,
     icon: Smile,
   },
   {
@@ -64,7 +64,7 @@ export const VARD_KATEGORIER: ReadonlyArray<VardKategori> = [
     // 87901 = barn/ungdom heldygn, 87902 = vuxen missbruk heldygn
     // 88991 = öppna insatser missbruk, 88992 = övriga öppna insatser
     ng1: [87901, 87902, 88991, 88992],
-    count: 1376,
+    count: 1291,
     icon: Home,
   },
   {
@@ -72,7 +72,7 @@ export const VARD_KATEGORIER: ReadonlyArray<VardKategori> = [
     name: "Apotek & medicinsk handel",
     description: "Apotek, sjukvårdsartiklar, medicinsk grossist",
     ng1: [47730, 47740, 46460],
-    count: 1032,
+    count: 2070,
     icon: Pill,
   },
   {
