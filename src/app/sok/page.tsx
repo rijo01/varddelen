@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { ArrowLeft, ArrowRight, Search } from "lucide-react";
 import { kommunByCode, kommunBySlug } from "@/lib/kommuner";
+import { lanBySlug } from "@/lib/lan";
 import {
   branschPageSlug,
   searchForetag,
@@ -23,6 +24,8 @@ const PAGE_SIZE = 25;
 type Search = Promise<{
   q?: string;
   kommun?: string;
+  lan?: string;
+  postort?: string;
   bransch?: string;
   /** Kategori-slug från startsidans kort (vard-kategorier.ts). */
   kategori?: string;
@@ -57,6 +60,8 @@ export default async function SokPage({
   const sp = await searchParams;
   const query = (sp.q ?? "").trim();
   const kommun = sp.kommun ? kommunBySlug(sp.kommun) : undefined;
+  const lan = sp.lan ? lanBySlug(sp.lan) : undefined;
+  const postort = sp.postort?.trim() || undefined;
   const ng1 = sp.bransch ? Number(sp.bransch) : undefined;
   const aeantMin = sp.aeantMin ? Number(sp.aeantMin) : undefined;
   const aeantMax = sp.aeantMax ? Number(sp.aeantMax) : undefined;
@@ -64,7 +69,10 @@ export default async function SokPage({
 
   const filterState: FilterState = {
     q: sp.q,
+    kategori: sp.kategori,
     kommun: sp.kommun,
+    lan: sp.lan,
+    postort: sp.postort,
     bransch: sp.bransch,
     aeantMin: sp.aeantMin,
     aeantMax: sp.aeantMax,
@@ -106,13 +114,15 @@ export default async function SokPage({
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[16rem_1fr] lg:gap-8">
           <FilterPanel state={filterState} pathname="/sok" />
           <Suspense
-            key={`${query}|${sp.kategori ?? ""}|${sp.kommun ?? ""}|${ng1 ?? ""}|${aeantMin ?? ""}|${aeantMax ?? ""}|${sp.page ?? "1"}`}
+            key={`${query}|${sp.kategori ?? ""}|${sp.kommun ?? ""}|${sp.lan ?? ""}|${sp.postort ?? ""}|${ng1 ?? ""}|${aeantMin ?? ""}|${aeantMax ?? ""}|${sp.page ?? "1"}`}
             fallback={<ResultsSkeleton query={query || kategori?.name || ""} />}
           >
             <ResultsAsync
               query={query}
               kategoriSlug={kategori?.slug ?? null}
               kommun={kommun}
+              lan={lan}
+              postort={postort}
               ng1={ng1}
               aeantMin={aeantMin}
               aeantMax={aeantMax}
@@ -130,6 +140,8 @@ async function ResultsAsync({
   query,
   kategoriSlug,
   kommun,
+  lan,
+  postort,
   ng1,
   aeantMin,
   aeantMax,
@@ -139,6 +151,8 @@ async function ResultsAsync({
   query: string;
   kategoriSlug: string | null;
   kommun: ReturnType<typeof kommunBySlug>;
+  lan: ReturnType<typeof lanBySlug>;
+  postort?: string;
   ng1?: number;
   aeantMin?: number;
   aeantMax?: number;
@@ -150,6 +164,8 @@ async function ResultsAsync({
 
   const { rows, hasMore, matchedBransch } = await searchForetag(query, {
     kommun: kommun?.code,
+    lan: lan?.code,
+    postort,
     ng1,
     ng1List: kategori?.ng1,
     aeantMin,
@@ -157,6 +173,15 @@ async function ResultsAsync({
     page,
     pageSize: PAGE_SIZE,
   });
+
+  // Header-text för geo-filter: kommun > postort > lan (matchar applyGeoFilter mutex).
+  const geoLabel = kommun
+    ? ` i ${kommun.name}`
+    : postort
+      ? ` i ${postort}`
+      : lan
+        ? ` i ${lan.name}s län`
+        : " i hela Sverige";
 
   const branschName = ng1 ? await getBranschName(ng1) : null;
   const offset = (page - 1) * PAGE_SIZE;
@@ -182,7 +207,7 @@ async function ResultsAsync({
                   <span className="font-medium text-[var(--text-strong)]">
                     {kategori.name}
                   </span>
-                  {kommun ? ` i ${kommun.name}` : " i hela Sverige"}. Sorterat
+                  {geoLabel}. Sorterat
                   efter poäng och antal anställda.
                 </>
               )
@@ -193,7 +218,7 @@ async function ResultsAsync({
                     <span className="font-medium text-[var(--text-strong)]">
                       {matchedBransch}
                     </span>
-                    {kommun ? ` i ${kommun.name}` : " i hela Sverige"}. Sorterat efter
+                    {geoLabel}. Sorterat efter
                     antal anställda.
                   </>
                 )

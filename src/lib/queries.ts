@@ -1,6 +1,28 @@
 import { getSupabaseAnon } from "./supabase";
 import { branschSlug } from "./branscher";
 import { VARD_BRANSCHER, VARD_BRANSCHER_SET } from "./vard-branscher";
+import { kommunCodesForLan } from "./lan";
+
+type GeoFilter = { kommun?: string; postort?: string; lan?: string };
+
+/**
+ * Applicera geo-filter på en query-builder. Mutex — bara ett filter appliceras.
+ * Prioritet (mest specifik vinner): kommun > postort > lan.
+ *
+ *   lan → .in("kommun", [alla kommuner i länet]) via kommuner.ts-mappningen.
+ *     DB:s lan-kolumn har data-dirt (samma kommun har 2-4 olika lan-värden +
+ *     NULL-rader), så vi går via auktoritativa SCB-koden i kommuner.ts.
+ *     Bonus: använder existerande (kommun, ng1, aeant DESC)-index direkt.
+ */
+function applyGeoFilter<T>(q: T, opts: GeoFilter): T {
+  if (opts.kommun) return (q as unknown as { eq(c: string, v: string): T }).eq("kommun", opts.kommun);
+  if (opts.postort) return (q as unknown as { ilike(c: string, v: string): T }).ilike("postort", opts.postort);
+  if (opts.lan) {
+    const codes = kommunCodesForLan(opts.lan);
+    if (codes.length > 0) return (q as unknown as { in(c: string, v: string[]): T }).in("kommun", codes);
+  }
+  return q;
+}
 
 /**
  * Datalager. Alla anrop går mot vyn `foretag_publik` via anon-nyckeln.
@@ -349,6 +371,8 @@ export async function searchForetag(
   query: string,
   opts: {
     kommun?: string;
+    lan?: string;
+    postort?: string;
     ng1?: number;
     /**
      * Lista av ng1 (för kategori-sök från startsidan). Måste vara en delmängd
@@ -405,7 +429,7 @@ export async function searchForetag(
  */
 async function runKategoriBrowse(
   ng1List: readonly number[],
-  opts: { kommun?: string; aeantMin?: number; aeantMax?: number },
+  opts: { kommun?: string; lan?: string; postort?: string; aeantMin?: number; aeantMax?: number },
   page: number,
   pageSize: number,
   from: number,
@@ -419,13 +443,13 @@ async function runKategoriBrowse(
 }> {
   const supa = getSupabaseAnon();
   // Använd aeant >= 2 av samma index-skäl som ng1.in()-queryn i runBranschSearch.
-  const minAeant = Math.max(2, opts.aeantMin ?? 2);
+  const minAeant = Math.max(0, opts.aeantMin ?? 0);
   let q = supa
     .from(VIEW)
     .select(COLUMNS_LIST)
     .in("ng1", ng1List as number[])
     .gte("aeant", minAeant);
-  if (opts.kommun) q = q.eq("kommun", opts.kommun);
+  q = applyGeoFilter(q, opts);
   if (opts.aeantMax && opts.aeantMax > 0) q = q.lte("aeant", opts.aeantMax);
   const { data, error } = await q
     .order("poang", { ascending: false, nullsFirst: false })
@@ -452,6 +476,8 @@ async function runBranschSearch(
   branschInfo: { ids: number[]; primaryName: string | null },
   opts: {
     kommun?: string;
+    lan?: string;
+    postort?: string;
     aeantMin?: number;
     aeantMax?: number;
   },
@@ -468,13 +494,13 @@ async function runBranschSearch(
 }> {
   // Bransch-queryn kräver aeant >= 2 för att hålla sig inom partial-indexet
   // och svara snabbt. Användarens aeantMin höjs vid behov.
-  const branschMin = Math.max(2, opts.aeantMin ?? 2);
+  const branschMin = Math.max(0, opts.aeantMin ?? 0);
 
   const supa = getSupabaseAnon();
   // Bransch-uppslaget ger redan ids från vård-whitelist (findBranschIdsForQuery
   // filtrerar mot VARD_BRANSCHER), men vi dubbel-konstraint:ar för säkerhet.
   let qA = supa.from(VIEW).select(COLUMNS_LIST).in("ng1", branschInfo.ids);
-  if (opts.kommun) qA = qA.eq("kommun", opts.kommun);
+  qA = applyGeoFilter(qA, opts);
   qA = qA.gte("aeant", branschMin);
   if (opts.aeantMax && opts.aeantMax > 0) qA = qA.lte("aeant", opts.aeantMax);
   const branschQuery = qA
@@ -495,11 +521,11 @@ async function runBranschSearch(
           .select(COLUMNS_LIST)
           .textSearch("search_vector", cleaned, {
             type: "websearch",
-            config: "swedish",
+            config: "swedish_unaccent",
           })
           .in("ng1", VARD_BRANSCHER);
-        if (opts.kommun) qB = qB.eq("kommun", opts.kommun);
-        const nameMin = Math.max(1, opts.aeantMin ?? 1);
+        qB = applyGeoFilter(qB, opts);
+        const nameMin = Math.max(0, opts.aeantMin ?? 0);
         qB = qB.gte("aeant", nameMin);
         if (opts.aeantMax && opts.aeantMax > 0) qB = qB.lte("aeant", opts.aeantMax);
         return qB
@@ -568,7 +594,7 @@ async function runBranschSearch(
 
 async function runTextSearch(
   cleaned: string,
-  opts: { kommun?: string; ng1?: number; aeantMin?: number; aeantMax?: number },
+  opts: { kommun?: string; lan?: string; postort?: string; ng1?: number; aeantMin?: number; aeantMax?: number },
   page: number,
   pageSize: number,
   from: number,
@@ -587,13 +613,13 @@ async function runTextSearch(
     .select(COLUMNS_LIST)
     .textSearch("search_vector", cleaned, {
       type: "websearch",
-      config: "swedish",
+      config: "swedish_unaccent",
     })
     .in("ng1", VARD_BRANSCHER);
-  if (opts.kommun) q = q.eq("kommun", opts.kommun);
+  q = applyGeoFilter(q, opts);
   // Användarens ng1-filter måste också ligga inom vård-whitelist.
   if (opts.ng1 && VARD_BRANSCHER_SET.has(opts.ng1)) q = q.eq("ng1", opts.ng1);
-  q = q.gte("aeant", Math.max(1, opts.aeantMin ?? 1));
+  q = q.gte("aeant", Math.max(0, opts.aeantMin ?? 0));
   if (opts.aeantMax && opts.aeantMax > 0) q = q.lte("aeant", opts.aeantMax);
 
   const textQuery = q
@@ -764,7 +790,7 @@ export async function listSokordForCfarnr(cfarnr: number): Promise<string[]> {
  */
 async function fetchByCfarnrs(
   cfarnrs: number[],
-  opts: { kommun?: string; aeantMin?: number; aeantMax?: number },
+  opts: { kommun?: string; lan?: string; postort?: string; aeantMin?: number; aeantMax?: number },
 ): Promise<Partial<PublikRow>[]> {
   if (cfarnrs.length === 0) return [];
   const supa = getSupabaseAnon();
@@ -773,7 +799,7 @@ async function fetchByCfarnrs(
     .select(COLUMNS_LIST)
     .in("cfarnr", cfarnrs)
     .in("ng1", VARD_BRANSCHER);
-  if (opts.kommun) q = q.eq("kommun", opts.kommun);
+  q = applyGeoFilter(q, opts);
   if (opts.aeantMin && opts.aeantMin > 0) q = q.gte("aeant", opts.aeantMin);
   if (opts.aeantMax && opts.aeantMax > 0) q = q.lte("aeant", opts.aeantMax);
   const { data, error } = await q

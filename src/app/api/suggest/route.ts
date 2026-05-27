@@ -131,7 +131,7 @@ export async function GET(req: Request) {
       .select("cfarnr,firma,namn,postort,kommun,aeant")
       .textSearch("search_vector", raw, {
         type: "websearch",
-        config: "swedish",
+        config: "swedish_unaccent",
       })
       .in("ng1", VARD_BRANSCHER)
       .gte("aeant", 0)

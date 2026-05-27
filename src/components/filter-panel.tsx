@@ -5,7 +5,10 @@ import { TOP_BRANSCHER } from "@/lib/stats";
 
 export type FilterState = {
   q?: string;
+  kategori?: string;
   kommun?: string;
+  lan?: string;
+  postort?: string;
   bransch?: string;
   aeantMin?: string;
   aeantMax?: string;
@@ -91,7 +94,15 @@ export function FilterPanel({
             </h2>
             {hasAnyFilter && (
               <Link
-                href={pathname + (state.q ? `?q=${encodeURIComponent(state.q)}` : "")}
+                href={buildHref(pathname, state, {
+                kommun: null,
+                lan: null,
+                postort: null,
+                bransch: null,
+                aeantMin: null,
+                aeantMax: null,
+                page: null,
+              })}
                 className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--text-muted)] hover:text-[var(--brand-ink)]"
               >
                 Rensa
@@ -223,8 +234,15 @@ function FilterBody({
         icon={<MapPin className="size-3.5" aria-hidden />}
       >
         <form action={pathname} method="GET" className="space-y-2">
-          {/* Behåll övriga params via hidden inputs */}
+          {/* Behåll övriga params via hidden inputs. Vi släpper lan/postort
+              här — att välja en specifik kommun ska medvetet smala in från
+              ett bredare län-/postort-filter (kommun > postort > lan mutex).
+              Kategori bevaras däremot — kategori-browse ska kunna kombineras
+              med kommun-val. */}
           {state.q && <input type="hidden" name="q" value={state.q} />}
+          {state.kategori && (
+            <input type="hidden" name="kategori" value={state.kategori} />
+          )}
           {state.bransch && (
             <input type="hidden" name="bransch" value={state.bransch} />
           )}
