@@ -15,10 +15,10 @@ import { Breadcrumb } from "@/components/breadcrumb";
 import { SearchBar } from "@/components/search-bar";
 import { CompanyCard, CompanyCardList } from "@/components/company-card";
 import { FilterPanel, buildHref, type FilterState } from "@/components/filter-panel";
+import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://varddelen.se";
 const PAGE_SIZE = 25;
 
 type Search = Promise<{
@@ -48,6 +48,7 @@ export async function generateMetadata({
     title,
     description:
       "Sök bland Sveriges vårdföretag — tandläkare, behandlingshem, apotek, specialistläkare och omsorg. Filtrera på kommun, bransch och antal anställda.",
+    alternates: { canonical: `${SITE_URL}/sok` },
     robots: { index: false, follow: true },
   };
 }

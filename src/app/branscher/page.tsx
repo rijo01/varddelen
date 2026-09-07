@@ -4,10 +4,10 @@ import { ArrowRight, Layers } from "lucide-react";
 import { TOP_BRANSCHER, TOTAL_BRANSCHER, TOTAL_FORETAG } from "@/lib/stats";
 import { JsonLd, buildBreadcrumb } from "@/components/json-ld";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 86400;
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://varddelen.se";
 const fmt = (n: number) => n.toLocaleString("sv-SE");
 
 export const metadata: Metadata = {

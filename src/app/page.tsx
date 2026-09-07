@@ -5,10 +5,9 @@ import { SearchBar } from "@/components/search-bar";
 import { JsonLd } from "@/components/json-ld";
 import { TOTAL_FORETAG, TOTAL_KOMMUNER, TOTAL_BRANSCHER } from "@/lib/stats";
 import { VARD_KATEGORIER } from "@/lib/vard-kategorier";
+import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 86400;
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://varddelen.se";
 
 const POPULAR_SEARCHES = [
   { label: "HVB-hem", href: "/sok?kategori=hvb" },

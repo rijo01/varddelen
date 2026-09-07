@@ -14,10 +14,10 @@ import { JsonLd, buildBreadcrumb } from "@/components/json-ld";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { kommunForetagCount } from "@/lib/stats";
 import { CompanyCard, CompanyCardList } from "@/components/company-card";
+import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 86400;
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://varddelen.se";
 const fmt = (n: number) => n.toLocaleString("sv-SE");
 
 type Params = Promise<{ slug: string }>;

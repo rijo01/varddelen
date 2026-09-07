@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next";
 import { ALL_KOMMUNER } from "@/lib/kommuner";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://varddelen.se";
+import { SITE_URL } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

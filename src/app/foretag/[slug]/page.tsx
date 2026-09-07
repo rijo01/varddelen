@@ -42,10 +42,9 @@ import {
 } from "@/lib/foretag-format";
 import { isPersonalOrgnr } from "@/lib/jurform";
 import { sanitizeInfotext, safeLogotypUrl } from "@/lib/sanitize-html";
+import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 86400;
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://varddelen.se";
 
 type Params = Promise<{ slug: string }>;
 

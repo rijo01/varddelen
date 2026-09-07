@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { Heart } from "lucide-react";
 import "./globals.css";
 import { SiteNav, MobileBottomNav } from "@/components/site-nav";
+import { SITE_URL } from "@/lib/site";
 
 function HeartIcon() {
   return (
@@ -30,8 +31,6 @@ const instrumentSerif = Instrument_Serif({
   style: ["normal", "italic"],
   subsets: ["latin"],
 });
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://varddelen.se";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

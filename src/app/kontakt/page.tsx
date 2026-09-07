@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { JsonLd, buildBreadcrumb } from "@/components/json-ld";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 86400;
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://varddelen.se";
 
 const PHONE_DISPLAY = "031-130 970";
 const PHONE_TEL = "+4631130970";
