@@ -321,6 +321,21 @@ const RAW: Array<[string, string]> = [
   ["2584", "Kiruna"],
 ];
 
+/**
+ * Slug-undantag där makeSlug() kolliderar.
+ *
+ * Håbo (0305) och Habo (0643) blir båda "habo" när å viks till a. Innan detta
+ * undantag fanns vann Habo uppslaget (sist in i BY_SLUG-mappen) och Håbo hade
+ * ingen nåbar URL alls — /kommun/habo serverade Habos företag under Håbos namn,
+ * och båda kommunernas sidor pekade sin canonical på samma URL.
+ *
+ * Habo behåller därför "habo" (den URL som redan är live och kan vara indexerad)
+ * och Håbo får en egen. Nyckeln är SCB-koden, inte namnet.
+ */
+const SLUG_OVERRIDE: Record<string, string> = {
+  "0305": "habo-uppsala-lan",
+};
+
 // Bygg slutgiltig lista. Vi droppar duplikatet ovan (Heby finns redan på 0331).
 const seenCodes = new Set<string>();
 const KOMMUNER: Kommun[] = [];
@@ -332,9 +347,27 @@ for (const [scb, name] of RAW) {
     code,
     scbCode: scb,
     name,
-    slug: makeSlug(name),
+    slug: SLUG_OVERRIDE[scb] ?? makeSlug(name),
     lan: scb.slice(0, 2).replace(/^0+/, "") || "0",
   });
+}
+
+/**
+ * Två kommuner får aldrig dela slug — den ena blir då osynlig och båda
+ * canonicalar till samma URL. Kastar hellre vid build än läcker i produktion.
+ */
+{
+  const bySlug = new Map<string, string>();
+  for (const k of KOMMUNER) {
+    const forra = bySlug.get(k.slug);
+    if (forra) {
+      throw new Error(
+        `Kommun-slug-kollision: "${k.slug}" delas av ${forra} och ${k.name} ` +
+          `(${k.scbCode}). Lägg till ett undantag i SLUG_OVERRIDE.`,
+      );
+    }
+    bySlug.set(k.slug, k.name);
+  }
 }
 
 export const ALL_KOMMUNER: ReadonlyArray<Kommun> = KOMMUNER;

@@ -12,6 +12,7 @@ import { JsonLd, buildBreadcrumb } from "@/components/json-ld";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { CompanyCard, CompanyCardList } from "@/components/company-card";
 import { SITE_URL } from "@/lib/site";
+import { robotsForHub } from "@/lib/indexability";
 
 export const revalidate = 86400;
 
@@ -39,6 +40,9 @@ export async function generateMetadata({
       canonical: `${SITE_URL}/kommun/${kommun.slug}/${bransch}`,
     },
     openGraph: { title, description, type: "website", locale: "sv_SE" },
+    // Hubbgrind: under 5 listade företag är sidan en omväg, inte ett urval.
+    // noindex,follow — sidan lever kvar, länkflödet också. Se lib/indexability.ts.
+    ...robotsForHub(kommun.code, ng1),
   };
 }
 

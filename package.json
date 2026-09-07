@@ -4,8 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "build:index": "node scripts/build-index-set.mjs",
+    "prebuild": "node scripts/check-sitemap-noindex.mjs",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "verify:sitemap": "node scripts/verify-sitemap-live.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

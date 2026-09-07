@@ -43,6 +43,7 @@ import {
 import { isPersonalOrgnr } from "@/lib/jurform";
 import { sanitizeInfotext, safeLogotypUrl } from "@/lib/sanitize-html";
 import { SITE_URL } from "@/lib/site";
+import { robotsForForetag } from "@/lib/indexability";
 
 export const revalidate = 86400;
 
@@ -69,6 +70,9 @@ export async function generateMetadata({
     description,
     alternates: { canonical: `${SITE_URL}/foretag/${slug}` },
     openGraph: { title, description, type: "website", locale: "sv_SE" },
+    // Substansgrind: utan beskrivning, tjänstelista eller verifierad kontakt är
+    // sidan en registerrad — mätt 20 unika ord mot mallen. noindex,follow.
+    ...robotsForForetag(cfarnr),
   };
 }
 

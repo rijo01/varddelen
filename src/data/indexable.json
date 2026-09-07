@@ -1,0 +1,5948 @@
+{
+ "generated_at": "2026-09-07T11:33:13.793Z",
+ "rules": {
+  "hub_min_foretag": 5,
+  "infotext_min_ord": 20,
+  "sokord_min": 3,
+  "verifierad_kontakt": [
+   "webb",
+   "epostadress",
+   "kontaktperson",
+   "logotyp",
+   "poang>0"
+  ]
+ },
+ "counts": {
+  "foretag_totalt": 35528,
+  "foretag_indexerbara": 737,
+  "hub_totalt": 4084,
+  "hub_med_listade_rader": 4047,
+  "hub_indexerbara": 1296,
+  "hub_utan_branschnamn": 0
+ },
+ "hubs": [
+  [
+   "1440|87201",
+   "/kommun/ale/behandlingshem-87201"
+  ],
+  [
+   "1440|86211",
+   "/kommun/ale/halso-sjukvard-86211"
+  ],
+  [
+   "1440|86905",
+   "/kommun/ale/halso-sjukvard-86905"
+  ],
+  [
+   "1440|86909",
+   "/kommun/ale/halso-sjukvard-86909"
+  ],
+  [
+   "1440|86230",
+   "/kommun/ale/tandlakare-86230"
+  ],
+  [
+   "1489|47730",
+   "/kommun/alingsas/apotek-47730"
+  ],
+  [
+   "1489|87201",
+   "/kommun/alingsas/behandlingshem-87201"
+  ],
+  [
+   "1489|86212",
+   "/kommun/alingsas/halso-sjukvard-86212"
+  ],
+  [
+   "1489|86905",
+   "/kommun/alingsas/halso-sjukvard-86905"
+  ],
+  [
+   "1489|86909",
+   "/kommun/alingsas/halso-sjukvard-86909"
+  ],
+  [
+   "1489|46460",
+   "/kommun/alingsas/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1489|86230",
+   "/kommun/alingsas/tandlakare-86230"
+  ],
+  [
+   "765|86905",
+   "/kommun/almhult/halso-sjukvard-86905"
+  ],
+  [
+   "765|86909",
+   "/kommun/almhult/halso-sjukvard-86909"
+  ],
+  [
+   "2039|86905",
+   "/kommun/alvdalen/halso-sjukvard-86905"
+  ],
+  [
+   "764|87201",
+   "/kommun/alvesta/behandlingshem-87201"
+  ],
+  [
+   "319|86905",
+   "/kommun/alvkarleby/halso-sjukvard-86905"
+  ],
+  [
+   "2560|87201",
+   "/kommun/alvsbyn/behandlingshem-87201"
+  ],
+  [
+   "1492|87201",
+   "/kommun/amal/behandlingshem-87201"
+  ],
+  [
+   "1492|86905",
+   "/kommun/amal/halso-sjukvard-86905"
+  ],
+  [
+   "1492|86909",
+   "/kommun/amal/halso-sjukvard-86909"
+  ],
+  [
+   "604|86212",
+   "/kommun/aneby/halso-sjukvard-86212"
+  ],
+  [
+   "2260|86905",
+   "/kommun/ange/halso-sjukvard-86905"
+  ],
+  [
+   "1292|87100",
+   "/kommun/angelholm/behandlingshem-87100"
+  ],
+  [
+   "1292|87201",
+   "/kommun/angelholm/behandlingshem-87201"
+  ],
+  [
+   "1292|86212",
+   "/kommun/angelholm/halso-sjukvard-86212"
+  ],
+  [
+   "1292|86903",
+   "/kommun/angelholm/halso-sjukvard-86903"
+  ],
+  [
+   "1292|86905",
+   "/kommun/angelholm/halso-sjukvard-86905"
+  ],
+  [
+   "1292|86909",
+   "/kommun/angelholm/halso-sjukvard-86909"
+  ],
+  [
+   "1292|46460",
+   "/kommun/angelholm/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1292|86222",
+   "/kommun/angelholm/specialistlakare-86222"
+  ],
+  [
+   "1292|86230",
+   "/kommun/angelholm/tandlakare-86230"
+  ],
+  [
+   "1984|87201",
+   "/kommun/arboga/behandlingshem-87201"
+  ],
+  [
+   "1984|86905",
+   "/kommun/arboga/halso-sjukvard-86905"
+  ],
+  [
+   "1984|86230",
+   "/kommun/arboga/tandlakare-86230"
+  ],
+  [
+   "2321|87901",
+   "/kommun/are/behandlingshem-87901"
+  ],
+  [
+   "2321|86212",
+   "/kommun/are/halso-sjukvard-86212"
+  ],
+  [
+   "2321|86905",
+   "/kommun/are/halso-sjukvard-86905"
+  ],
+  [
+   "2321|86909",
+   "/kommun/are/halso-sjukvard-86909"
+  ],
+  [
+   "1765|88910",
+   "/kommun/arjang/dagbarnvard-88910"
+  ],
+  [
+   "2505|87201",
+   "/kommun/arvidsjaur/behandlingshem-87201"
+  ],
+  [
+   "1784|87201",
+   "/kommun/arvika/behandlingshem-87201"
+  ],
+  [
+   "1784|86212",
+   "/kommun/arvika/halso-sjukvard-86212"
+  ],
+  [
+   "1784|86905",
+   "/kommun/arvika/halso-sjukvard-86905"
+  ],
+  [
+   "1784|86909",
+   "/kommun/arvika/halso-sjukvard-86909"
+  ],
+  [
+   "1784|86230",
+   "/kommun/arvika/tandlakare-86230"
+  ],
+  [
+   "1882|87201",
+   "/kommun/askersund/behandlingshem-87201"
+  ],
+  [
+   "1882|86905",
+   "/kommun/askersund/halso-sjukvard-86905"
+  ],
+  [
+   "1882|86909",
+   "/kommun/askersund/halso-sjukvard-86909"
+  ],
+  [
+   "1882|86230",
+   "/kommun/askersund/tandlakare-86230"
+  ],
+  [
+   "1277|86905",
+   "/kommun/astorp/halso-sjukvard-86905"
+  ],
+  [
+   "561|87201",
+   "/kommun/atvidaberg/behandlingshem-87201"
+  ],
+  [
+   "561|86905",
+   "/kommun/atvidaberg/halso-sjukvard-86905"
+  ],
+  [
+   "2084|87201",
+   "/kommun/avesta/behandlingshem-87201"
+  ],
+  [
+   "2084|86212",
+   "/kommun/avesta/halso-sjukvard-86212"
+  ],
+  [
+   "2084|86905",
+   "/kommun/avesta/halso-sjukvard-86905"
+  ],
+  [
+   "2084|86909",
+   "/kommun/avesta/halso-sjukvard-86909"
+  ],
+  [
+   "2084|86230",
+   "/kommun/avesta/tandlakare-86230"
+  ],
+  [
+   "1278|86212",
+   "/kommun/bastad/halso-sjukvard-86212"
+  ],
+  [
+   "1278|86905",
+   "/kommun/bastad/halso-sjukvard-86905"
+  ],
+  [
+   "1278|86909",
+   "/kommun/bastad/halso-sjukvard-86909"
+  ],
+  [
+   "1278|86222",
+   "/kommun/bastad/specialistlakare-86222"
+  ],
+  [
+   "1278|86230",
+   "/kommun/bastad/tandlakare-86230"
+  ],
+  [
+   "1460|86905",
+   "/kommun/bengtsfors/halso-sjukvard-86905"
+  ],
+  [
+   "1260|86905",
+   "/kommun/bjuv/halso-sjukvard-86905"
+  ],
+  [
+   "2582|87201",
+   "/kommun/boden/behandlingshem-87201"
+  ],
+  [
+   "2582|86211",
+   "/kommun/boden/halso-sjukvard-86211"
+  ],
+  [
+   "2582|86212",
+   "/kommun/boden/halso-sjukvard-86212"
+  ],
+  [
+   "2582|86905",
+   "/kommun/boden/halso-sjukvard-86905"
+  ],
+  [
+   "2582|86909",
+   "/kommun/boden/halso-sjukvard-86909"
+  ],
+  [
+   "2582|86230",
+   "/kommun/boden/tandlakare-86230"
+  ],
+  [
+   "1443|86909",
+   "/kommun/bollebygd/halso-sjukvard-86909"
+  ],
+  [
+   "2183|47730",
+   "/kommun/bollnas/apotek-47730"
+  ],
+  [
+   "2183|87201",
+   "/kommun/bollnas/behandlingshem-87201"
+  ],
+  [
+   "2183|86212",
+   "/kommun/bollnas/halso-sjukvard-86212"
+  ],
+  [
+   "2183|86905",
+   "/kommun/bollnas/halso-sjukvard-86905"
+  ],
+  [
+   "2183|86909",
+   "/kommun/bollnas/halso-sjukvard-86909"
+  ],
+  [
+   "2183|86222",
+   "/kommun/bollnas/specialistlakare-86222"
+  ],
+  [
+   "2183|86230",
+   "/kommun/bollnas/tandlakare-86230"
+  ],
+  [
+   "1490|47730",
+   "/kommun/boras/apotek-47730"
+  ],
+  [
+   "1490|87201",
+   "/kommun/boras/behandlingshem-87201"
+  ],
+  [
+   "1490|87901",
+   "/kommun/boras/behandlingshem-87901"
+  ],
+  [
+   "1490|88910",
+   "/kommun/boras/dagbarnvard-88910"
+  ],
+  [
+   "1490|86102",
+   "/kommun/boras/halso-sjukvard-86102"
+  ],
+  [
+   "1490|86211",
+   "/kommun/boras/halso-sjukvard-86211"
+  ],
+  [
+   "1490|86212",
+   "/kommun/boras/halso-sjukvard-86212"
+  ],
+  [
+   "1490|86905",
+   "/kommun/boras/halso-sjukvard-86905"
+  ],
+  [
+   "1490|86909",
+   "/kommun/boras/halso-sjukvard-86909"
+  ],
+  [
+   "1490|46460",
+   "/kommun/boras/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1490|86222",
+   "/kommun/boras/specialistlakare-86222"
+  ],
+  [
+   "1490|86230",
+   "/kommun/boras/tandlakare-86230"
+  ],
+  [
+   "885|56293",
+   "/kommun/borgholm/centralkoksverksamhet-for-skolor-omsorgs-och-andra-institutioner-56293"
+  ],
+  [
+   "885|86905",
+   "/kommun/borgholm/halso-sjukvard-86905"
+  ],
+  [
+   "885|86909",
+   "/kommun/borgholm/halso-sjukvard-86909"
+  ],
+  [
+   "885|86230",
+   "/kommun/borgholm/tandlakare-86230"
+  ],
+  [
+   "2081|47730",
+   "/kommun/borlange/apotek-47730"
+  ],
+  [
+   "2081|87201",
+   "/kommun/borlange/behandlingshem-87201"
+  ],
+  [
+   "2081|86212",
+   "/kommun/borlange/halso-sjukvard-86212"
+  ],
+  [
+   "2081|86905",
+   "/kommun/borlange/halso-sjukvard-86905"
+  ],
+  [
+   "2081|86909",
+   "/kommun/borlange/halso-sjukvard-86909"
+  ],
+  [
+   "2081|86230",
+   "/kommun/borlange/tandlakare-86230"
+  ],
+  [
+   "127|87201",
+   "/kommun/botkyrka/behandlingshem-87201"
+  ],
+  [
+   "127|87901",
+   "/kommun/botkyrka/behandlingshem-87901"
+  ],
+  [
+   "127|88910",
+   "/kommun/botkyrka/dagbarnvard-88910"
+  ],
+  [
+   "127|86211",
+   "/kommun/botkyrka/halso-sjukvard-86211"
+  ],
+  [
+   "127|86212",
+   "/kommun/botkyrka/halso-sjukvard-86212"
+  ],
+  [
+   "127|86903",
+   "/kommun/botkyrka/halso-sjukvard-86903"
+  ],
+  [
+   "127|86905",
+   "/kommun/botkyrka/halso-sjukvard-86905"
+  ],
+  [
+   "127|86909",
+   "/kommun/botkyrka/halso-sjukvard-86909"
+  ],
+  [
+   "127|46460",
+   "/kommun/botkyrka/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "127|86222",
+   "/kommun/botkyrka/specialistlakare-86222"
+  ],
+  [
+   "127|86230",
+   "/kommun/botkyrka/tandlakare-86230"
+  ],
+  [
+   "2305|87201",
+   "/kommun/bracke/behandlingshem-87201"
+  ],
+  [
+   "1231|86905",
+   "/kommun/burlov/halso-sjukvard-86905"
+  ],
+  [
+   "1231|86909",
+   "/kommun/burlov/halso-sjukvard-86909"
+  ],
+  [
+   "162|87201",
+   "/kommun/danderyd/behandlingshem-87201"
+  ],
+  [
+   "162|88910",
+   "/kommun/danderyd/dagbarnvard-88910"
+  ],
+  [
+   "162|86211",
+   "/kommun/danderyd/halso-sjukvard-86211"
+  ],
+  [
+   "162|86212",
+   "/kommun/danderyd/halso-sjukvard-86212"
+  ],
+  [
+   "162|86905",
+   "/kommun/danderyd/halso-sjukvard-86905"
+  ],
+  [
+   "162|86909",
+   "/kommun/danderyd/halso-sjukvard-86909"
+  ],
+  [
+   "162|46460",
+   "/kommun/danderyd/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "162|86222",
+   "/kommun/danderyd/specialistlakare-86222"
+  ],
+  [
+   "162|86230",
+   "/kommun/danderyd/tandlakare-86230"
+  ],
+  [
+   "1862|56293",
+   "/kommun/degerfors/centralkoksverksamhet-for-skolor-omsorgs-och-andra-institutioner-56293"
+  ],
+  [
+   "125|87201",
+   "/kommun/ekero/behandlingshem-87201"
+  ],
+  [
+   "125|87901",
+   "/kommun/ekero/behandlingshem-87901"
+  ],
+  [
+   "125|88910",
+   "/kommun/ekero/dagbarnvard-88910"
+  ],
+  [
+   "125|86212",
+   "/kommun/ekero/halso-sjukvard-86212"
+  ],
+  [
+   "125|86905",
+   "/kommun/ekero/halso-sjukvard-86905"
+  ],
+  [
+   "125|86909",
+   "/kommun/ekero/halso-sjukvard-86909"
+  ],
+  [
+   "125|86230",
+   "/kommun/ekero/tandlakare-86230"
+  ],
+  [
+   "686|87201",
+   "/kommun/eksjo/behandlingshem-87201"
+  ],
+  [
+   "686|87901",
+   "/kommun/eksjo/behandlingshem-87901"
+  ],
+  [
+   "686|86212",
+   "/kommun/eksjo/halso-sjukvard-86212"
+  ],
+  [
+   "686|86905",
+   "/kommun/eksjo/halso-sjukvard-86905"
+  ],
+  [
+   "686|86909",
+   "/kommun/eksjo/halso-sjukvard-86909"
+  ],
+  [
+   "686|86222",
+   "/kommun/eksjo/specialistlakare-86222"
+  ],
+  [
+   "862|87201",
+   "/kommun/emmaboda/behandlingshem-87201"
+  ],
+  [
+   "381|87201",
+   "/kommun/enkoping/behandlingshem-87201"
+  ],
+  [
+   "381|87203",
+   "/kommun/enkoping/behandlingshem-87203"
+  ],
+  [
+   "381|87901",
+   "/kommun/enkoping/behandlingshem-87901"
+  ],
+  [
+   "381|86212",
+   "/kommun/enkoping/halso-sjukvard-86212"
+  ],
+  [
+   "381|86905",
+   "/kommun/enkoping/halso-sjukvard-86905"
+  ],
+  [
+   "381|86909",
+   "/kommun/enkoping/halso-sjukvard-86909"
+  ],
+  [
+   "381|46460",
+   "/kommun/enkoping/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "381|86230",
+   "/kommun/enkoping/tandlakare-86230"
+  ],
+  [
+   "484|47730",
+   "/kommun/eskilstuna/apotek-47730"
+  ],
+  [
+   "484|87201",
+   "/kommun/eskilstuna/behandlingshem-87201"
+  ],
+  [
+   "484|88991",
+   "/kommun/eskilstuna/behandlingshem-88991"
+  ],
+  [
+   "484|88910",
+   "/kommun/eskilstuna/dagbarnvard-88910"
+  ],
+  [
+   "484|86211",
+   "/kommun/eskilstuna/halso-sjukvard-86211"
+  ],
+  [
+   "484|86212",
+   "/kommun/eskilstuna/halso-sjukvard-86212"
+  ],
+  [
+   "484|86903",
+   "/kommun/eskilstuna/halso-sjukvard-86903"
+  ],
+  [
+   "484|86905",
+   "/kommun/eskilstuna/halso-sjukvard-86905"
+  ],
+  [
+   "484|86909",
+   "/kommun/eskilstuna/halso-sjukvard-86909"
+  ],
+  [
+   "484|86222",
+   "/kommun/eskilstuna/specialistlakare-86222"
+  ],
+  [
+   "484|86230",
+   "/kommun/eskilstuna/tandlakare-86230"
+  ],
+  [
+   "1285|87201",
+   "/kommun/eslov/behandlingshem-87201"
+  ],
+  [
+   "1285|86212",
+   "/kommun/eslov/halso-sjukvard-86212"
+  ],
+  [
+   "1285|86905",
+   "/kommun/eslov/halso-sjukvard-86905"
+  ],
+  [
+   "1285|86909",
+   "/kommun/eslov/halso-sjukvard-86909"
+  ],
+  [
+   "1285|46460",
+   "/kommun/eslov/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1285|86230",
+   "/kommun/eslov/tandlakare-86230"
+  ],
+  [
+   "1982|87201",
+   "/kommun/fagersta/behandlingshem-87201"
+  ],
+  [
+   "1982|86212",
+   "/kommun/fagersta/halso-sjukvard-86212"
+  ],
+  [
+   "1982|86905",
+   "/kommun/fagersta/halso-sjukvard-86905"
+  ],
+  [
+   "1982|86909",
+   "/kommun/fagersta/halso-sjukvard-86909"
+  ],
+  [
+   "1382|87201",
+   "/kommun/falkenberg/behandlingshem-87201"
+  ],
+  [
+   "1382|86211",
+   "/kommun/falkenberg/halso-sjukvard-86211"
+  ],
+  [
+   "1382|86212",
+   "/kommun/falkenberg/halso-sjukvard-86212"
+  ],
+  [
+   "1382|86905",
+   "/kommun/falkenberg/halso-sjukvard-86905"
+  ],
+  [
+   "1382|86909",
+   "/kommun/falkenberg/halso-sjukvard-86909"
+  ],
+  [
+   "1382|46460",
+   "/kommun/falkenberg/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1382|86230",
+   "/kommun/falkenberg/tandlakare-86230"
+  ],
+  [
+   "1499|47730",
+   "/kommun/falkoping/apotek-47730"
+  ],
+  [
+   "1499|87201",
+   "/kommun/falkoping/behandlingshem-87201"
+  ],
+  [
+   "1499|86212",
+   "/kommun/falkoping/halso-sjukvard-86212"
+  ],
+  [
+   "1499|86905",
+   "/kommun/falkoping/halso-sjukvard-86905"
+  ],
+  [
+   "1499|86909",
+   "/kommun/falkoping/halso-sjukvard-86909"
+  ],
+  [
+   "1499|86222",
+   "/kommun/falkoping/specialistlakare-86222"
+  ],
+  [
+   "1499|86230",
+   "/kommun/falkoping/tandlakare-86230"
+  ],
+  [
+   "2080|47730",
+   "/kommun/falun/apotek-47730"
+  ],
+  [
+   "2080|87201",
+   "/kommun/falun/behandlingshem-87201"
+  ],
+  [
+   "2080|87901",
+   "/kommun/falun/behandlingshem-87901"
+  ],
+  [
+   "2080|86211",
+   "/kommun/falun/halso-sjukvard-86211"
+  ],
+  [
+   "2080|86212",
+   "/kommun/falun/halso-sjukvard-86212"
+  ],
+  [
+   "2080|86905",
+   "/kommun/falun/halso-sjukvard-86905"
+  ],
+  [
+   "2080|86909",
+   "/kommun/falun/halso-sjukvard-86909"
+  ],
+  [
+   "2080|46460",
+   "/kommun/falun/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "2080|86222",
+   "/kommun/falun/specialistlakare-86222"
+  ],
+  [
+   "2080|86230",
+   "/kommun/falun/tandlakare-86230"
+  ],
+  [
+   "1782|86230",
+   "/kommun/filipstad/tandlakare-86230"
+  ],
+  [
+   "562|87201",
+   "/kommun/finspang/behandlingshem-87201"
+  ],
+  [
+   "562|86212",
+   "/kommun/finspang/halso-sjukvard-86212"
+  ],
+  [
+   "562|86905",
+   "/kommun/finspang/halso-sjukvard-86905"
+  ],
+  [
+   "562|86909",
+   "/kommun/finspang/halso-sjukvard-86909"
+  ],
+  [
+   "562|86230",
+   "/kommun/finspang/tandlakare-86230"
+  ],
+  [
+   "482|87201",
+   "/kommun/flen/behandlingshem-87201"
+  ],
+  [
+   "482|86212",
+   "/kommun/flen/halso-sjukvard-86212"
+  ],
+  [
+   "482|86905",
+   "/kommun/flen/halso-sjukvard-86905"
+  ],
+  [
+   "482|86909",
+   "/kommun/flen/halso-sjukvard-86909"
+  ],
+  [
+   "482|86230",
+   "/kommun/flen/tandlakare-86230"
+  ],
+  [
+   "1763|87201",
+   "/kommun/forshaga/behandlingshem-87201"
+  ],
+  [
+   "2523|87201",
+   "/kommun/gallivare/behandlingshem-87201"
+  ],
+  [
+   "2523|86905",
+   "/kommun/gallivare/halso-sjukvard-86905"
+  ],
+  [
+   "2523|86909",
+   "/kommun/gallivare/halso-sjukvard-86909"
+  ],
+  [
+   "2180|47730",
+   "/kommun/gavle/apotek-47730"
+  ],
+  [
+   "2180|87201",
+   "/kommun/gavle/behandlingshem-87201"
+  ],
+  [
+   "2180|86211",
+   "/kommun/gavle/halso-sjukvard-86211"
+  ],
+  [
+   "2180|86212",
+   "/kommun/gavle/halso-sjukvard-86212"
+  ],
+  [
+   "2180|86905",
+   "/kommun/gavle/halso-sjukvard-86905"
+  ],
+  [
+   "2180|86909",
+   "/kommun/gavle/halso-sjukvard-86909"
+  ],
+  [
+   "2180|46460",
+   "/kommun/gavle/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "2180|86221",
+   "/kommun/gavle/specialistlakare-86221"
+  ],
+  [
+   "2180|86222",
+   "/kommun/gavle/specialistlakare-86222"
+  ],
+  [
+   "2180|86230",
+   "/kommun/gavle/tandlakare-86230"
+  ],
+  [
+   "662|87201",
+   "/kommun/gislaved/behandlingshem-87201"
+  ],
+  [
+   "662|86905",
+   "/kommun/gislaved/halso-sjukvard-86905"
+  ],
+  [
+   "662|86909",
+   "/kommun/gislaved/halso-sjukvard-86909"
+  ],
+  [
+   "662|46460",
+   "/kommun/gislaved/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "662|86230",
+   "/kommun/gislaved/tandlakare-86230"
+  ],
+  [
+   "461|87201",
+   "/kommun/gnesta/behandlingshem-87201"
+  ],
+  [
+   "461|86905",
+   "/kommun/gnesta/halso-sjukvard-86905"
+  ],
+  [
+   "461|86909",
+   "/kommun/gnesta/halso-sjukvard-86909"
+  ],
+  [
+   "1480|86902",
+   "/kommun/goteborg/ambulans-sjuktransport-86902"
+  ],
+  [
+   "1480|47730",
+   "/kommun/goteborg/apotek-47730"
+  ],
+  [
+   "1480|87100",
+   "/kommun/goteborg/behandlingshem-87100"
+  ],
+  [
+   "1480|87201",
+   "/kommun/goteborg/behandlingshem-87201"
+  ],
+  [
+   "1480|87202",
+   "/kommun/goteborg/behandlingshem-87202"
+  ],
+  [
+   "1480|87203",
+   "/kommun/goteborg/behandlingshem-87203"
+  ],
+  [
+   "1480|87901",
+   "/kommun/goteborg/behandlingshem-87901"
+  ],
+  [
+   "1480|87902",
+   "/kommun/goteborg/behandlingshem-87902"
+  ],
+  [
+   "1480|88991",
+   "/kommun/goteborg/behandlingshem-88991"
+  ],
+  [
+   "1480|88992",
+   "/kommun/goteborg/behandlingshem-88992"
+  ],
+  [
+   "1480|88910",
+   "/kommun/goteborg/dagbarnvard-88910"
+  ],
+  [
+   "1480|86102",
+   "/kommun/goteborg/halso-sjukvard-86102"
+  ],
+  [
+   "1480|86211",
+   "/kommun/goteborg/halso-sjukvard-86211"
+  ],
+  [
+   "1480|86212",
+   "/kommun/goteborg/halso-sjukvard-86212"
+  ],
+  [
+   "1480|86903",
+   "/kommun/goteborg/halso-sjukvard-86903"
+  ],
+  [
+   "1480|86905",
+   "/kommun/goteborg/halso-sjukvard-86905"
+  ],
+  [
+   "1480|86909",
+   "/kommun/goteborg/halso-sjukvard-86909"
+  ],
+  [
+   "1480|46460",
+   "/kommun/goteborg/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1480|86221",
+   "/kommun/goteborg/specialistlakare-86221"
+  ],
+  [
+   "1480|86222",
+   "/kommun/goteborg/specialistlakare-86222"
+  ],
+  [
+   "1480|86230",
+   "/kommun/goteborg/tandlakare-86230"
+  ],
+  [
+   "1480|86904",
+   "/kommun/goteborg/tandlakare-86904"
+  ],
+  [
+   "1471|87201",
+   "/kommun/gotene/behandlingshem-87201"
+  ],
+  [
+   "1471|86905",
+   "/kommun/gotene/halso-sjukvard-86905"
+  ],
+  [
+   "980|47730",
+   "/kommun/gotland/apotek-47730"
+  ],
+  [
+   "980|87201",
+   "/kommun/gotland/behandlingshem-87201"
+  ],
+  [
+   "980|87901",
+   "/kommun/gotland/behandlingshem-87901"
+  ],
+  [
+   "980|88910",
+   "/kommun/gotland/dagbarnvard-88910"
+  ],
+  [
+   "980|86211",
+   "/kommun/gotland/halso-sjukvard-86211"
+  ],
+  [
+   "980|86212",
+   "/kommun/gotland/halso-sjukvard-86212"
+  ],
+  [
+   "980|86905",
+   "/kommun/gotland/halso-sjukvard-86905"
+  ],
+  [
+   "980|86909",
+   "/kommun/gotland/halso-sjukvard-86909"
+  ],
+  [
+   "980|86222",
+   "/kommun/gotland/specialistlakare-86222"
+  ],
+  [
+   "980|86230",
+   "/kommun/gotland/tandlakare-86230"
+  ],
+  [
+   "1447|87901",
+   "/kommun/gullspang/behandlingshem-87901"
+  ],
+  [
+   "305|86212",
+   "/kommun/habo-uppsala-lan/halso-sjukvard-86212"
+  ],
+  [
+   "305|86905",
+   "/kommun/habo-uppsala-lan/halso-sjukvard-86905"
+  ],
+  [
+   "305|86909",
+   "/kommun/habo-uppsala-lan/halso-sjukvard-86909"
+  ],
+  [
+   "305|46460",
+   "/kommun/habo-uppsala-lan/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "305|86230",
+   "/kommun/habo-uppsala-lan/tandlakare-86230"
+  ],
+  [
+   "1783|87201",
+   "/kommun/hagfors/behandlingshem-87201"
+  ],
+  [
+   "1783|86212",
+   "/kommun/hagfors/halso-sjukvard-86212"
+  ],
+  [
+   "1783|86905",
+   "/kommun/hagfors/halso-sjukvard-86905"
+  ],
+  [
+   "1863|86909",
+   "/kommun/hallefors/halso-sjukvard-86909"
+  ],
+  [
+   "1861|87201",
+   "/kommun/hallsberg/behandlingshem-87201"
+  ],
+  [
+   "1861|86905",
+   "/kommun/hallsberg/halso-sjukvard-86905"
+  ],
+  [
+   "1861|86909",
+   "/kommun/hallsberg/halso-sjukvard-86909"
+  ],
+  [
+   "1961|87201",
+   "/kommun/hallstahammar/behandlingshem-87201"
+  ],
+  [
+   "1961|86905",
+   "/kommun/hallstahammar/halso-sjukvard-86905"
+  ],
+  [
+   "1961|86909",
+   "/kommun/hallstahammar/halso-sjukvard-86909"
+  ],
+  [
+   "1380|47730",
+   "/kommun/halmstad/apotek-47730"
+  ],
+  [
+   "1380|87201",
+   "/kommun/halmstad/behandlingshem-87201"
+  ],
+  [
+   "1380|88991",
+   "/kommun/halmstad/behandlingshem-88991"
+  ],
+  [
+   "1380|88910",
+   "/kommun/halmstad/dagbarnvard-88910"
+  ],
+  [
+   "1380|86102",
+   "/kommun/halmstad/halso-sjukvard-86102"
+  ],
+  [
+   "1380|86211",
+   "/kommun/halmstad/halso-sjukvard-86211"
+  ],
+  [
+   "1380|86212",
+   "/kommun/halmstad/halso-sjukvard-86212"
+  ],
+  [
+   "1380|86903",
+   "/kommun/halmstad/halso-sjukvard-86903"
+  ],
+  [
+   "1380|86905",
+   "/kommun/halmstad/halso-sjukvard-86905"
+  ],
+  [
+   "1380|86909",
+   "/kommun/halmstad/halso-sjukvard-86909"
+  ],
+  [
+   "1380|46460",
+   "/kommun/halmstad/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1380|86222",
+   "/kommun/halmstad/specialistlakare-86222"
+  ],
+  [
+   "1380|86230",
+   "/kommun/halmstad/tandlakare-86230"
+  ],
+  [
+   "1761|87201",
+   "/kommun/hammaro/behandlingshem-87201"
+  ],
+  [
+   "1761|86212",
+   "/kommun/hammaro/halso-sjukvard-86212"
+  ],
+  [
+   "1761|86905",
+   "/kommun/hammaro/halso-sjukvard-86905"
+  ],
+  [
+   "1761|86909",
+   "/kommun/hammaro/halso-sjukvard-86909"
+  ],
+  [
+   "1761|86222",
+   "/kommun/hammaro/specialistlakare-86222"
+  ],
+  [
+   "136|47730",
+   "/kommun/haninge/apotek-47730"
+  ],
+  [
+   "136|87201",
+   "/kommun/haninge/behandlingshem-87201"
+  ],
+  [
+   "136|88910",
+   "/kommun/haninge/dagbarnvard-88910"
+  ],
+  [
+   "136|86211",
+   "/kommun/haninge/halso-sjukvard-86211"
+  ],
+  [
+   "136|86212",
+   "/kommun/haninge/halso-sjukvard-86212"
+  ],
+  [
+   "136|86905",
+   "/kommun/haninge/halso-sjukvard-86905"
+  ],
+  [
+   "136|86909",
+   "/kommun/haninge/halso-sjukvard-86909"
+  ],
+  [
+   "136|46460",
+   "/kommun/haninge/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "136|86222",
+   "/kommun/haninge/specialistlakare-86222"
+  ],
+  [
+   "136|86230",
+   "/kommun/haninge/tandlakare-86230"
+  ],
+  [
+   "2583|87201",
+   "/kommun/haparanda/behandlingshem-87201"
+  ],
+  [
+   "2361|87201",
+   "/kommun/harjedalen/behandlingshem-87201"
+  ],
+  [
+   "2361|86211",
+   "/kommun/harjedalen/halso-sjukvard-86211"
+  ],
+  [
+   "2280|87201",
+   "/kommun/harnosand/behandlingshem-87201"
+  ],
+  [
+   "2280|86212",
+   "/kommun/harnosand/halso-sjukvard-86212"
+  ],
+  [
+   "2280|86905",
+   "/kommun/harnosand/halso-sjukvard-86905"
+  ],
+  [
+   "2280|86909",
+   "/kommun/harnosand/halso-sjukvard-86909"
+  ],
+  [
+   "2280|86230",
+   "/kommun/harnosand/tandlakare-86230"
+  ],
+  [
+   "1401|87201",
+   "/kommun/harryda/behandlingshem-87201"
+  ],
+  [
+   "1401|86211",
+   "/kommun/harryda/halso-sjukvard-86211"
+  ],
+  [
+   "1401|86212",
+   "/kommun/harryda/halso-sjukvard-86212"
+  ],
+  [
+   "1401|86905",
+   "/kommun/harryda/halso-sjukvard-86905"
+  ],
+  [
+   "1401|86909",
+   "/kommun/harryda/halso-sjukvard-86909"
+  ],
+  [
+   "1401|46460",
+   "/kommun/harryda/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1401|86230",
+   "/kommun/harryda/tandlakare-86230"
+  ],
+  [
+   "1293|47730",
+   "/kommun/hassleholm/apotek-47730"
+  ],
+  [
+   "1293|87201",
+   "/kommun/hassleholm/behandlingshem-87201"
+  ],
+  [
+   "1293|87901",
+   "/kommun/hassleholm/behandlingshem-87901"
+  ],
+  [
+   "1293|88910",
+   "/kommun/hassleholm/dagbarnvard-88910"
+  ],
+  [
+   "1293|86102",
+   "/kommun/hassleholm/halso-sjukvard-86102"
+  ],
+  [
+   "1293|86211",
+   "/kommun/hassleholm/halso-sjukvard-86211"
+  ],
+  [
+   "1293|86212",
+   "/kommun/hassleholm/halso-sjukvard-86212"
+  ],
+  [
+   "1293|86905",
+   "/kommun/hassleholm/halso-sjukvard-86905"
+  ],
+  [
+   "1293|86909",
+   "/kommun/hassleholm/halso-sjukvard-86909"
+  ],
+  [
+   "1293|86222",
+   "/kommun/hassleholm/specialistlakare-86222"
+  ],
+  [
+   "1293|86230",
+   "/kommun/hassleholm/tandlakare-86230"
+  ],
+  [
+   "331|87201",
+   "/kommun/heby/behandlingshem-87201"
+  ],
+  [
+   "331|87901",
+   "/kommun/heby/behandlingshem-87901"
+  ],
+  [
+   "331|88910",
+   "/kommun/heby/dagbarnvard-88910"
+  ],
+  [
+   "331|86905",
+   "/kommun/heby/halso-sjukvard-86905"
+  ],
+  [
+   "331|86909",
+   "/kommun/heby/halso-sjukvard-86909"
+  ],
+  [
+   "2083|87201",
+   "/kommun/hedemora/behandlingshem-87201"
+  ],
+  [
+   "2083|88910",
+   "/kommun/hedemora/dagbarnvard-88910"
+  ],
+  [
+   "2083|86212",
+   "/kommun/hedemora/halso-sjukvard-86212"
+  ],
+  [
+   "2083|86905",
+   "/kommun/hedemora/halso-sjukvard-86905"
+  ],
+  [
+   "2083|86909",
+   "/kommun/hedemora/halso-sjukvard-86909"
+  ],
+  [
+   "2083|86230",
+   "/kommun/hedemora/tandlakare-86230"
+  ],
+  [
+   "1283|47730",
+   "/kommun/helsingborg/apotek-47730"
+  ],
+  [
+   "1283|87201",
+   "/kommun/helsingborg/behandlingshem-87201"
+  ],
+  [
+   "1283|88992",
+   "/kommun/helsingborg/behandlingshem-88992"
+  ],
+  [
+   "1283|88910",
+   "/kommun/helsingborg/dagbarnvard-88910"
+  ],
+  [
+   "1283|86211",
+   "/kommun/helsingborg/halso-sjukvard-86211"
+  ],
+  [
+   "1283|86212",
+   "/kommun/helsingborg/halso-sjukvard-86212"
+  ],
+  [
+   "1283|86903",
+   "/kommun/helsingborg/halso-sjukvard-86903"
+  ],
+  [
+   "1283|86905",
+   "/kommun/helsingborg/halso-sjukvard-86905"
+  ],
+  [
+   "1283|86909",
+   "/kommun/helsingborg/halso-sjukvard-86909"
+  ],
+  [
+   "1283|46460",
+   "/kommun/helsingborg/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1283|86222",
+   "/kommun/helsingborg/specialistlakare-86222"
+  ],
+  [
+   "1283|86230",
+   "/kommun/helsingborg/tandlakare-86230"
+  ],
+  [
+   "1466|86905",
+   "/kommun/herrljunga/halso-sjukvard-86905"
+  ],
+  [
+   "1497|88910",
+   "/kommun/hjo/dagbarnvard-88910"
+  ],
+  [
+   "1497|86230",
+   "/kommun/hjo/tandlakare-86230"
+  ],
+  [
+   "1284|86212",
+   "/kommun/hoganas/halso-sjukvard-86212"
+  ],
+  [
+   "1284|86905",
+   "/kommun/hoganas/halso-sjukvard-86905"
+  ],
+  [
+   "1284|86909",
+   "/kommun/hoganas/halso-sjukvard-86909"
+  ],
+  [
+   "1284|46460",
+   "/kommun/hoganas/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1284|86222",
+   "/kommun/hoganas/specialistlakare-86222"
+  ],
+  [
+   "1284|86230",
+   "/kommun/hoganas/tandlakare-86230"
+  ],
+  [
+   "1267|87201",
+   "/kommun/hoor/behandlingshem-87201"
+  ],
+  [
+   "1267|86905",
+   "/kommun/hoor/halso-sjukvard-86905"
+  ],
+  [
+   "1267|86909",
+   "/kommun/hoor/halso-sjukvard-86909"
+  ],
+  [
+   "1267|86222",
+   "/kommun/hoor/specialistlakare-86222"
+  ],
+  [
+   "1266|86905",
+   "/kommun/horby/halso-sjukvard-86905"
+  ],
+  [
+   "1266|86909",
+   "/kommun/horby/halso-sjukvard-86909"
+  ],
+  [
+   "1266|86230",
+   "/kommun/horby/tandlakare-86230"
+  ],
+  [
+   "126|47730",
+   "/kommun/huddinge/apotek-47730"
+  ],
+  [
+   "126|87201",
+   "/kommun/huddinge/behandlingshem-87201"
+  ],
+  [
+   "126|87203",
+   "/kommun/huddinge/behandlingshem-87203"
+  ],
+  [
+   "126|88910",
+   "/kommun/huddinge/dagbarnvard-88910"
+  ],
+  [
+   "126|86211",
+   "/kommun/huddinge/halso-sjukvard-86211"
+  ],
+  [
+   "126|86212",
+   "/kommun/huddinge/halso-sjukvard-86212"
+  ],
+  [
+   "126|86903",
+   "/kommun/huddinge/halso-sjukvard-86903"
+  ],
+  [
+   "126|86905",
+   "/kommun/huddinge/halso-sjukvard-86905"
+  ],
+  [
+   "126|86909",
+   "/kommun/huddinge/halso-sjukvard-86909"
+  ],
+  [
+   "126|46460",
+   "/kommun/huddinge/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "126|86221",
+   "/kommun/huddinge/specialistlakare-86221"
+  ],
+  [
+   "126|86222",
+   "/kommun/huddinge/specialistlakare-86222"
+  ],
+  [
+   "126|86230",
+   "/kommun/huddinge/tandlakare-86230"
+  ],
+  [
+   "2184|47730",
+   "/kommun/hudiksvall/apotek-47730"
+  ],
+  [
+   "2184|87201",
+   "/kommun/hudiksvall/behandlingshem-87201"
+  ],
+  [
+   "2184|87901",
+   "/kommun/hudiksvall/behandlingshem-87901"
+  ],
+  [
+   "2184|88910",
+   "/kommun/hudiksvall/dagbarnvard-88910"
+  ],
+  [
+   "2184|86211",
+   "/kommun/hudiksvall/halso-sjukvard-86211"
+  ],
+  [
+   "2184|86212",
+   "/kommun/hudiksvall/halso-sjukvard-86212"
+  ],
+  [
+   "2184|86905",
+   "/kommun/hudiksvall/halso-sjukvard-86905"
+  ],
+  [
+   "2184|86909",
+   "/kommun/hudiksvall/halso-sjukvard-86909"
+  ],
+  [
+   "2184|86222",
+   "/kommun/hudiksvall/specialistlakare-86222"
+  ],
+  [
+   "2184|86230",
+   "/kommun/hudiksvall/tandlakare-86230"
+  ],
+  [
+   "860|87201",
+   "/kommun/hultsfred/behandlingshem-87201"
+  ],
+  [
+   "860|86905",
+   "/kommun/hultsfred/halso-sjukvard-86905"
+  ],
+  [
+   "123|87201",
+   "/kommun/jarfalla/behandlingshem-87201"
+  ],
+  [
+   "123|86212",
+   "/kommun/jarfalla/halso-sjukvard-86212"
+  ],
+  [
+   "123|86905",
+   "/kommun/jarfalla/halso-sjukvard-86905"
+  ],
+  [
+   "123|86909",
+   "/kommun/jarfalla/halso-sjukvard-86909"
+  ],
+  [
+   "123|46460",
+   "/kommun/jarfalla/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "123|86222",
+   "/kommun/jarfalla/specialistlakare-86222"
+  ],
+  [
+   "123|86230",
+   "/kommun/jarfalla/tandlakare-86230"
+  ],
+  [
+   "680|47730",
+   "/kommun/jonkoping/apotek-47730"
+  ],
+  [
+   "680|87100",
+   "/kommun/jonkoping/behandlingshem-87100"
+  ],
+  [
+   "680|87201",
+   "/kommun/jonkoping/behandlingshem-87201"
+  ],
+  [
+   "680|88991",
+   "/kommun/jonkoping/behandlingshem-88991"
+  ],
+  [
+   "680|88910",
+   "/kommun/jonkoping/dagbarnvard-88910"
+  ],
+  [
+   "680|86211",
+   "/kommun/jonkoping/halso-sjukvard-86211"
+  ],
+  [
+   "680|86212",
+   "/kommun/jonkoping/halso-sjukvard-86212"
+  ],
+  [
+   "680|86903",
+   "/kommun/jonkoping/halso-sjukvard-86903"
+  ],
+  [
+   "680|86905",
+   "/kommun/jonkoping/halso-sjukvard-86905"
+  ],
+  [
+   "680|86909",
+   "/kommun/jonkoping/halso-sjukvard-86909"
+  ],
+  [
+   "680|46460",
+   "/kommun/jonkoping/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "680|86221",
+   "/kommun/jonkoping/specialistlakare-86221"
+  ],
+  [
+   "680|86222",
+   "/kommun/jonkoping/specialistlakare-86222"
+  ],
+  [
+   "680|86230",
+   "/kommun/jonkoping/tandlakare-86230"
+  ],
+  [
+   "2514|87201",
+   "/kommun/kalix/behandlingshem-87201"
+  ],
+  [
+   "2514|56293",
+   "/kommun/kalix/centralkoksverksamhet-for-skolor-omsorgs-och-andra-institutioner-56293"
+  ],
+  [
+   "2514|86905",
+   "/kommun/kalix/halso-sjukvard-86905"
+  ],
+  [
+   "2514|86230",
+   "/kommun/kalix/tandlakare-86230"
+  ],
+  [
+   "880|47730",
+   "/kommun/kalmar/apotek-47730"
+  ],
+  [
+   "880|87201",
+   "/kommun/kalmar/behandlingshem-87201"
+  ],
+  [
+   "880|87901",
+   "/kommun/kalmar/behandlingshem-87901"
+  ],
+  [
+   "880|86211",
+   "/kommun/kalmar/halso-sjukvard-86211"
+  ],
+  [
+   "880|86212",
+   "/kommun/kalmar/halso-sjukvard-86212"
+  ],
+  [
+   "880|86905",
+   "/kommun/kalmar/halso-sjukvard-86905"
+  ],
+  [
+   "880|86909",
+   "/kommun/kalmar/halso-sjukvard-86909"
+  ],
+  [
+   "880|46460",
+   "/kommun/kalmar/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "880|86222",
+   "/kommun/kalmar/specialistlakare-86222"
+  ],
+  [
+   "880|86230",
+   "/kommun/kalmar/tandlakare-86230"
+  ],
+  [
+   "1082|87201",
+   "/kommun/karlshamn/behandlingshem-87201"
+  ],
+  [
+   "1082|86212",
+   "/kommun/karlshamn/halso-sjukvard-86212"
+  ],
+  [
+   "1082|86903",
+   "/kommun/karlshamn/halso-sjukvard-86903"
+  ],
+  [
+   "1082|86905",
+   "/kommun/karlshamn/halso-sjukvard-86905"
+  ],
+  [
+   "1082|86909",
+   "/kommun/karlshamn/halso-sjukvard-86909"
+  ],
+  [
+   "1082|46460",
+   "/kommun/karlshamn/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1082|86222",
+   "/kommun/karlshamn/specialistlakare-86222"
+  ],
+  [
+   "1082|86230",
+   "/kommun/karlshamn/tandlakare-86230"
+  ],
+  [
+   "1883|87201",
+   "/kommun/karlskoga/behandlingshem-87201"
+  ],
+  [
+   "1883|86905",
+   "/kommun/karlskoga/halso-sjukvard-86905"
+  ],
+  [
+   "1883|86909",
+   "/kommun/karlskoga/halso-sjukvard-86909"
+  ],
+  [
+   "1883|86230",
+   "/kommun/karlskoga/tandlakare-86230"
+  ],
+  [
+   "1080|47730",
+   "/kommun/karlskrona/apotek-47730"
+  ],
+  [
+   "1080|87201",
+   "/kommun/karlskrona/behandlingshem-87201"
+  ],
+  [
+   "1080|87901",
+   "/kommun/karlskrona/behandlingshem-87901"
+  ],
+  [
+   "1080|88910",
+   "/kommun/karlskrona/dagbarnvard-88910"
+  ],
+  [
+   "1080|86211",
+   "/kommun/karlskrona/halso-sjukvard-86211"
+  ],
+  [
+   "1080|86212",
+   "/kommun/karlskrona/halso-sjukvard-86212"
+  ],
+  [
+   "1080|86903",
+   "/kommun/karlskrona/halso-sjukvard-86903"
+  ],
+  [
+   "1080|86905",
+   "/kommun/karlskrona/halso-sjukvard-86905"
+  ],
+  [
+   "1080|86909",
+   "/kommun/karlskrona/halso-sjukvard-86909"
+  ],
+  [
+   "1080|46460",
+   "/kommun/karlskrona/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1080|86222",
+   "/kommun/karlskrona/specialistlakare-86222"
+  ],
+  [
+   "1080|86230",
+   "/kommun/karlskrona/tandlakare-86230"
+  ],
+  [
+   "1780|47730",
+   "/kommun/karlstad/apotek-47730"
+  ],
+  [
+   "1780|87201",
+   "/kommun/karlstad/behandlingshem-87201"
+  ],
+  [
+   "1780|87203",
+   "/kommun/karlstad/behandlingshem-87203"
+  ],
+  [
+   "1780|88910",
+   "/kommun/karlstad/dagbarnvard-88910"
+  ],
+  [
+   "1780|86211",
+   "/kommun/karlstad/halso-sjukvard-86211"
+  ],
+  [
+   "1780|86212",
+   "/kommun/karlstad/halso-sjukvard-86212"
+  ],
+  [
+   "1780|86905",
+   "/kommun/karlstad/halso-sjukvard-86905"
+  ],
+  [
+   "1780|86909",
+   "/kommun/karlstad/halso-sjukvard-86909"
+  ],
+  [
+   "1780|46460",
+   "/kommun/karlstad/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1780|86222",
+   "/kommun/karlstad/specialistlakare-86222"
+  ],
+  [
+   "1780|86230",
+   "/kommun/karlstad/tandlakare-86230"
+  ],
+  [
+   "483|87201",
+   "/kommun/katrineholm/behandlingshem-87201"
+  ],
+  [
+   "483|86212",
+   "/kommun/katrineholm/halso-sjukvard-86212"
+  ],
+  [
+   "483|86903",
+   "/kommun/katrineholm/halso-sjukvard-86903"
+  ],
+  [
+   "483|86905",
+   "/kommun/katrineholm/halso-sjukvard-86905"
+  ],
+  [
+   "483|86909",
+   "/kommun/katrineholm/halso-sjukvard-86909"
+  ],
+  [
+   "483|86230",
+   "/kommun/katrineholm/tandlakare-86230"
+  ],
+  [
+   "1261|87201",
+   "/kommun/kavlinge/behandlingshem-87201"
+  ],
+  [
+   "1261|86212",
+   "/kommun/kavlinge/halso-sjukvard-86212"
+  ],
+  [
+   "1261|86905",
+   "/kommun/kavlinge/halso-sjukvard-86905"
+  ],
+  [
+   "1261|86909",
+   "/kommun/kavlinge/halso-sjukvard-86909"
+  ],
+  [
+   "1261|86230",
+   "/kommun/kavlinge/tandlakare-86230"
+  ],
+  [
+   "1715|87201",
+   "/kommun/kil/behandlingshem-87201"
+  ],
+  [
+   "1715|86905",
+   "/kommun/kil/halso-sjukvard-86905"
+  ],
+  [
+   "1715|86909",
+   "/kommun/kil/halso-sjukvard-86909"
+  ],
+  [
+   "513|86905",
+   "/kommun/kinda/halso-sjukvard-86905"
+  ],
+  [
+   "2584|87201",
+   "/kommun/kiruna/behandlingshem-87201"
+  ],
+  [
+   "2584|86212",
+   "/kommun/kiruna/halso-sjukvard-86212"
+  ],
+  [
+   "2584|86905",
+   "/kommun/kiruna/halso-sjukvard-86905"
+  ],
+  [
+   "2584|86909",
+   "/kommun/kiruna/halso-sjukvard-86909"
+  ],
+  [
+   "1276|86905",
+   "/kommun/klippan/halso-sjukvard-86905"
+  ],
+  [
+   "1276|86909",
+   "/kommun/klippan/halso-sjukvard-86909"
+  ],
+  [
+   "1276|86230",
+   "/kommun/klippan/tandlakare-86230"
+  ],
+  [
+   "330|86212",
+   "/kommun/knivsta/halso-sjukvard-86212"
+  ],
+  [
+   "330|86905",
+   "/kommun/knivsta/halso-sjukvard-86905"
+  ],
+  [
+   "330|86909",
+   "/kommun/knivsta/halso-sjukvard-86909"
+  ],
+  [
+   "1983|87201",
+   "/kommun/koping/behandlingshem-87201"
+  ],
+  [
+   "1983|86212",
+   "/kommun/koping/halso-sjukvard-86212"
+  ],
+  [
+   "1983|86905",
+   "/kommun/koping/halso-sjukvard-86905"
+  ],
+  [
+   "1983|86230",
+   "/kommun/koping/tandlakare-86230"
+  ],
+  [
+   "2282|87201",
+   "/kommun/kramfors/behandlingshem-87201"
+  ],
+  [
+   "2282|86905",
+   "/kommun/kramfors/halso-sjukvard-86905"
+  ],
+  [
+   "2282|86909",
+   "/kommun/kramfors/halso-sjukvard-86909"
+  ],
+  [
+   "1290|47730",
+   "/kommun/kristianstad/apotek-47730"
+  ],
+  [
+   "1290|87100",
+   "/kommun/kristianstad/behandlingshem-87100"
+  ],
+  [
+   "1290|87201",
+   "/kommun/kristianstad/behandlingshem-87201"
+  ],
+  [
+   "1290|88991",
+   "/kommun/kristianstad/behandlingshem-88991"
+  ],
+  [
+   "1290|86211",
+   "/kommun/kristianstad/halso-sjukvard-86211"
+  ],
+  [
+   "1290|86212",
+   "/kommun/kristianstad/halso-sjukvard-86212"
+  ],
+  [
+   "1290|86905",
+   "/kommun/kristianstad/halso-sjukvard-86905"
+  ],
+  [
+   "1290|86909",
+   "/kommun/kristianstad/halso-sjukvard-86909"
+  ],
+  [
+   "1290|46460",
+   "/kommun/kristianstad/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1290|86222",
+   "/kommun/kristianstad/specialistlakare-86222"
+  ],
+  [
+   "1290|86230",
+   "/kommun/kristianstad/tandlakare-86230"
+  ],
+  [
+   "1781|87201",
+   "/kommun/kristinehamn/behandlingshem-87201"
+  ],
+  [
+   "1781|88910",
+   "/kommun/kristinehamn/dagbarnvard-88910"
+  ],
+  [
+   "1781|86905",
+   "/kommun/kristinehamn/halso-sjukvard-86905"
+  ],
+  [
+   "1781|86909",
+   "/kommun/kristinehamn/halso-sjukvard-86909"
+  ],
+  [
+   "1781|86230",
+   "/kommun/kristinehamn/tandlakare-86230"
+  ],
+  [
+   "2309|86905",
+   "/kommun/krokom/halso-sjukvard-86905"
+  ],
+  [
+   "2309|86909",
+   "/kommun/krokom/halso-sjukvard-86909"
+  ],
+  [
+   "1881|87201",
+   "/kommun/kumla/behandlingshem-87201"
+  ],
+  [
+   "1881|86905",
+   "/kommun/kumla/halso-sjukvard-86905"
+  ],
+  [
+   "1482|47730",
+   "/kommun/kungalv/apotek-47730"
+  ],
+  [
+   "1482|87201",
+   "/kommun/kungalv/behandlingshem-87201"
+  ],
+  [
+   "1482|88910",
+   "/kommun/kungalv/dagbarnvard-88910"
+  ],
+  [
+   "1482|86211",
+   "/kommun/kungalv/halso-sjukvard-86211"
+  ],
+  [
+   "1482|86212",
+   "/kommun/kungalv/halso-sjukvard-86212"
+  ],
+  [
+   "1482|86905",
+   "/kommun/kungalv/halso-sjukvard-86905"
+  ],
+  [
+   "1482|86909",
+   "/kommun/kungalv/halso-sjukvard-86909"
+  ],
+  [
+   "1482|86222",
+   "/kommun/kungalv/specialistlakare-86222"
+  ],
+  [
+   "1482|86230",
+   "/kommun/kungalv/tandlakare-86230"
+  ],
+  [
+   "1384|47730",
+   "/kommun/kungsbacka/apotek-47730"
+  ],
+  [
+   "1384|87201",
+   "/kommun/kungsbacka/behandlingshem-87201"
+  ],
+  [
+   "1384|87901",
+   "/kommun/kungsbacka/behandlingshem-87901"
+  ],
+  [
+   "1384|86211",
+   "/kommun/kungsbacka/halso-sjukvard-86211"
+  ],
+  [
+   "1384|86212",
+   "/kommun/kungsbacka/halso-sjukvard-86212"
+  ],
+  [
+   "1384|86905",
+   "/kommun/kungsbacka/halso-sjukvard-86905"
+  ],
+  [
+   "1384|86909",
+   "/kommun/kungsbacka/halso-sjukvard-86909"
+  ],
+  [
+   "1384|46460",
+   "/kommun/kungsbacka/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1384|86221",
+   "/kommun/kungsbacka/specialistlakare-86221"
+  ],
+  [
+   "1384|86222",
+   "/kommun/kungsbacka/specialistlakare-86222"
+  ],
+  [
+   "1384|86230",
+   "/kommun/kungsbacka/tandlakare-86230"
+  ],
+  [
+   "1960|87201",
+   "/kommun/kungsor/behandlingshem-87201"
+  ],
+  [
+   "1960|86905",
+   "/kommun/kungsor/halso-sjukvard-86905"
+  ],
+  [
+   "1381|87201",
+   "/kommun/laholm/behandlingshem-87201"
+  ],
+  [
+   "1381|86212",
+   "/kommun/laholm/halso-sjukvard-86212"
+  ],
+  [
+   "1381|86905",
+   "/kommun/laholm/halso-sjukvard-86905"
+  ],
+  [
+   "1381|86909",
+   "/kommun/laholm/halso-sjukvard-86909"
+  ],
+  [
+   "1381|86230",
+   "/kommun/laholm/tandlakare-86230"
+  ],
+  [
+   "1282|87201",
+   "/kommun/landskrona/behandlingshem-87201"
+  ],
+  [
+   "1282|86211",
+   "/kommun/landskrona/halso-sjukvard-86211"
+  ],
+  [
+   "1282|86212",
+   "/kommun/landskrona/halso-sjukvard-86212"
+  ],
+  [
+   "1282|86905",
+   "/kommun/landskrona/halso-sjukvard-86905"
+  ],
+  [
+   "1282|86909",
+   "/kommun/landskrona/halso-sjukvard-86909"
+  ],
+  [
+   "1282|86222",
+   "/kommun/landskrona/specialistlakare-86222"
+  ],
+  [
+   "1282|86230",
+   "/kommun/landskrona/tandlakare-86230"
+  ],
+  [
+   "2029|87201",
+   "/kommun/leksand/behandlingshem-87201"
+  ],
+  [
+   "2029|86212",
+   "/kommun/leksand/halso-sjukvard-86212"
+  ],
+  [
+   "2029|86905",
+   "/kommun/leksand/halso-sjukvard-86905"
+  ],
+  [
+   "2029|86909",
+   "/kommun/leksand/halso-sjukvard-86909"
+  ],
+  [
+   "2029|86222",
+   "/kommun/leksand/specialistlakare-86222"
+  ],
+  [
+   "1441|87201",
+   "/kommun/lerum/behandlingshem-87201"
+  ],
+  [
+   "1441|88910",
+   "/kommun/lerum/dagbarnvard-88910"
+  ],
+  [
+   "1441|86212",
+   "/kommun/lerum/halso-sjukvard-86212"
+  ],
+  [
+   "1441|86905",
+   "/kommun/lerum/halso-sjukvard-86905"
+  ],
+  [
+   "1441|86909",
+   "/kommun/lerum/halso-sjukvard-86909"
+  ],
+  [
+   "1441|46460",
+   "/kommun/lerum/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1441|86222",
+   "/kommun/lerum/specialistlakare-86222"
+  ],
+  [
+   "1441|86230",
+   "/kommun/lerum/tandlakare-86230"
+  ],
+  [
+   "761|86230",
+   "/kommun/lessebo/tandlakare-86230"
+  ],
+  [
+   "186|87201",
+   "/kommun/lidingo/behandlingshem-87201"
+  ],
+  [
+   "186|87901",
+   "/kommun/lidingo/behandlingshem-87901"
+  ],
+  [
+   "186|88910",
+   "/kommun/lidingo/dagbarnvard-88910"
+  ],
+  [
+   "186|86211",
+   "/kommun/lidingo/halso-sjukvard-86211"
+  ],
+  [
+   "186|86212",
+   "/kommun/lidingo/halso-sjukvard-86212"
+  ],
+  [
+   "186|86905",
+   "/kommun/lidingo/halso-sjukvard-86905"
+  ],
+  [
+   "186|86909",
+   "/kommun/lidingo/halso-sjukvard-86909"
+  ],
+  [
+   "186|46460",
+   "/kommun/lidingo/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "186|86221",
+   "/kommun/lidingo/specialistlakare-86221"
+  ],
+  [
+   "186|86222",
+   "/kommun/lidingo/specialistlakare-86222"
+  ],
+  [
+   "186|86230",
+   "/kommun/lidingo/tandlakare-86230"
+  ],
+  [
+   "186|86904",
+   "/kommun/lidingo/tandlakare-86904"
+  ],
+  [
+   "1494|87201",
+   "/kommun/lidkoping/behandlingshem-87201"
+  ],
+  [
+   "1494|88910",
+   "/kommun/lidkoping/dagbarnvard-88910"
+  ],
+  [
+   "1494|86212",
+   "/kommun/lidkoping/halso-sjukvard-86212"
+  ],
+  [
+   "1494|86905",
+   "/kommun/lidkoping/halso-sjukvard-86905"
+  ],
+  [
+   "1494|86909",
+   "/kommun/lidkoping/halso-sjukvard-86909"
+  ],
+  [
+   "1494|86222",
+   "/kommun/lidkoping/specialistlakare-86222"
+  ],
+  [
+   "1494|86230",
+   "/kommun/lidkoping/tandlakare-86230"
+  ],
+  [
+   "1885|47730",
+   "/kommun/lindesberg/apotek-47730"
+  ],
+  [
+   "1885|87201",
+   "/kommun/lindesberg/behandlingshem-87201"
+  ],
+  [
+   "1885|86212",
+   "/kommun/lindesberg/halso-sjukvard-86212"
+  ],
+  [
+   "1885|86905",
+   "/kommun/lindesberg/halso-sjukvard-86905"
+  ],
+  [
+   "1885|86909",
+   "/kommun/lindesberg/halso-sjukvard-86909"
+  ],
+  [
+   "1885|86230",
+   "/kommun/lindesberg/tandlakare-86230"
+  ],
+  [
+   "580|47730",
+   "/kommun/linkoping/apotek-47730"
+  ],
+  [
+   "580|87100",
+   "/kommun/linkoping/behandlingshem-87100"
+  ],
+  [
+   "580|87201",
+   "/kommun/linkoping/behandlingshem-87201"
+  ],
+  [
+   "580|87203",
+   "/kommun/linkoping/behandlingshem-87203"
+  ],
+  [
+   "580|88910",
+   "/kommun/linkoping/dagbarnvard-88910"
+  ],
+  [
+   "580|86211",
+   "/kommun/linkoping/halso-sjukvard-86211"
+  ],
+  [
+   "580|86212",
+   "/kommun/linkoping/halso-sjukvard-86212"
+  ],
+  [
+   "580|86905",
+   "/kommun/linkoping/halso-sjukvard-86905"
+  ],
+  [
+   "580|86909",
+   "/kommun/linkoping/halso-sjukvard-86909"
+  ],
+  [
+   "580|46460",
+   "/kommun/linkoping/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "580|86221",
+   "/kommun/linkoping/specialistlakare-86221"
+  ],
+  [
+   "580|86222",
+   "/kommun/linkoping/specialistlakare-86222"
+  ],
+  [
+   "580|86230",
+   "/kommun/linkoping/tandlakare-86230"
+  ],
+  [
+   "781|87201",
+   "/kommun/ljungby/behandlingshem-87201"
+  ],
+  [
+   "781|86212",
+   "/kommun/ljungby/halso-sjukvard-86212"
+  ],
+  [
+   "781|86905",
+   "/kommun/ljungby/halso-sjukvard-86905"
+  ],
+  [
+   "781|86230",
+   "/kommun/ljungby/tandlakare-86230"
+  ],
+  [
+   "2161|87201",
+   "/kommun/ljusdal/behandlingshem-87201"
+  ],
+  [
+   "2161|86905",
+   "/kommun/ljusdal/halso-sjukvard-86905"
+  ],
+  [
+   "2161|86909",
+   "/kommun/ljusdal/halso-sjukvard-86909"
+  ],
+  [
+   "1864|86905",
+   "/kommun/ljusnarsberg/halso-sjukvard-86905"
+  ],
+  [
+   "1262|86212",
+   "/kommun/lomma/halso-sjukvard-86212"
+  ],
+  [
+   "1262|86905",
+   "/kommun/lomma/halso-sjukvard-86905"
+  ],
+  [
+   "1262|86909",
+   "/kommun/lomma/halso-sjukvard-86909"
+  ],
+  [
+   "1262|86222",
+   "/kommun/lomma/specialistlakare-86222"
+  ],
+  [
+   "2085|47730",
+   "/kommun/ludvika/apotek-47730"
+  ],
+  [
+   "2085|87201",
+   "/kommun/ludvika/behandlingshem-87201"
+  ],
+  [
+   "2085|86212",
+   "/kommun/ludvika/halso-sjukvard-86212"
+  ],
+  [
+   "2085|86905",
+   "/kommun/ludvika/halso-sjukvard-86905"
+  ],
+  [
+   "2085|86909",
+   "/kommun/ludvika/halso-sjukvard-86909"
+  ],
+  [
+   "2085|86230",
+   "/kommun/ludvika/tandlakare-86230"
+  ],
+  [
+   "2580|47730",
+   "/kommun/lulea/apotek-47730"
+  ],
+  [
+   "2580|87201",
+   "/kommun/lulea/behandlingshem-87201"
+  ],
+  [
+   "2580|86211",
+   "/kommun/lulea/halso-sjukvard-86211"
+  ],
+  [
+   "2580|86212",
+   "/kommun/lulea/halso-sjukvard-86212"
+  ],
+  [
+   "2580|86905",
+   "/kommun/lulea/halso-sjukvard-86905"
+  ],
+  [
+   "2580|86909",
+   "/kommun/lulea/halso-sjukvard-86909"
+  ],
+  [
+   "2580|86222",
+   "/kommun/lulea/specialistlakare-86222"
+  ],
+  [
+   "2580|86230",
+   "/kommun/lulea/tandlakare-86230"
+  ],
+  [
+   "1281|47730",
+   "/kommun/lund/apotek-47730"
+  ],
+  [
+   "1281|87201",
+   "/kommun/lund/behandlingshem-87201"
+  ],
+  [
+   "1281|87901",
+   "/kommun/lund/behandlingshem-87901"
+  ],
+  [
+   "1281|88910",
+   "/kommun/lund/dagbarnvard-88910"
+  ],
+  [
+   "1281|86211",
+   "/kommun/lund/halso-sjukvard-86211"
+  ],
+  [
+   "1281|86212",
+   "/kommun/lund/halso-sjukvard-86212"
+  ],
+  [
+   "1281|86905",
+   "/kommun/lund/halso-sjukvard-86905"
+  ],
+  [
+   "1281|86909",
+   "/kommun/lund/halso-sjukvard-86909"
+  ],
+  [
+   "1281|46460",
+   "/kommun/lund/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1281|86221",
+   "/kommun/lund/specialistlakare-86221"
+  ],
+  [
+   "1281|86222",
+   "/kommun/lund/specialistlakare-86222"
+  ],
+  [
+   "1281|86230",
+   "/kommun/lund/tandlakare-86230"
+  ],
+  [
+   "2481|87201",
+   "/kommun/lycksele/behandlingshem-87201"
+  ],
+  [
+   "2481|86905",
+   "/kommun/lycksele/halso-sjukvard-86905"
+  ],
+  [
+   "2481|86909",
+   "/kommun/lycksele/halso-sjukvard-86909"
+  ],
+  [
+   "2481|86230",
+   "/kommun/lycksele/tandlakare-86230"
+  ],
+  [
+   "1484|87201",
+   "/kommun/lysekil/behandlingshem-87201"
+  ],
+  [
+   "1484|86905",
+   "/kommun/lysekil/halso-sjukvard-86905"
+  ],
+  [
+   "1484|86230",
+   "/kommun/lysekil/tandlakare-86230"
+  ],
+  [
+   "1280|47730",
+   "/kommun/malmo/apotek-47730"
+  ],
+  [
+   "1280|87100",
+   "/kommun/malmo/behandlingshem-87100"
+  ],
+  [
+   "1280|87201",
+   "/kommun/malmo/behandlingshem-87201"
+  ],
+  [
+   "1280|87203",
+   "/kommun/malmo/behandlingshem-87203"
+  ],
+  [
+   "1280|87901",
+   "/kommun/malmo/behandlingshem-87901"
+  ],
+  [
+   "1280|87902",
+   "/kommun/malmo/behandlingshem-87902"
+  ],
+  [
+   "1280|88991",
+   "/kommun/malmo/behandlingshem-88991"
+  ],
+  [
+   "1280|88910",
+   "/kommun/malmo/dagbarnvard-88910"
+  ],
+  [
+   "1280|86102",
+   "/kommun/malmo/halso-sjukvard-86102"
+  ],
+  [
+   "1280|86211",
+   "/kommun/malmo/halso-sjukvard-86211"
+  ],
+  [
+   "1280|86212",
+   "/kommun/malmo/halso-sjukvard-86212"
+  ],
+  [
+   "1280|86903",
+   "/kommun/malmo/halso-sjukvard-86903"
+  ],
+  [
+   "1280|86905",
+   "/kommun/malmo/halso-sjukvard-86905"
+  ],
+  [
+   "1280|86909",
+   "/kommun/malmo/halso-sjukvard-86909"
+  ],
+  [
+   "1280|46460",
+   "/kommun/malmo/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1280|86221",
+   "/kommun/malmo/specialistlakare-86221"
+  ],
+  [
+   "1280|86222",
+   "/kommun/malmo/specialistlakare-86222"
+  ],
+  [
+   "1280|86230",
+   "/kommun/malmo/tandlakare-86230"
+  ],
+  [
+   "1280|87302",
+   "/kommun/malmo/vard-och-omsorg-i-sarskilda-boendeformer-for-personer-med-funktionshinder-87302"
+  ],
+  [
+   "2023|86905",
+   "/kommun/malung-salen/halso-sjukvard-86905"
+  ],
+  [
+   "1493|87201",
+   "/kommun/mariestad/behandlingshem-87201"
+  ],
+  [
+   "1493|86909",
+   "/kommun/mariestad/halso-sjukvard-86909"
+  ],
+  [
+   "1493|86230",
+   "/kommun/mariestad/tandlakare-86230"
+  ],
+  [
+   "1463|87100",
+   "/kommun/mark/behandlingshem-87100"
+  ],
+  [
+   "1463|87201",
+   "/kommun/mark/behandlingshem-87201"
+  ],
+  [
+   "1463|88910",
+   "/kommun/mark/dagbarnvard-88910"
+  ],
+  [
+   "1463|86211",
+   "/kommun/mark/halso-sjukvard-86211"
+  ],
+  [
+   "1463|86212",
+   "/kommun/mark/halso-sjukvard-86212"
+  ],
+  [
+   "1463|86905",
+   "/kommun/mark/halso-sjukvard-86905"
+  ],
+  [
+   "1463|86909",
+   "/kommun/mark/halso-sjukvard-86909"
+  ],
+  [
+   "1463|86230",
+   "/kommun/mark/tandlakare-86230"
+  ],
+  [
+   "767|87201",
+   "/kommun/markaryd/behandlingshem-87201"
+  ],
+  [
+   "767|86905",
+   "/kommun/markaryd/halso-sjukvard-86905"
+  ],
+  [
+   "1461|87201",
+   "/kommun/mellerud/behandlingshem-87201"
+  ],
+  [
+   "586|87201",
+   "/kommun/mjolby/behandlingshem-87201"
+  ],
+  [
+   "586|86212",
+   "/kommun/mjolby/halso-sjukvard-86212"
+  ],
+  [
+   "586|86905",
+   "/kommun/mjolby/halso-sjukvard-86905"
+  ],
+  [
+   "586|86909",
+   "/kommun/mjolby/halso-sjukvard-86909"
+  ],
+  [
+   "586|86230",
+   "/kommun/mjolby/tandlakare-86230"
+  ],
+  [
+   "1481|47730",
+   "/kommun/molndal/apotek-47730"
+  ],
+  [
+   "1481|87201",
+   "/kommun/molndal/behandlingshem-87201"
+  ],
+  [
+   "1481|87901",
+   "/kommun/molndal/behandlingshem-87901"
+  ],
+  [
+   "1481|88910",
+   "/kommun/molndal/dagbarnvard-88910"
+  ],
+  [
+   "1481|86211",
+   "/kommun/molndal/halso-sjukvard-86211"
+  ],
+  [
+   "1481|86212",
+   "/kommun/molndal/halso-sjukvard-86212"
+  ],
+  [
+   "1481|86905",
+   "/kommun/molndal/halso-sjukvard-86905"
+  ],
+  [
+   "1481|86909",
+   "/kommun/molndal/halso-sjukvard-86909"
+  ],
+  [
+   "1481|46460",
+   "/kommun/molndal/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1481|86222",
+   "/kommun/molndal/specialistlakare-86222"
+  ],
+  [
+   "1481|86230",
+   "/kommun/molndal/tandlakare-86230"
+  ],
+  [
+   "861|87201",
+   "/kommun/monsteras/behandlingshem-87201"
+  ],
+  [
+   "861|86905",
+   "/kommun/monsteras/halso-sjukvard-86905"
+  ],
+  [
+   "861|86909",
+   "/kommun/monsteras/halso-sjukvard-86909"
+  ],
+  [
+   "2062|87201",
+   "/kommun/mora/behandlingshem-87201"
+  ],
+  [
+   "2062|86905",
+   "/kommun/mora/halso-sjukvard-86905"
+  ],
+  [
+   "2062|86909",
+   "/kommun/mora/halso-sjukvard-86909"
+  ],
+  [
+   "2062|86230",
+   "/kommun/mora/tandlakare-86230"
+  ],
+  [
+   "840|87201",
+   "/kommun/morbylanga/behandlingshem-87201"
+  ],
+  [
+   "840|86905",
+   "/kommun/morbylanga/halso-sjukvard-86905"
+  ],
+  [
+   "840|86909",
+   "/kommun/morbylanga/halso-sjukvard-86909"
+  ],
+  [
+   "840|86230",
+   "/kommun/morbylanga/tandlakare-86230"
+  ],
+  [
+   "583|47730",
+   "/kommun/motala/apotek-47730"
+  ],
+  [
+   "583|87201",
+   "/kommun/motala/behandlingshem-87201"
+  ],
+  [
+   "583|86212",
+   "/kommun/motala/halso-sjukvard-86212"
+  ],
+  [
+   "583|86905",
+   "/kommun/motala/halso-sjukvard-86905"
+  ],
+  [
+   "583|86909",
+   "/kommun/motala/halso-sjukvard-86909"
+  ],
+  [
+   "583|86230",
+   "/kommun/motala/tandlakare-86230"
+  ],
+  [
+   "182|47730",
+   "/kommun/nacka/apotek-47730"
+  ],
+  [
+   "182|87201",
+   "/kommun/nacka/behandlingshem-87201"
+  ],
+  [
+   "182|56293",
+   "/kommun/nacka/centralkoksverksamhet-for-skolor-omsorgs-och-andra-institutioner-56293"
+  ],
+  [
+   "182|88910",
+   "/kommun/nacka/dagbarnvard-88910"
+  ],
+  [
+   "182|86102",
+   "/kommun/nacka/halso-sjukvard-86102"
+  ],
+  [
+   "182|86211",
+   "/kommun/nacka/halso-sjukvard-86211"
+  ],
+  [
+   "182|86212",
+   "/kommun/nacka/halso-sjukvard-86212"
+  ],
+  [
+   "182|86905",
+   "/kommun/nacka/halso-sjukvard-86905"
+  ],
+  [
+   "182|86909",
+   "/kommun/nacka/halso-sjukvard-86909"
+  ],
+  [
+   "182|46460",
+   "/kommun/nacka/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "182|86222",
+   "/kommun/nacka/specialistlakare-86222"
+  ],
+  [
+   "182|86230",
+   "/kommun/nacka/tandlakare-86230"
+  ],
+  [
+   "182|86904",
+   "/kommun/nacka/tandlakare-86904"
+  ],
+  [
+   "682|87201",
+   "/kommun/nassjo/behandlingshem-87201"
+  ],
+  [
+   "682|86212",
+   "/kommun/nassjo/halso-sjukvard-86212"
+  ],
+  [
+   "682|86905",
+   "/kommun/nassjo/halso-sjukvard-86905"
+  ],
+  [
+   "682|86909",
+   "/kommun/nassjo/halso-sjukvard-86909"
+  ],
+  [
+   "682|86230",
+   "/kommun/nassjo/tandlakare-86230"
+  ],
+  [
+   "1884|86905",
+   "/kommun/nora/halso-sjukvard-86905"
+  ],
+  [
+   "1884|86909",
+   "/kommun/nora/halso-sjukvard-86909"
+  ],
+  [
+   "1884|87302",
+   "/kommun/nora/vard-och-omsorg-i-sarskilda-boendeformer-for-personer-med-funktionshinder-87302"
+  ],
+  [
+   "2132|87901",
+   "/kommun/nordanstig/behandlingshem-87901"
+  ],
+  [
+   "2132|86905",
+   "/kommun/nordanstig/halso-sjukvard-86905"
+  ],
+  [
+   "2401|87201",
+   "/kommun/nordmaling/behandlingshem-87201"
+  ],
+  [
+   "581|47730",
+   "/kommun/norrkoping/apotek-47730"
+  ],
+  [
+   "581|87201",
+   "/kommun/norrkoping/behandlingshem-87201"
+  ],
+  [
+   "581|87203",
+   "/kommun/norrkoping/behandlingshem-87203"
+  ],
+  [
+   "581|87901",
+   "/kommun/norrkoping/behandlingshem-87901"
+  ],
+  [
+   "581|88991",
+   "/kommun/norrkoping/behandlingshem-88991"
+  ],
+  [
+   "581|88992",
+   "/kommun/norrkoping/behandlingshem-88992"
+  ],
+  [
+   "581|88910",
+   "/kommun/norrkoping/dagbarnvard-88910"
+  ],
+  [
+   "581|86211",
+   "/kommun/norrkoping/halso-sjukvard-86211"
+  ],
+  [
+   "581|86212",
+   "/kommun/norrkoping/halso-sjukvard-86212"
+  ],
+  [
+   "581|86905",
+   "/kommun/norrkoping/halso-sjukvard-86905"
+  ],
+  [
+   "581|86909",
+   "/kommun/norrkoping/halso-sjukvard-86909"
+  ],
+  [
+   "581|46460",
+   "/kommun/norrkoping/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "581|86222",
+   "/kommun/norrkoping/specialistlakare-86222"
+  ],
+  [
+   "581|86230",
+   "/kommun/norrkoping/tandlakare-86230"
+  ],
+  [
+   "188|87100",
+   "/kommun/norrtalje/behandlingshem-87100"
+  ],
+  [
+   "188|87201",
+   "/kommun/norrtalje/behandlingshem-87201"
+  ],
+  [
+   "188|87901",
+   "/kommun/norrtalje/behandlingshem-87901"
+  ],
+  [
+   "188|88910",
+   "/kommun/norrtalje/dagbarnvard-88910"
+  ],
+  [
+   "188|86211",
+   "/kommun/norrtalje/halso-sjukvard-86211"
+  ],
+  [
+   "188|86212",
+   "/kommun/norrtalje/halso-sjukvard-86212"
+  ],
+  [
+   "188|86905",
+   "/kommun/norrtalje/halso-sjukvard-86905"
+  ],
+  [
+   "188|86909",
+   "/kommun/norrtalje/halso-sjukvard-86909"
+  ],
+  [
+   "188|46460",
+   "/kommun/norrtalje/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "188|86222",
+   "/kommun/norrtalje/specialistlakare-86222"
+  ],
+  [
+   "188|86230",
+   "/kommun/norrtalje/tandlakare-86230"
+  ],
+  [
+   "188|86904",
+   "/kommun/norrtalje/tandlakare-86904"
+  ],
+  [
+   "881|87201",
+   "/kommun/nybro/behandlingshem-87201"
+  ],
+  [
+   "881|88910",
+   "/kommun/nybro/dagbarnvard-88910"
+  ],
+  [
+   "881|86212",
+   "/kommun/nybro/halso-sjukvard-86212"
+  ],
+  [
+   "881|86905",
+   "/kommun/nybro/halso-sjukvard-86905"
+  ],
+  [
+   "881|86909",
+   "/kommun/nybro/halso-sjukvard-86909"
+  ],
+  [
+   "881|86230",
+   "/kommun/nybro/tandlakare-86230"
+  ],
+  [
+   "480|47730",
+   "/kommun/nykoping/apotek-47730"
+  ],
+  [
+   "480|87201",
+   "/kommun/nykoping/behandlingshem-87201"
+  ],
+  [
+   "480|87901",
+   "/kommun/nykoping/behandlingshem-87901"
+  ],
+  [
+   "480|86212",
+   "/kommun/nykoping/halso-sjukvard-86212"
+  ],
+  [
+   "480|86903",
+   "/kommun/nykoping/halso-sjukvard-86903"
+  ],
+  [
+   "480|86905",
+   "/kommun/nykoping/halso-sjukvard-86905"
+  ],
+  [
+   "480|86909",
+   "/kommun/nykoping/halso-sjukvard-86909"
+  ],
+  [
+   "480|46460",
+   "/kommun/nykoping/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "480|86222",
+   "/kommun/nykoping/specialistlakare-86222"
+  ],
+  [
+   "480|86230",
+   "/kommun/nykoping/tandlakare-86230"
+  ],
+  [
+   "192|87201",
+   "/kommun/nynashamn/behandlingshem-87201"
+  ],
+  [
+   "192|86211",
+   "/kommun/nynashamn/halso-sjukvard-86211"
+  ],
+  [
+   "192|86212",
+   "/kommun/nynashamn/halso-sjukvard-86212"
+  ],
+  [
+   "192|86905",
+   "/kommun/nynashamn/halso-sjukvard-86905"
+  ],
+  [
+   "192|86909",
+   "/kommun/nynashamn/halso-sjukvard-86909"
+  ],
+  [
+   "192|86230",
+   "/kommun/nynashamn/tandlakare-86230"
+  ],
+  [
+   "1407|87100",
+   "/kommun/ockero/behandlingshem-87100"
+  ],
+  [
+   "1407|87201",
+   "/kommun/ockero/behandlingshem-87201"
+  ],
+  [
+   "1407|86905",
+   "/kommun/ockero/halso-sjukvard-86905"
+  ],
+  [
+   "1407|86909",
+   "/kommun/ockero/halso-sjukvard-86909"
+  ],
+  [
+   "1060|87201",
+   "/kommun/olofstrom/behandlingshem-87201"
+  ],
+  [
+   "1880|47730",
+   "/kommun/orebro/apotek-47730"
+  ],
+  [
+   "1880|87100",
+   "/kommun/orebro/behandlingshem-87100"
+  ],
+  [
+   "1880|87201",
+   "/kommun/orebro/behandlingshem-87201"
+  ],
+  [
+   "1880|87203",
+   "/kommun/orebro/behandlingshem-87203"
+  ],
+  [
+   "1880|87901",
+   "/kommun/orebro/behandlingshem-87901"
+  ],
+  [
+   "1880|88910",
+   "/kommun/orebro/dagbarnvard-88910"
+  ],
+  [
+   "1880|86211",
+   "/kommun/orebro/halso-sjukvard-86211"
+  ],
+  [
+   "1880|86212",
+   "/kommun/orebro/halso-sjukvard-86212"
+  ],
+  [
+   "1880|86905",
+   "/kommun/orebro/halso-sjukvard-86905"
+  ],
+  [
+   "1880|86909",
+   "/kommun/orebro/halso-sjukvard-86909"
+  ],
+  [
+   "1880|46460",
+   "/kommun/orebro/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1880|86222",
+   "/kommun/orebro/specialistlakare-86222"
+  ],
+  [
+   "1880|86230",
+   "/kommun/orebro/tandlakare-86230"
+  ],
+  [
+   "1257|86212",
+   "/kommun/orkelljunga/halso-sjukvard-86212"
+  ],
+  [
+   "2284|47730",
+   "/kommun/ornskoldsvik/apotek-47730"
+  ],
+  [
+   "2284|87201",
+   "/kommun/ornskoldsvik/behandlingshem-87201"
+  ],
+  [
+   "2284|86102",
+   "/kommun/ornskoldsvik/halso-sjukvard-86102"
+  ],
+  [
+   "2284|86211",
+   "/kommun/ornskoldsvik/halso-sjukvard-86211"
+  ],
+  [
+   "2284|86212",
+   "/kommun/ornskoldsvik/halso-sjukvard-86212"
+  ],
+  [
+   "2284|86903",
+   "/kommun/ornskoldsvik/halso-sjukvard-86903"
+  ],
+  [
+   "2284|86905",
+   "/kommun/ornskoldsvik/halso-sjukvard-86905"
+  ],
+  [
+   "2284|86909",
+   "/kommun/ornskoldsvik/halso-sjukvard-86909"
+  ],
+  [
+   "2284|86230",
+   "/kommun/ornskoldsvik/tandlakare-86230"
+  ],
+  [
+   "2034|86905",
+   "/kommun/orsa/halso-sjukvard-86905"
+  ],
+  [
+   "1421|87201",
+   "/kommun/orust/behandlingshem-87201"
+  ],
+  [
+   "1421|86212",
+   "/kommun/orust/halso-sjukvard-86212"
+  ],
+  [
+   "1421|86905",
+   "/kommun/orust/halso-sjukvard-86905"
+  ],
+  [
+   "1421|86909",
+   "/kommun/orust/halso-sjukvard-86909"
+  ],
+  [
+   "1421|86230",
+   "/kommun/orust/tandlakare-86230"
+  ],
+  [
+   "1273|86909",
+   "/kommun/osby/halso-sjukvard-86909"
+  ],
+  [
+   "1273|86230",
+   "/kommun/osby/tandlakare-86230"
+  ],
+  [
+   "882|87201",
+   "/kommun/oskarshamn/behandlingshem-87201"
+  ],
+  [
+   "882|86905",
+   "/kommun/oskarshamn/halso-sjukvard-86905"
+  ],
+  [
+   "882|86909",
+   "/kommun/oskarshamn/halso-sjukvard-86909"
+  ],
+  [
+   "882|86230",
+   "/kommun/oskarshamn/tandlakare-86230"
+  ],
+  [
+   "117|87201",
+   "/kommun/osteraker/behandlingshem-87201"
+  ],
+  [
+   "117|88910",
+   "/kommun/osteraker/dagbarnvard-88910"
+  ],
+  [
+   "117|86212",
+   "/kommun/osteraker/halso-sjukvard-86212"
+  ],
+  [
+   "117|86905",
+   "/kommun/osteraker/halso-sjukvard-86905"
+  ],
+  [
+   "117|86909",
+   "/kommun/osteraker/halso-sjukvard-86909"
+  ],
+  [
+   "117|86222",
+   "/kommun/osteraker/specialistlakare-86222"
+  ],
+  [
+   "117|86230",
+   "/kommun/osteraker/tandlakare-86230"
+  ],
+  [
+   "2380|47730",
+   "/kommun/ostersund/apotek-47730"
+  ],
+  [
+   "2380|87201",
+   "/kommun/ostersund/behandlingshem-87201"
+  ],
+  [
+   "2380|88910",
+   "/kommun/ostersund/dagbarnvard-88910"
+  ],
+  [
+   "2380|86211",
+   "/kommun/ostersund/halso-sjukvard-86211"
+  ],
+  [
+   "2380|86212",
+   "/kommun/ostersund/halso-sjukvard-86212"
+  ],
+  [
+   "2380|86905",
+   "/kommun/ostersund/halso-sjukvard-86905"
+  ],
+  [
+   "2380|86909",
+   "/kommun/ostersund/halso-sjukvard-86909"
+  ],
+  [
+   "2380|86222",
+   "/kommun/ostersund/specialistlakare-86222"
+  ],
+  [
+   "2380|86230",
+   "/kommun/ostersund/tandlakare-86230"
+  ],
+  [
+   "382|47730",
+   "/kommun/osthammar/apotek-47730"
+  ],
+  [
+   "382|87201",
+   "/kommun/osthammar/behandlingshem-87201"
+  ],
+  [
+   "382|88910",
+   "/kommun/osthammar/dagbarnvard-88910"
+  ],
+  [
+   "382|86905",
+   "/kommun/osthammar/halso-sjukvard-86905"
+  ],
+  [
+   "382|86909",
+   "/kommun/osthammar/halso-sjukvard-86909"
+  ],
+  [
+   "382|86230",
+   "/kommun/osthammar/tandlakare-86230"
+  ],
+  [
+   "1256|86212",
+   "/kommun/ostra-goinge/halso-sjukvard-86212"
+  ],
+  [
+   "2121|86905",
+   "/kommun/ovanaker/halso-sjukvard-86905"
+  ],
+  [
+   "2513|87201",
+   "/kommun/overkalix/behandlingshem-87201"
+  ],
+  [
+   "2521|87201",
+   "/kommun/pajala/behandlingshem-87201"
+  ],
+  [
+   "1402|87201",
+   "/kommun/partille/behandlingshem-87201"
+  ],
+  [
+   "1402|88910",
+   "/kommun/partille/dagbarnvard-88910"
+  ],
+  [
+   "1402|86212",
+   "/kommun/partille/halso-sjukvard-86212"
+  ],
+  [
+   "1402|86905",
+   "/kommun/partille/halso-sjukvard-86905"
+  ],
+  [
+   "1402|86909",
+   "/kommun/partille/halso-sjukvard-86909"
+  ],
+  [
+   "1402|46460",
+   "/kommun/partille/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1402|86222",
+   "/kommun/partille/specialistlakare-86222"
+  ],
+  [
+   "1402|86230",
+   "/kommun/partille/tandlakare-86230"
+  ],
+  [
+   "2581|47730",
+   "/kommun/pitea/apotek-47730"
+  ],
+  [
+   "2581|87201",
+   "/kommun/pitea/behandlingshem-87201"
+  ],
+  [
+   "2581|86211",
+   "/kommun/pitea/halso-sjukvard-86211"
+  ],
+  [
+   "2581|86212",
+   "/kommun/pitea/halso-sjukvard-86212"
+  ],
+  [
+   "2581|86905",
+   "/kommun/pitea/halso-sjukvard-86905"
+  ],
+  [
+   "2581|86909",
+   "/kommun/pitea/halso-sjukvard-86909"
+  ],
+  [
+   "2581|86230",
+   "/kommun/pitea/tandlakare-86230"
+  ],
+  [
+   "2031|87201",
+   "/kommun/rattvik/behandlingshem-87201"
+  ],
+  [
+   "2031|86905",
+   "/kommun/rattvik/halso-sjukvard-86905"
+  ],
+  [
+   "2031|86909",
+   "/kommun/rattvik/halso-sjukvard-86909"
+  ],
+  [
+   "1081|87201",
+   "/kommun/ronneby/behandlingshem-87201"
+  ],
+  [
+   "1081|86212",
+   "/kommun/ronneby/halso-sjukvard-86212"
+  ],
+  [
+   "1081|86905",
+   "/kommun/ronneby/halso-sjukvard-86905"
+  ],
+  [
+   "1081|86230",
+   "/kommun/ronneby/tandlakare-86230"
+  ],
+  [
+   "1785|87201",
+   "/kommun/saffle/behandlingshem-87201"
+  ],
+  [
+   "1785|86905",
+   "/kommun/saffle/halso-sjukvard-86905"
+  ],
+  [
+   "1785|86909",
+   "/kommun/saffle/halso-sjukvard-86909"
+  ],
+  [
+   "1981|87201",
+   "/kommun/sala/behandlingshem-87201"
+  ],
+  [
+   "1981|87901",
+   "/kommun/sala/behandlingshem-87901"
+  ],
+  [
+   "1981|86905",
+   "/kommun/sala/halso-sjukvard-86905"
+  ],
+  [
+   "1981|86909",
+   "/kommun/sala/halso-sjukvard-86909"
+  ],
+  [
+   "1981|86230",
+   "/kommun/sala/tandlakare-86230"
+  ],
+  [
+   "128|88910",
+   "/kommun/salem/dagbarnvard-88910"
+  ],
+  [
+   "128|86212",
+   "/kommun/salem/halso-sjukvard-86212"
+  ],
+  [
+   "128|86905",
+   "/kommun/salem/halso-sjukvard-86905"
+  ],
+  [
+   "128|86909",
+   "/kommun/salem/halso-sjukvard-86909"
+  ],
+  [
+   "128|86230",
+   "/kommun/salem/tandlakare-86230"
+  ],
+  [
+   "2181|87100",
+   "/kommun/sandviken/behandlingshem-87100"
+  ],
+  [
+   "2181|87201",
+   "/kommun/sandviken/behandlingshem-87201"
+  ],
+  [
+   "2181|86212",
+   "/kommun/sandviken/halso-sjukvard-86212"
+  ],
+  [
+   "2181|86905",
+   "/kommun/sandviken/halso-sjukvard-86905"
+  ],
+  [
+   "2181|86909",
+   "/kommun/sandviken/halso-sjukvard-86909"
+  ],
+  [
+   "2181|86222",
+   "/kommun/sandviken/specialistlakare-86222"
+  ],
+  [
+   "2181|86230",
+   "/kommun/sandviken/tandlakare-86230"
+  ],
+  [
+   "2082|87201",
+   "/kommun/sater/behandlingshem-87201"
+  ],
+  [
+   "2082|86905",
+   "/kommun/sater/halso-sjukvard-86905"
+  ],
+  [
+   "2082|86909",
+   "/kommun/sater/halso-sjukvard-86909"
+  ],
+  [
+   "684|87201",
+   "/kommun/savsjo/behandlingshem-87201"
+  ],
+  [
+   "191|86212",
+   "/kommun/sigtuna/halso-sjukvard-86212"
+  ],
+  [
+   "191|86905",
+   "/kommun/sigtuna/halso-sjukvard-86905"
+  ],
+  [
+   "191|86909",
+   "/kommun/sigtuna/halso-sjukvard-86909"
+  ],
+  [
+   "191|46460",
+   "/kommun/sigtuna/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "191|86222",
+   "/kommun/sigtuna/specialistlakare-86222"
+  ],
+  [
+   "191|86230",
+   "/kommun/sigtuna/tandlakare-86230"
+  ],
+  [
+   "191|87302",
+   "/kommun/sigtuna/vard-och-omsorg-i-sarskilda-boendeformer-for-personer-med-funktionshinder-87302"
+  ],
+  [
+   "1291|87201",
+   "/kommun/simrishamn/behandlingshem-87201"
+  ],
+  [
+   "1291|88910",
+   "/kommun/simrishamn/dagbarnvard-88910"
+  ],
+  [
+   "1291|86212",
+   "/kommun/simrishamn/halso-sjukvard-86212"
+  ],
+  [
+   "1291|86905",
+   "/kommun/simrishamn/halso-sjukvard-86905"
+  ],
+  [
+   "1291|86909",
+   "/kommun/simrishamn/halso-sjukvard-86909"
+  ],
+  [
+   "1291|86230",
+   "/kommun/simrishamn/tandlakare-86230"
+  ],
+  [
+   "1265|87201",
+   "/kommun/sjobo/behandlingshem-87201"
+  ],
+  [
+   "1265|86212",
+   "/kommun/sjobo/halso-sjukvard-86212"
+  ],
+  [
+   "1265|86905",
+   "/kommun/sjobo/halso-sjukvard-86905"
+  ],
+  [
+   "1265|86909",
+   "/kommun/sjobo/halso-sjukvard-86909"
+  ],
+  [
+   "1495|87201",
+   "/kommun/skara/behandlingshem-87201"
+  ],
+  [
+   "1495|87901",
+   "/kommun/skara/behandlingshem-87901"
+  ],
+  [
+   "1495|86905",
+   "/kommun/skara/halso-sjukvard-86905"
+  ],
+  [
+   "1495|86909",
+   "/kommun/skara/halso-sjukvard-86909"
+  ],
+  [
+   "2482|47730",
+   "/kommun/skelleftea/apotek-47730"
+  ],
+  [
+   "2482|87201",
+   "/kommun/skelleftea/behandlingshem-87201"
+  ],
+  [
+   "2482|88910",
+   "/kommun/skelleftea/dagbarnvard-88910"
+  ],
+  [
+   "2482|86211",
+   "/kommun/skelleftea/halso-sjukvard-86211"
+  ],
+  [
+   "2482|86212",
+   "/kommun/skelleftea/halso-sjukvard-86212"
+  ],
+  [
+   "2482|86905",
+   "/kommun/skelleftea/halso-sjukvard-86905"
+  ],
+  [
+   "2482|86909",
+   "/kommun/skelleftea/halso-sjukvard-86909"
+  ],
+  [
+   "2482|86222",
+   "/kommun/skelleftea/specialistlakare-86222"
+  ],
+  [
+   "2482|86230",
+   "/kommun/skelleftea/tandlakare-86230"
+  ],
+  [
+   "1496|47730",
+   "/kommun/skovde/apotek-47730"
+  ],
+  [
+   "1496|87201",
+   "/kommun/skovde/behandlingshem-87201"
+  ],
+  [
+   "1496|87901",
+   "/kommun/skovde/behandlingshem-87901"
+  ],
+  [
+   "1496|86211",
+   "/kommun/skovde/halso-sjukvard-86211"
+  ],
+  [
+   "1496|86212",
+   "/kommun/skovde/halso-sjukvard-86212"
+  ],
+  [
+   "1496|86905",
+   "/kommun/skovde/halso-sjukvard-86905"
+  ],
+  [
+   "1496|86909",
+   "/kommun/skovde/halso-sjukvard-86909"
+  ],
+  [
+   "1496|86222",
+   "/kommun/skovde/specialistlakare-86222"
+  ],
+  [
+   "1496|86230",
+   "/kommun/skovde/tandlakare-86230"
+  ],
+  [
+   "1264|86230",
+   "/kommun/skurup/tandlakare-86230"
+  ],
+  [
+   "2061|87201",
+   "/kommun/smedjebacken/behandlingshem-87201"
+  ],
+  [
+   "2061|86905",
+   "/kommun/smedjebacken/halso-sjukvard-86905"
+  ],
+  [
+   "2182|87201",
+   "/kommun/soderhamn/behandlingshem-87201"
+  ],
+  [
+   "2182|86212",
+   "/kommun/soderhamn/halso-sjukvard-86212"
+  ],
+  [
+   "2182|86905",
+   "/kommun/soderhamn/halso-sjukvard-86905"
+  ],
+  [
+   "2182|86909",
+   "/kommun/soderhamn/halso-sjukvard-86909"
+  ],
+  [
+   "2182|86230",
+   "/kommun/soderhamn/tandlakare-86230"
+  ],
+  [
+   "582|87201",
+   "/kommun/soderkoping/behandlingshem-87201"
+  ],
+  [
+   "582|86905",
+   "/kommun/soderkoping/halso-sjukvard-86905"
+  ],
+  [
+   "582|86909",
+   "/kommun/soderkoping/halso-sjukvard-86909"
+  ],
+  [
+   "181|47730",
+   "/kommun/sodertalje/apotek-47730"
+  ],
+  [
+   "181|87201",
+   "/kommun/sodertalje/behandlingshem-87201"
+  ],
+  [
+   "181|87901",
+   "/kommun/sodertalje/behandlingshem-87901"
+  ],
+  [
+   "181|86102",
+   "/kommun/sodertalje/halso-sjukvard-86102"
+  ],
+  [
+   "181|86211",
+   "/kommun/sodertalje/halso-sjukvard-86211"
+  ],
+  [
+   "181|86212",
+   "/kommun/sodertalje/halso-sjukvard-86212"
+  ],
+  [
+   "181|86905",
+   "/kommun/sodertalje/halso-sjukvard-86905"
+  ],
+  [
+   "181|86909",
+   "/kommun/sodertalje/halso-sjukvard-86909"
+  ],
+  [
+   "181|86222",
+   "/kommun/sodertalje/specialistlakare-86222"
+  ],
+  [
+   "181|86230",
+   "/kommun/sodertalje/tandlakare-86230"
+  ],
+  [
+   "181|87302",
+   "/kommun/sodertalje/vard-och-omsorg-i-sarskilda-boendeformer-for-personer-med-funktionshinder-87302"
+  ],
+  [
+   "2283|47730",
+   "/kommun/solleftea/apotek-47730"
+  ],
+  [
+   "2283|87201",
+   "/kommun/solleftea/behandlingshem-87201"
+  ],
+  [
+   "2283|87901",
+   "/kommun/solleftea/behandlingshem-87901"
+  ],
+  [
+   "2283|86211",
+   "/kommun/solleftea/halso-sjukvard-86211"
+  ],
+  [
+   "2283|86212",
+   "/kommun/solleftea/halso-sjukvard-86212"
+  ],
+  [
+   "2283|86905",
+   "/kommun/solleftea/halso-sjukvard-86905"
+  ],
+  [
+   "2283|86909",
+   "/kommun/solleftea/halso-sjukvard-86909"
+  ],
+  [
+   "2283|86230",
+   "/kommun/solleftea/tandlakare-86230"
+  ],
+  [
+   "163|87201",
+   "/kommun/sollentuna/behandlingshem-87201"
+  ],
+  [
+   "163|88910",
+   "/kommun/sollentuna/dagbarnvard-88910"
+  ],
+  [
+   "163|86211",
+   "/kommun/sollentuna/halso-sjukvard-86211"
+  ],
+  [
+   "163|86212",
+   "/kommun/sollentuna/halso-sjukvard-86212"
+  ],
+  [
+   "163|86905",
+   "/kommun/sollentuna/halso-sjukvard-86905"
+  ],
+  [
+   "163|86909",
+   "/kommun/sollentuna/halso-sjukvard-86909"
+  ],
+  [
+   "163|46460",
+   "/kommun/sollentuna/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "163|86222",
+   "/kommun/sollentuna/specialistlakare-86222"
+  ],
+  [
+   "163|86230",
+   "/kommun/sollentuna/tandlakare-86230"
+  ],
+  [
+   "184|47730",
+   "/kommun/solna/apotek-47730"
+  ],
+  [
+   "184|87201",
+   "/kommun/solna/behandlingshem-87201"
+  ],
+  [
+   "184|88991",
+   "/kommun/solna/behandlingshem-88991"
+  ],
+  [
+   "184|56293",
+   "/kommun/solna/centralkoksverksamhet-for-skolor-omsorgs-och-andra-institutioner-56293"
+  ],
+  [
+   "184|88910",
+   "/kommun/solna/dagbarnvard-88910"
+  ],
+  [
+   "184|86211",
+   "/kommun/solna/halso-sjukvard-86211"
+  ],
+  [
+   "184|86212",
+   "/kommun/solna/halso-sjukvard-86212"
+  ],
+  [
+   "184|86905",
+   "/kommun/solna/halso-sjukvard-86905"
+  ],
+  [
+   "184|86909",
+   "/kommun/solna/halso-sjukvard-86909"
+  ],
+  [
+   "184|46460",
+   "/kommun/solna/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "184|86222",
+   "/kommun/solna/specialistlakare-86222"
+  ],
+  [
+   "184|86230",
+   "/kommun/solna/tandlakare-86230"
+  ],
+  [
+   "1083|86905",
+   "/kommun/solvesborg/halso-sjukvard-86905"
+  ],
+  [
+   "1083|86909",
+   "/kommun/solvesborg/halso-sjukvard-86909"
+  ],
+  [
+   "1083|86230",
+   "/kommun/solvesborg/tandlakare-86230"
+  ],
+  [
+   "1427|86905",
+   "/kommun/sotenas/halso-sjukvard-86905"
+  ],
+  [
+   "1427|86909",
+   "/kommun/sotenas/halso-sjukvard-86909"
+  ],
+  [
+   "1230|86212",
+   "/kommun/staffanstorp/halso-sjukvard-86212"
+  ],
+  [
+   "1230|86905",
+   "/kommun/staffanstorp/halso-sjukvard-86905"
+  ],
+  [
+   "1230|86909",
+   "/kommun/staffanstorp/halso-sjukvard-86909"
+  ],
+  [
+   "1415|87201",
+   "/kommun/stenungsund/behandlingshem-87201"
+  ],
+  [
+   "1415|86212",
+   "/kommun/stenungsund/halso-sjukvard-86212"
+  ],
+  [
+   "1415|86905",
+   "/kommun/stenungsund/halso-sjukvard-86905"
+  ],
+  [
+   "1415|86909",
+   "/kommun/stenungsund/halso-sjukvard-86909"
+  ],
+  [
+   "1415|86222",
+   "/kommun/stenungsund/specialistlakare-86222"
+  ],
+  [
+   "1415|86230",
+   "/kommun/stenungsund/tandlakare-86230"
+  ],
+  [
+   "180|86902",
+   "/kommun/stockholm/ambulans-sjuktransport-86902"
+  ],
+  [
+   "180|47730",
+   "/kommun/stockholm/apotek-47730"
+  ],
+  [
+   "180|87100",
+   "/kommun/stockholm/behandlingshem-87100"
+  ],
+  [
+   "180|87201",
+   "/kommun/stockholm/behandlingshem-87201"
+  ],
+  [
+   "180|87202",
+   "/kommun/stockholm/behandlingshem-87202"
+  ],
+  [
+   "180|87203",
+   "/kommun/stockholm/behandlingshem-87203"
+  ],
+  [
+   "180|87901",
+   "/kommun/stockholm/behandlingshem-87901"
+  ],
+  [
+   "180|87902",
+   "/kommun/stockholm/behandlingshem-87902"
+  ],
+  [
+   "180|88991",
+   "/kommun/stockholm/behandlingshem-88991"
+  ],
+  [
+   "180|88992",
+   "/kommun/stockholm/behandlingshem-88992"
+  ],
+  [
+   "180|56293",
+   "/kommun/stockholm/centralkoksverksamhet-for-skolor-omsorgs-och-andra-institutioner-56293"
+  ],
+  [
+   "180|88910",
+   "/kommun/stockholm/dagbarnvard-88910"
+  ],
+  [
+   "180|86102",
+   "/kommun/stockholm/halso-sjukvard-86102"
+  ],
+  [
+   "180|86103",
+   "/kommun/stockholm/halso-sjukvard-86103"
+  ],
+  [
+   "180|86211",
+   "/kommun/stockholm/halso-sjukvard-86211"
+  ],
+  [
+   "180|86212",
+   "/kommun/stockholm/halso-sjukvard-86212"
+  ],
+  [
+   "180|86903",
+   "/kommun/stockholm/halso-sjukvard-86903"
+  ],
+  [
+   "180|86905",
+   "/kommun/stockholm/halso-sjukvard-86905"
+  ],
+  [
+   "180|86909",
+   "/kommun/stockholm/halso-sjukvard-86909"
+  ],
+  [
+   "180|46460",
+   "/kommun/stockholm/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "180|47740",
+   "/kommun/stockholm/sjukvardsartiklar-47740"
+  ],
+  [
+   "180|86221",
+   "/kommun/stockholm/specialistlakare-86221"
+  ],
+  [
+   "180|86222",
+   "/kommun/stockholm/specialistlakare-86222"
+  ],
+  [
+   "180|86230",
+   "/kommun/stockholm/tandlakare-86230"
+  ],
+  [
+   "180|86904",
+   "/kommun/stockholm/tandlakare-86904"
+  ],
+  [
+   "180|87302",
+   "/kommun/stockholm/vard-och-omsorg-i-sarskilda-boendeformer-for-personer-med-funktionshinder-87302"
+  ],
+  [
+   "2421|87201",
+   "/kommun/storuman/behandlingshem-87201"
+  ],
+  [
+   "2421|86905",
+   "/kommun/storuman/halso-sjukvard-86905"
+  ],
+  [
+   "486|87201",
+   "/kommun/strangnas/behandlingshem-87201"
+  ],
+  [
+   "486|86212",
+   "/kommun/strangnas/halso-sjukvard-86212"
+  ],
+  [
+   "486|86905",
+   "/kommun/strangnas/halso-sjukvard-86905"
+  ],
+  [
+   "486|86909",
+   "/kommun/strangnas/halso-sjukvard-86909"
+  ],
+  [
+   "486|86222",
+   "/kommun/strangnas/specialistlakare-86222"
+  ],
+  [
+   "486|86230",
+   "/kommun/strangnas/tandlakare-86230"
+  ],
+  [
+   "1486|86905",
+   "/kommun/stromstad/halso-sjukvard-86905"
+  ],
+  [
+   "2313|47730",
+   "/kommun/stromsund/apotek-47730"
+  ],
+  [
+   "2313|87201",
+   "/kommun/stromsund/behandlingshem-87201"
+  ],
+  [
+   "2313|87901",
+   "/kommun/stromsund/behandlingshem-87901"
+  ],
+  [
+   "2313|86905",
+   "/kommun/stromsund/halso-sjukvard-86905"
+  ],
+  [
+   "183|87201",
+   "/kommun/sundbyberg/behandlingshem-87201"
+  ],
+  [
+   "183|86211",
+   "/kommun/sundbyberg/halso-sjukvard-86211"
+  ],
+  [
+   "183|86212",
+   "/kommun/sundbyberg/halso-sjukvard-86212"
+  ],
+  [
+   "183|86905",
+   "/kommun/sundbyberg/halso-sjukvard-86905"
+  ],
+  [
+   "183|86909",
+   "/kommun/sundbyberg/halso-sjukvard-86909"
+  ],
+  [
+   "183|46460",
+   "/kommun/sundbyberg/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "183|86222",
+   "/kommun/sundbyberg/specialistlakare-86222"
+  ],
+  [
+   "183|86230",
+   "/kommun/sundbyberg/tandlakare-86230"
+  ],
+  [
+   "2281|47730",
+   "/kommun/sundsvall/apotek-47730"
+  ],
+  [
+   "2281|87201",
+   "/kommun/sundsvall/behandlingshem-87201"
+  ],
+  [
+   "2281|87203",
+   "/kommun/sundsvall/behandlingshem-87203"
+  ],
+  [
+   "2281|88910",
+   "/kommun/sundsvall/dagbarnvard-88910"
+  ],
+  [
+   "2281|86211",
+   "/kommun/sundsvall/halso-sjukvard-86211"
+  ],
+  [
+   "2281|86212",
+   "/kommun/sundsvall/halso-sjukvard-86212"
+  ],
+  [
+   "2281|86905",
+   "/kommun/sundsvall/halso-sjukvard-86905"
+  ],
+  [
+   "2281|86909",
+   "/kommun/sundsvall/halso-sjukvard-86909"
+  ],
+  [
+   "2281|46460",
+   "/kommun/sundsvall/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "2281|86222",
+   "/kommun/sundsvall/specialistlakare-86222"
+  ],
+  [
+   "2281|86230",
+   "/kommun/sundsvall/tandlakare-86230"
+  ],
+  [
+   "1766|87201",
+   "/kommun/sunne/behandlingshem-87201"
+  ],
+  [
+   "1766|86212",
+   "/kommun/sunne/halso-sjukvard-86212"
+  ],
+  [
+   "1766|86905",
+   "/kommun/sunne/halso-sjukvard-86905"
+  ],
+  [
+   "1214|86909",
+   "/kommun/svalov/halso-sjukvard-86909"
+  ],
+  [
+   "1214|86230",
+   "/kommun/svalov/tandlakare-86230"
+  ],
+  [
+   "1263|86212",
+   "/kommun/svedala/halso-sjukvard-86212"
+  ],
+  [
+   "1263|86905",
+   "/kommun/svedala/halso-sjukvard-86905"
+  ],
+  [
+   "1263|86909",
+   "/kommun/svedala/halso-sjukvard-86909"
+  ],
+  [
+   "1465|87201",
+   "/kommun/svenljunga/behandlingshem-87201"
+  ],
+  [
+   "1465|86905",
+   "/kommun/svenljunga/halso-sjukvard-86905"
+  ],
+  [
+   "160|47730",
+   "/kommun/taby/apotek-47730"
+  ],
+  [
+   "160|87201",
+   "/kommun/taby/behandlingshem-87201"
+  ],
+  [
+   "160|56293",
+   "/kommun/taby/centralkoksverksamhet-for-skolor-omsorgs-och-andra-institutioner-56293"
+  ],
+  [
+   "160|88910",
+   "/kommun/taby/dagbarnvard-88910"
+  ],
+  [
+   "160|86211",
+   "/kommun/taby/halso-sjukvard-86211"
+  ],
+  [
+   "160|86212",
+   "/kommun/taby/halso-sjukvard-86212"
+  ],
+  [
+   "160|86905",
+   "/kommun/taby/halso-sjukvard-86905"
+  ],
+  [
+   "160|86909",
+   "/kommun/taby/halso-sjukvard-86909"
+  ],
+  [
+   "160|46460",
+   "/kommun/taby/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "160|86221",
+   "/kommun/taby/specialistlakare-86221"
+  ],
+  [
+   "160|86222",
+   "/kommun/taby/specialistlakare-86222"
+  ],
+  [
+   "160|86230",
+   "/kommun/taby/tandlakare-86230"
+  ],
+  [
+   "160|86904",
+   "/kommun/taby/tandlakare-86904"
+  ],
+  [
+   "1435|86905",
+   "/kommun/tanum/halso-sjukvard-86905"
+  ],
+  [
+   "1435|86909",
+   "/kommun/tanum/halso-sjukvard-86909"
+  ],
+  [
+   "1435|86230",
+   "/kommun/tanum/tandlakare-86230"
+  ],
+  [
+   "360|87100",
+   "/kommun/tierp/behandlingshem-87100"
+  ],
+  [
+   "360|87201",
+   "/kommun/tierp/behandlingshem-87201"
+  ],
+  [
+   "360|86905",
+   "/kommun/tierp/halso-sjukvard-86905"
+  ],
+  [
+   "360|86230",
+   "/kommun/tierp/tandlakare-86230"
+  ],
+  [
+   "2262|87201",
+   "/kommun/timra/behandlingshem-87201"
+  ],
+  [
+   "2262|86230",
+   "/kommun/timra/tandlakare-86230"
+  ],
+  [
+   "763|87201",
+   "/kommun/tingsryd/behandlingshem-87201"
+  ],
+  [
+   "763|86212",
+   "/kommun/tingsryd/halso-sjukvard-86212"
+  ],
+  [
+   "763|86905",
+   "/kommun/tingsryd/halso-sjukvard-86905"
+  ],
+  [
+   "763|86230",
+   "/kommun/tingsryd/tandlakare-86230"
+  ],
+  [
+   "1419|86909",
+   "/kommun/tjorn/halso-sjukvard-86909"
+  ],
+  [
+   "1419|86230",
+   "/kommun/tjorn/tandlakare-86230"
+  ],
+  [
+   "1270|86905",
+   "/kommun/tomelilla/halso-sjukvard-86905"
+  ],
+  [
+   "1270|86909",
+   "/kommun/tomelilla/halso-sjukvard-86909"
+  ],
+  [
+   "1270|86230",
+   "/kommun/tomelilla/tandlakare-86230"
+  ],
+  [
+   "1473|87201",
+   "/kommun/toreboda/behandlingshem-87201"
+  ],
+  [
+   "1737|87201",
+   "/kommun/torsby/behandlingshem-87201"
+  ],
+  [
+   "687|87201",
+   "/kommun/tranas/behandlingshem-87201"
+  ],
+  [
+   "687|86212",
+   "/kommun/tranas/halso-sjukvard-86212"
+  ],
+  [
+   "687|86905",
+   "/kommun/tranas/halso-sjukvard-86905"
+  ],
+  [
+   "687|86230",
+   "/kommun/tranas/tandlakare-86230"
+  ],
+  [
+   "1452|86909",
+   "/kommun/tranemo/halso-sjukvard-86909"
+  ],
+  [
+   "1287|47730",
+   "/kommun/trelleborg/apotek-47730"
+  ],
+  [
+   "1287|87201",
+   "/kommun/trelleborg/behandlingshem-87201"
+  ],
+  [
+   "1287|86212",
+   "/kommun/trelleborg/halso-sjukvard-86212"
+  ],
+  [
+   "1287|86905",
+   "/kommun/trelleborg/halso-sjukvard-86905"
+  ],
+  [
+   "1287|86909",
+   "/kommun/trelleborg/halso-sjukvard-86909"
+  ],
+  [
+   "1287|86230",
+   "/kommun/trelleborg/tandlakare-86230"
+  ],
+  [
+   "1488|47730",
+   "/kommun/trollhattan/apotek-47730"
+  ],
+  [
+   "1488|87201",
+   "/kommun/trollhattan/behandlingshem-87201"
+  ],
+  [
+   "1488|86211",
+   "/kommun/trollhattan/halso-sjukvard-86211"
+  ],
+  [
+   "1488|86212",
+   "/kommun/trollhattan/halso-sjukvard-86212"
+  ],
+  [
+   "1488|86905",
+   "/kommun/trollhattan/halso-sjukvard-86905"
+  ],
+  [
+   "1488|86909",
+   "/kommun/trollhattan/halso-sjukvard-86909"
+  ],
+  [
+   "1488|86222",
+   "/kommun/trollhattan/specialistlakare-86222"
+  ],
+  [
+   "1488|86230",
+   "/kommun/trollhattan/tandlakare-86230"
+  ],
+  [
+   "488|86212",
+   "/kommun/trosa/halso-sjukvard-86212"
+  ],
+  [
+   "488|86905",
+   "/kommun/trosa/halso-sjukvard-86905"
+  ],
+  [
+   "488|86909",
+   "/kommun/trosa/halso-sjukvard-86909"
+  ],
+  [
+   "488|86230",
+   "/kommun/trosa/tandlakare-86230"
+  ],
+  [
+   "138|87201",
+   "/kommun/tyreso/behandlingshem-87201"
+  ],
+  [
+   "138|88910",
+   "/kommun/tyreso/dagbarnvard-88910"
+  ],
+  [
+   "138|86211",
+   "/kommun/tyreso/halso-sjukvard-86211"
+  ],
+  [
+   "138|86212",
+   "/kommun/tyreso/halso-sjukvard-86212"
+  ],
+  [
+   "138|86905",
+   "/kommun/tyreso/halso-sjukvard-86905"
+  ],
+  [
+   "138|86909",
+   "/kommun/tyreso/halso-sjukvard-86909"
+  ],
+  [
+   "138|86230",
+   "/kommun/tyreso/tandlakare-86230"
+  ],
+  [
+   "1485|47730",
+   "/kommun/uddevalla/apotek-47730"
+  ],
+  [
+   "1485|87201",
+   "/kommun/uddevalla/behandlingshem-87201"
+  ],
+  [
+   "1485|87901",
+   "/kommun/uddevalla/behandlingshem-87901"
+  ],
+  [
+   "1485|88910",
+   "/kommun/uddevalla/dagbarnvard-88910"
+  ],
+  [
+   "1485|86211",
+   "/kommun/uddevalla/halso-sjukvard-86211"
+  ],
+  [
+   "1485|86212",
+   "/kommun/uddevalla/halso-sjukvard-86212"
+  ],
+  [
+   "1485|86905",
+   "/kommun/uddevalla/halso-sjukvard-86905"
+  ],
+  [
+   "1485|86909",
+   "/kommun/uddevalla/halso-sjukvard-86909"
+  ],
+  [
+   "1485|46460",
+   "/kommun/uddevalla/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1485|86222",
+   "/kommun/uddevalla/specialistlakare-86222"
+  ],
+  [
+   "1485|86230",
+   "/kommun/uddevalla/tandlakare-86230"
+  ],
+  [
+   "1491|87100",
+   "/kommun/ulricehamn/behandlingshem-87100"
+  ],
+  [
+   "1491|87201",
+   "/kommun/ulricehamn/behandlingshem-87201"
+  ],
+  [
+   "1491|86905",
+   "/kommun/ulricehamn/halso-sjukvard-86905"
+  ],
+  [
+   "1491|86909",
+   "/kommun/ulricehamn/halso-sjukvard-86909"
+  ],
+  [
+   "1491|86230",
+   "/kommun/ulricehamn/tandlakare-86230"
+  ],
+  [
+   "2480|47730",
+   "/kommun/umea/apotek-47730"
+  ],
+  [
+   "2480|87201",
+   "/kommun/umea/behandlingshem-87201"
+  ],
+  [
+   "2480|88991",
+   "/kommun/umea/behandlingshem-88991"
+  ],
+  [
+   "2480|86211",
+   "/kommun/umea/halso-sjukvard-86211"
+  ],
+  [
+   "2480|86212",
+   "/kommun/umea/halso-sjukvard-86212"
+  ],
+  [
+   "2480|86905",
+   "/kommun/umea/halso-sjukvard-86905"
+  ],
+  [
+   "2480|86909",
+   "/kommun/umea/halso-sjukvard-86909"
+  ],
+  [
+   "2480|46460",
+   "/kommun/umea/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "2480|86222",
+   "/kommun/umea/specialistlakare-86222"
+  ],
+  [
+   "2480|86230",
+   "/kommun/umea/tandlakare-86230"
+  ],
+  [
+   "139|87201",
+   "/kommun/upplands-bro/behandlingshem-87201"
+  ],
+  [
+   "139|86905",
+   "/kommun/upplands-bro/halso-sjukvard-86905"
+  ],
+  [
+   "139|86230",
+   "/kommun/upplands-bro/tandlakare-86230"
+  ],
+  [
+   "114|87201",
+   "/kommun/upplands-vasby/behandlingshem-87201"
+  ],
+  [
+   "114|88910",
+   "/kommun/upplands-vasby/dagbarnvard-88910"
+  ],
+  [
+   "114|86102",
+   "/kommun/upplands-vasby/halso-sjukvard-86102"
+  ],
+  [
+   "114|86212",
+   "/kommun/upplands-vasby/halso-sjukvard-86212"
+  ],
+  [
+   "114|86905",
+   "/kommun/upplands-vasby/halso-sjukvard-86905"
+  ],
+  [
+   "114|86909",
+   "/kommun/upplands-vasby/halso-sjukvard-86909"
+  ],
+  [
+   "114|46460",
+   "/kommun/upplands-vasby/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "114|86230",
+   "/kommun/upplands-vasby/tandlakare-86230"
+  ],
+  [
+   "380|47730",
+   "/kommun/uppsala/apotek-47730"
+  ],
+  [
+   "380|87201",
+   "/kommun/uppsala/behandlingshem-87201"
+  ],
+  [
+   "380|87203",
+   "/kommun/uppsala/behandlingshem-87203"
+  ],
+  [
+   "380|87901",
+   "/kommun/uppsala/behandlingshem-87901"
+  ],
+  [
+   "380|88991",
+   "/kommun/uppsala/behandlingshem-88991"
+  ],
+  [
+   "380|88910",
+   "/kommun/uppsala/dagbarnvard-88910"
+  ],
+  [
+   "380|86102",
+   "/kommun/uppsala/halso-sjukvard-86102"
+  ],
+  [
+   "380|86211",
+   "/kommun/uppsala/halso-sjukvard-86211"
+  ],
+  [
+   "380|86212",
+   "/kommun/uppsala/halso-sjukvard-86212"
+  ],
+  [
+   "380|86903",
+   "/kommun/uppsala/halso-sjukvard-86903"
+  ],
+  [
+   "380|86905",
+   "/kommun/uppsala/halso-sjukvard-86905"
+  ],
+  [
+   "380|86909",
+   "/kommun/uppsala/halso-sjukvard-86909"
+  ],
+  [
+   "380|46460",
+   "/kommun/uppsala/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "380|86221",
+   "/kommun/uppsala/specialistlakare-86221"
+  ],
+  [
+   "380|86222",
+   "/kommun/uppsala/specialistlakare-86222"
+  ],
+  [
+   "380|86230",
+   "/kommun/uppsala/tandlakare-86230"
+  ],
+  [
+   "760|87201",
+   "/kommun/uppvidinge/behandlingshem-87201"
+  ],
+  [
+   "760|86230",
+   "/kommun/uppvidinge/tandlakare-86230"
+  ],
+  [
+   "584|86905",
+   "/kommun/vadstena/halso-sjukvard-86905"
+  ],
+  [
+   "665|87201",
+   "/kommun/vaggeryd/behandlingshem-87201"
+  ],
+  [
+   "665|86909",
+   "/kommun/vaggeryd/halso-sjukvard-86909"
+  ],
+  [
+   "563|87201",
+   "/kommun/valdemarsvik/behandlingshem-87201"
+  ],
+  [
+   "563|86905",
+   "/kommun/valdemarsvik/halso-sjukvard-86905"
+  ],
+  [
+   "115|87201",
+   "/kommun/vallentuna/behandlingshem-87201"
+  ],
+  [
+   "115|87901",
+   "/kommun/vallentuna/behandlingshem-87901"
+  ],
+  [
+   "115|88910",
+   "/kommun/vallentuna/dagbarnvard-88910"
+  ],
+  [
+   "115|86211",
+   "/kommun/vallentuna/halso-sjukvard-86211"
+  ],
+  [
+   "115|86905",
+   "/kommun/vallentuna/halso-sjukvard-86905"
+  ],
+  [
+   "115|86909",
+   "/kommun/vallentuna/halso-sjukvard-86909"
+  ],
+  [
+   "115|86222",
+   "/kommun/vallentuna/specialistlakare-86222"
+  ],
+  [
+   "115|86230",
+   "/kommun/vallentuna/tandlakare-86230"
+  ],
+  [
+   "1487|87201",
+   "/kommun/vanersborg/behandlingshem-87201"
+  ],
+  [
+   "1487|86102",
+   "/kommun/vanersborg/halso-sjukvard-86102"
+  ],
+  [
+   "1487|86212",
+   "/kommun/vanersborg/halso-sjukvard-86212"
+  ],
+  [
+   "1487|86905",
+   "/kommun/vanersborg/halso-sjukvard-86905"
+  ],
+  [
+   "1487|86909",
+   "/kommun/vanersborg/halso-sjukvard-86909"
+  ],
+  [
+   "1487|46460",
+   "/kommun/vanersborg/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1487|86222",
+   "/kommun/vanersborg/specialistlakare-86222"
+  ],
+  [
+   "1487|86230",
+   "/kommun/vanersborg/tandlakare-86230"
+  ],
+  [
+   "2460|87201",
+   "/kommun/vannas/behandlingshem-87201"
+  ],
+  [
+   "1470|87201",
+   "/kommun/vara/behandlingshem-87201"
+  ],
+  [
+   "1470|86230",
+   "/kommun/vara/tandlakare-86230"
+  ],
+  [
+   "1383|47730",
+   "/kommun/varberg/apotek-47730"
+  ],
+  [
+   "1383|87201",
+   "/kommun/varberg/behandlingshem-87201"
+  ],
+  [
+   "1383|86212",
+   "/kommun/varberg/halso-sjukvard-86212"
+  ],
+  [
+   "1383|86903",
+   "/kommun/varberg/halso-sjukvard-86903"
+  ],
+  [
+   "1383|86905",
+   "/kommun/varberg/halso-sjukvard-86905"
+  ],
+  [
+   "1383|86909",
+   "/kommun/varberg/halso-sjukvard-86909"
+  ],
+  [
+   "1383|86222",
+   "/kommun/varberg/specialistlakare-86222"
+  ],
+  [
+   "1383|86230",
+   "/kommun/varberg/tandlakare-86230"
+  ],
+  [
+   "120|86212",
+   "/kommun/varmdo/halso-sjukvard-86212"
+  ],
+  [
+   "120|86905",
+   "/kommun/varmdo/halso-sjukvard-86905"
+  ],
+  [
+   "120|86909",
+   "/kommun/varmdo/halso-sjukvard-86909"
+  ],
+  [
+   "120|46460",
+   "/kommun/varmdo/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "120|86222",
+   "/kommun/varmdo/specialistlakare-86222"
+  ],
+  [
+   "120|86230",
+   "/kommun/varmdo/tandlakare-86230"
+  ],
+  [
+   "683|47730",
+   "/kommun/varnamo/apotek-47730"
+  ],
+  [
+   "683|87201",
+   "/kommun/varnamo/behandlingshem-87201"
+  ],
+  [
+   "683|88910",
+   "/kommun/varnamo/dagbarnvard-88910"
+  ],
+  [
+   "683|86212",
+   "/kommun/varnamo/halso-sjukvard-86212"
+  ],
+  [
+   "683|86905",
+   "/kommun/varnamo/halso-sjukvard-86905"
+  ],
+  [
+   "683|86909",
+   "/kommun/varnamo/halso-sjukvard-86909"
+  ],
+  [
+   "683|86230",
+   "/kommun/varnamo/tandlakare-86230"
+  ],
+  [
+   "1980|47730",
+   "/kommun/vasteras/apotek-47730"
+  ],
+  [
+   "1980|87100",
+   "/kommun/vasteras/behandlingshem-87100"
+  ],
+  [
+   "1980|87201",
+   "/kommun/vasteras/behandlingshem-87201"
+  ],
+  [
+   "1980|87901",
+   "/kommun/vasteras/behandlingshem-87901"
+  ],
+  [
+   "1980|88991",
+   "/kommun/vasteras/behandlingshem-88991"
+  ],
+  [
+   "1980|56293",
+   "/kommun/vasteras/centralkoksverksamhet-for-skolor-omsorgs-och-andra-institutioner-56293"
+  ],
+  [
+   "1980|88910",
+   "/kommun/vasteras/dagbarnvard-88910"
+  ],
+  [
+   "1980|86211",
+   "/kommun/vasteras/halso-sjukvard-86211"
+  ],
+  [
+   "1980|86212",
+   "/kommun/vasteras/halso-sjukvard-86212"
+  ],
+  [
+   "1980|86905",
+   "/kommun/vasteras/halso-sjukvard-86905"
+  ],
+  [
+   "1980|86909",
+   "/kommun/vasteras/halso-sjukvard-86909"
+  ],
+  [
+   "1980|46460",
+   "/kommun/vasteras/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1980|86222",
+   "/kommun/vasteras/specialistlakare-86222"
+  ],
+  [
+   "1980|86230",
+   "/kommun/vasteras/tandlakare-86230"
+  ],
+  [
+   "883|47730",
+   "/kommun/vastervik/apotek-47730"
+  ],
+  [
+   "883|87201",
+   "/kommun/vastervik/behandlingshem-87201"
+  ],
+  [
+   "883|87901",
+   "/kommun/vastervik/behandlingshem-87901"
+  ],
+  [
+   "883|86211",
+   "/kommun/vastervik/halso-sjukvard-86211"
+  ],
+  [
+   "883|86212",
+   "/kommun/vastervik/halso-sjukvard-86212"
+  ],
+  [
+   "883|86905",
+   "/kommun/vastervik/halso-sjukvard-86905"
+  ],
+  [
+   "883|86909",
+   "/kommun/vastervik/halso-sjukvard-86909"
+  ],
+  [
+   "883|46460",
+   "/kommun/vastervik/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "883|86222",
+   "/kommun/vastervik/specialistlakare-86222"
+  ],
+  [
+   "883|86230",
+   "/kommun/vastervik/tandlakare-86230"
+  ],
+  [
+   "187|86212",
+   "/kommun/vaxholm/halso-sjukvard-86212"
+  ],
+  [
+   "187|86905",
+   "/kommun/vaxholm/halso-sjukvard-86905"
+  ],
+  [
+   "187|86909",
+   "/kommun/vaxholm/halso-sjukvard-86909"
+  ],
+  [
+   "187|86230",
+   "/kommun/vaxholm/tandlakare-86230"
+  ],
+  [
+   "780|47730",
+   "/kommun/vaxjo/apotek-47730"
+  ],
+  [
+   "780|87201",
+   "/kommun/vaxjo/behandlingshem-87201"
+  ],
+  [
+   "780|87901",
+   "/kommun/vaxjo/behandlingshem-87901"
+  ],
+  [
+   "780|88910",
+   "/kommun/vaxjo/dagbarnvard-88910"
+  ],
+  [
+   "780|86211",
+   "/kommun/vaxjo/halso-sjukvard-86211"
+  ],
+  [
+   "780|86212",
+   "/kommun/vaxjo/halso-sjukvard-86212"
+  ],
+  [
+   "780|86905",
+   "/kommun/vaxjo/halso-sjukvard-86905"
+  ],
+  [
+   "780|86909",
+   "/kommun/vaxjo/halso-sjukvard-86909"
+  ],
+  [
+   "780|46460",
+   "/kommun/vaxjo/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "780|86222",
+   "/kommun/vaxjo/specialistlakare-86222"
+  ],
+  [
+   "780|86230",
+   "/kommun/vaxjo/tandlakare-86230"
+  ],
+  [
+   "1233|87201",
+   "/kommun/vellinge/behandlingshem-87201"
+  ],
+  [
+   "1233|88910",
+   "/kommun/vellinge/dagbarnvard-88910"
+  ],
+  [
+   "1233|86212",
+   "/kommun/vellinge/halso-sjukvard-86212"
+  ],
+  [
+   "1233|86905",
+   "/kommun/vellinge/halso-sjukvard-86905"
+  ],
+  [
+   "1233|86909",
+   "/kommun/vellinge/halso-sjukvard-86909"
+  ],
+  [
+   "1233|46460",
+   "/kommun/vellinge/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "1233|86222",
+   "/kommun/vellinge/specialistlakare-86222"
+  ],
+  [
+   "1233|86230",
+   "/kommun/vellinge/tandlakare-86230"
+  ],
+  [
+   "685|87201",
+   "/kommun/vetlanda/behandlingshem-87201"
+  ],
+  [
+   "685|86903",
+   "/kommun/vetlanda/halso-sjukvard-86903"
+  ],
+  [
+   "685|86230",
+   "/kommun/vetlanda/tandlakare-86230"
+  ],
+  [
+   "2462|86909",
+   "/kommun/vilhelmina/halso-sjukvard-86909"
+  ],
+  [
+   "884|87201",
+   "/kommun/vimmerby/behandlingshem-87201"
+  ],
+  [
+   "884|86903",
+   "/kommun/vimmerby/halso-sjukvard-86903"
+  ],
+  [
+   "884|86905",
+   "/kommun/vimmerby/halso-sjukvard-86905"
+  ],
+  [
+   "884|86230",
+   "/kommun/vimmerby/tandlakare-86230"
+  ],
+  [
+   "428|86905",
+   "/kommun/vingaker/halso-sjukvard-86905"
+  ],
+  [
+   "1286|87100",
+   "/kommun/ystad/behandlingshem-87100"
+  ],
+  [
+   "1286|87201",
+   "/kommun/ystad/behandlingshem-87201"
+  ],
+  [
+   "1286|88910",
+   "/kommun/ystad/dagbarnvard-88910"
+  ],
+  [
+   "1286|86212",
+   "/kommun/ystad/halso-sjukvard-86212"
+  ],
+  [
+   "1286|86905",
+   "/kommun/ystad/halso-sjukvard-86905"
+  ],
+  [
+   "1286|86909",
+   "/kommun/ystad/halso-sjukvard-86909"
+  ],
+  [
+   "1286|86222",
+   "/kommun/ystad/specialistlakare-86222"
+  ],
+  [
+   "1286|86230",
+   "/kommun/ystad/tandlakare-86230"
+  ]
+ ],
+ "foretag": {
+  "10081818": "ringmottagningen-ab-10081818",
+  "10221216": "kajan-utredning-och-behandling-ab-10221216",
+  "10415982": "strandhagen-vimmerby-10415982",
+  "10425304": "attendo-10425304",
+  "10642429": "ersta-flickhem-10642429",
+  "10722767": "solviken-hvb-ab-10722767",
+  "10772093": "tandlakare-ola-hoglund-10772093",
+  "10792869": "tobin-ab-10792869",
+  "10804326": "nycomed-ab-10804326",
+  "10868552": "colosseumkliniken-10868552",
+  "10976868": "kungsangen-i-nora-ab-10976868",
+  "10986073": "stjarnhusen-10986073",
+  "11006517": "skolberga-vardhem-ab-11006517",
+  "11136520": "aktiv-ortopedteknik-i-sormland-ab-11136520",
+  "11257805": "skolds-frisk-och-sjukvard-ab-11257805",
+  "11295094": "tandlakar-n-i-ragunda-11295094",
+  "11297231": "vastsvenska-mellanvardsgruppen-ab-11297231",
+  "11299054": "sjoandan-ett-hem-med-hjarta-11299054",
+  "11304185": "kungsgardens-omvardnadsboende-11304185",
+  "11305778": "ungdomsboendet-orkide-11305778",
+  "11306875": "goransgarden-stiftelsen-11306875",
+  "11308392": "sn-pedagogik-11308392",
+  "11310612": "stiftelsen-vindrosen-11310612",
+  "11312402": "kvarnbacken-11312402",
+  "11316007": "behandlingshemmet-viken-ab-11316007",
+  "11316403": "attendo-tingsryd-11316403",
+  "11317344": "abii-omsorg-ab-11317344",
+  "11317369": "hovab-care-hvb-11317369",
+  "11318078": "attendo-bustorps-gard-11318078",
+  "11319068": "attendo-11319068",
+  "11319100": "nytida-11319100",
+  "11321486": "inom-11321486",
+  "11322385": "stiftelsen-vindrosen-polstjarnan-11322385",
+  "11324142": "marieborgs-folkhogskola-11324142",
+  "11326535": "asallid-assistans-11326535",
+  "11328093": "elevhemsgatan-8-11328093",
+  "11331691": "primarvardsrehab-skara-11331691",
+  "11333143": "ostan-11333143",
+  "11334844": "villa-fredriksborg-11334844",
+  "11335841": "stiftelsen-smalandsgardar-11335841",
+  "11342227": "stratjaragarden-11342227",
+  "11342680": "subteno-ab-11342680",
+  "11346335": "vallbostrand-industri-hantverk-daglig-verksamhet-11346335",
+  "11346426": "ljugarns-ungdomshem-hvb-11346426",
+  "11350840": "incola-11350840",
+  "11351418": "egehem-hvb-11351418",
+  "11354065": "roingegarden-foreningen-11354065",
+  "11357514": "fregatten-11357514",
+  "11357621": "flygfardig-ab-11357621",
+  "11359148": "solleftea-kommun-11359148",
+  "11359288": "cvo-11359288",
+  "11368412": "proprium-vard-ab-11368412",
+  "11379351": "hvb-tigris-11379351",
+  "11385093": "stigbergskliniken-11385093",
+  "11388220": "inom-11388220",
+  "11390325": "rehabcenter-trekloverhemmet-11390325",
+  "11392446": "attendo-rokaholm-11392446",
+  "11394434": "frosunda-hvb-staffansbo-11394434",
+  "11400256": "nytida-11400256",
+  "11401072": "erstagatan-dagverksamhet-11401072",
+  "11401338": "cvo-11401338",
+  "11404977": "stiftelsen-vindrosen-vallarum-och-birkarum-11404977",
+  "11406782": "s-t-lukas-i-skaraborg-11406782",
+  "11409695": "arjin-utveckling-ab-11409695",
+  "11412293": "bjorkhagsgarden-11412293",
+  "11414091": "vasterbo-11414091",
+  "11417144": "familjeboendet-11417144",
+  "11418324": "lunnegarden-11418324",
+  "11418746": "namndemansgarden-goteborg-11418746",
+  "11425667": "frosunda-wisborgs-ungdomsboende-11425667",
+  "11425899": "dormsjoskolan-11425899",
+  "11433653": "hallekils-gard-ab-11433653",
+  "11444387": "lingarden-11444387",
+  "11444593": "ab-hvb-sydost-11444593",
+  "11450202": "villa-revansch-11450202",
+  "11450541": "nynashojdens-ekb-11450541",
+  "11452828": "amhigo-ab-11452828",
+  "11459997": "kvarnasen-hvb-11459997",
+  "11463387": "huluang-serviceboende-for-vuxna-11463387",
+  "11466984": "athena-flyktingverksamhet-11466984",
+  "11468295": "hinriksgarden-11468295",
+  "11590403": "spenshult-ab-11590403",
+  "13356563": "colosseumkliniken-13356563",
+  "13371216": "aleris-psykisk-halsa-13371216",
+  "13672415": "munspegeln-13672415",
+  "13781281": "tandlakare-zuzanna-nordstrom-13781281",
+  "13805841": "tandlakare-leif-frilund-ab-13805841",
+  "14555957": "johan-kuijpers-14555957",
+  "14589048": "curakliniken-ab-14589048",
+  "14657811": "ab-previa-14657811",
+  "14661052": "enigmagarden-14661052",
+  "14662738": "trollangens-behandlingshem-14662738",
+  "14668719": "lankens-kamratforb-stiftelsen-hvidehus-14668719",
+  "14703987": "arsta-gard-skoldinge-ab-14703987",
+  "14926422": "fralsningsarm-n-locus-14926422",
+  "14948582": "medstop-14948582",
+  "14949788": "medstop-14949788",
+  "14949838": "apoteket-ab-publ-14949838",
+  "15033764": "haima-15033764",
+  "16139669": "solhagagruppen-16139669",
+  "16383028": "vwr-international-ab-16383028",
+  "16495772": "pitehalsan-ab-16495772",
+  "16518441": "kullen-gruppbostad-nytida-16518441",
+  "16969800": "ekekullen-hvb-16969800",
+  "16969941": "vastgota-assistans-16969941",
+  "17121211": "sos-alarm-sverige-ab-17121211",
+  "17136680": "silverseger-ab-17136680",
+  "17136730": "pannotia-ren-17136730",
+  "17136771": "hem-och-fristad-17136771",
+  "17177767": "hvb-rhen-17177767",
+  "17188269": "uppdraget-hvb-ab-17188269",
+  "17446436": "mariahemmet-17446436",
+  "17680893": "attendo-borggardsallen-4-17680893",
+  "17696790": "hvb-donau-17696790",
+  "18006239": "solsunda-hvb-hem-18006239",
+  "18007666": "sos-alarm-sverige-ab-18007666",
+  "18020891": "colosseumkliniken-18020891",
+  "18189670": "doktor-knapek-hudvardsprodukter-18189670",
+  "18383216": "sos-alarm-sverige-ab-18383216",
+  "18383232": "sos-alarm-sverige-ab-18383232",
+  "18413518": "fresenius-medical-care-ab-18413518",
+  "18537191": "colosseumkliniken-18537191",
+  "18559286": "cean-familjehem-18559286",
+  "18795369": "ogoncentrum-varberg-18795369",
+  "18797308": "praktikertjanst-ab-18797308",
+  "18800722": "tandvardsgruppen-18800722",
+  "18802579": "team-furhammar-18802579",
+  "18803742": "kerstin-rydings-tandlakarpraktik-praktikertjanst-18803742",
+  "18806273": "tandlakare-ingalena-hogberg-18806273",
+  "18808253": "ritva-m-lundh-18808253",
+  "18808600": "dina-tandlakare-18808600",
+  "18810515": "tandvardsteamet-ulf-carlsson-18810515",
+  "18810523": "tandlakare-lisbeth-stegersjo-18810523",
+  "18811331": "wiesel-tandlakarna-18811331",
+  "18811687": "praktikertjanst-18811687",
+  "18811810": "praktikertjanst-ab-18811810",
+  "18812149": "praktikertjanst-ab-18812149",
+  "18814004": "praktikertjanst-ab-18814004",
+  "18816454": "praktikertjanst-18816454",
+  "18817064": "praktikertjanst-ab-hudmottagningen-i-kungsbacka-18817064",
+  "18826941": "aktiv-ortopedteknik-i-sormland-ab-18826941",
+  "19168863": "ida-centret-19168863",
+  "19229244": "ab-varljus-19229244",
+  "19229897": "tandlakare-goran-kahlow-19229897",
+  "19235183": "folktandvard-aneby-19235183",
+  "19242346": "v-o-b-syd-ab-familjehemsresursen-19242346",
+  "19242619": "foreningen-osterlens-folkhogskola-19242619",
+  "19242791": "personskadeforbundet-rtp-19242791",
+  "19245422": "tandlakare-anders-billberg-19245422",
+  "19246115": "folktandvarden-oskarstrom-19246115",
+  "19249465": "folktandvarden-vastra-gotaland-19249465",
+  "19253798": "universitetssjukhuset-orebro-19253798",
+  "19259985": "gavleborgs-lans-landsting-19259985",
+  "19263532": "folktandvard-ostersund-19263532",
+  "19266568": "norrbottens-lans-landsting-19266568",
+  "19302132": "byleskolan-19302132",
+  "19328756": "gryning-vard-ab-19328756",
+  "19435114": "spec-oron-nas-halssjukdomar-19435114",
+  "19503606": "stodboende-bryggan-19503606",
+  "19539782": "barnhabilitering-helsingborg-19539782",
+  "19566090": "dianagarden-19566090",
+  "19567668": "tradgardslund-hvb-19567668",
+  "19568161": "jamtlands-hvb-19568161",
+  "19568179": "balans-hvb-19568179",
+  "19568229": "mossegarden-19568229",
+  "19569250": "mvp-assistans-ab-19569250",
+  "19569672": "attendo-kurorten-tingsryd-19569672",
+  "19573716": "mo-gard-19573716",
+  "19573724": "dio-hvb-19573724",
+  "19584184": "nytida-19584184",
+  "19585314": "hvb-marielund-care-19585314",
+  "19585330": "kabit-ab-19585330",
+  "19600659": "fagerdala-vardhem-19600659",
+  "19604842": "hvb-nour-19604842",
+  "19604867": "anglagarden-omsorg-ab-19604867",
+  "19604875": "aido-care-ab-19604875",
+  "19604883": "solstrimma-vuxenboende-19604883",
+  "19604891": "oland-19604891",
+  "19604925": "inom-19604925",
+  "19605252": "sesam-19605252",
+  "19607035": "rehab-simlangsgarden-ab-19607035",
+  "20062600": "salstad-gasthem-ab-20062600",
+  "20202305": "praktikertjanst-ab-20202305",
+  "20203303": "praktikertjanst-ab-20203303",
+  "20478988": "ab-previa-20478988",
+  "20491429": "algeredskollektivet-ab-20491429",
+  "20499554": "foreningen-mikaelgardens-lakepedagogiska-inst-20499554",
+  "20598629": "halsans-hus-20598629",
+  "20743431": "psykiatriska-kliniken-20743431",
+  "20744793": "vard-i-fokus-ab-20744793",
+  "20879326": "villagatan-10-20879326",
+  "20919973": "erstabacken-hvb-20919973",
+  "21221296": "ab-previa-21221296",
+  "21285820": "liljangarden-skyddat-boende-21285820",
+  "21316856": "sonja-lilljegren-ogonpraktik-ab-21316856",
+  "21547740": "angens-vardcentral-21547740",
+  "21551189": "thai-classic-massage-21551189",
+  "21566526": "brukartorget-ab-21566526",
+  "21617626": "red-tree-care-center-ab-21617626",
+  "21639828": "rosenklubben-21639828",
+  "21918040": "sos-alarm-sverige-ab-21918040",
+  "21922992": "fam-huset-21922992",
+  "21923354": "fralsningsarmen-21923354",
+  "21951314": "tandlakare-maria-brannstrom-ab-21951314",
+  "21951751": "koalan-gruppbostad-ab-21951751",
+  "22181242": "annas-hus-hvb-22181242",
+  "22187884": "osterlenportens-behandlingshem-22187884",
+  "22250880": "hartmann-scandicare-ab-22250880",
+  "22319453": "landstinget-sormland-dammsdal-22319453",
+  "22748206": "tandlakare-henrik-walander-22748206",
+  "22767081": "trehorningsjo-22767081",
+  "22770390": "anna-amster-22770390",
+  "22770788": "tandlakare-birgitta-frieman-22770788",
+  "22772933": "varnas-behandlingshem-22772933",
+  "22922264": "arken-22922264",
+  "22984660": "hjularods-gruppboende-22984660",
+  "23167596": "tandlakare-lars-svensson-23167596",
+  "23252802": "ab-previa-23252802",
+  "23252828": "ab-previa-23252828",
+  "23275589": "trollhattans-kommun-23275589",
+  "23325764": "vildhussen-hvb-ab-23325764",
+  "23371933": "kyviksgarden-23371933",
+  "23511827": "tandlakare-anders-johnson-ab-23511827",
+  "23527997": "platavagens-serviceboende-23527997",
+  "23544745": "ria-hemmet-23544745",
+  "23549058": "ab-tandlakare-christer-jonsson-23549058",
+  "23549777": "vasa-tandklinik-23549777",
+  "23727985": "orion-utredning-och-behandling-23727985",
+  "23728082": "goteborgs-kyrkliga-stadsmission-23728082",
+  "23728108": "cean-stodboende-bryggan-23728108",
+  "23728116": "cean-stodboende-marsta-23728116",
+  "23728132": "larbo-hvb-hem-23728132",
+  "23737976": "apoteket-tigern-23737976",
+  "23865934": "tibble-gard-23865934",
+  "23961311": "barn-och-ungdomsboendet-ostergarden-23961311",
+  "24014995": "inom-norrbarke-sjukhem-24014995",
+  "24141145": "birgitta-d-sterdick-tandlakare-24141145",
+  "24192791": "team-j-son-24192791",
+  "24354813": "atvidabergs-hem-boende-service-ab-24354813",
+  "24398505": "margareta-jansson-tandlakarpraktik-uddevalla-ab-24398505",
+  "24440646": "livsanda-boende-24440646",
+  "24448896": "hvb-huvudgarden-24448896",
+  "24451783": "ronnbergsgatans-hvb-24451783",
+  "24451809": "adonia-omsorg-ab-24451809",
+  "24456931": "aleris-rasunda-24456931",
+  "24457830": "lainio-utveckling-ab-24457830",
+  "24489528": "sportapoteket-idrottskadematerial-kommanditbolag-24489528",
+  "24763104": "lunnagards-sjukhem-ab-24763104",
+  "24893950": "praktikertjanst-ab-24893950",
+  "24964272": "bokenas-gard-24964272",
+  "24999534": "medstop-24999534",
+  "25001025": "vastmanlands-lans-landsting-25001025",
+  "25057639": "team-solvera-ab-25057639",
+  "25057647": "adelegarden-asyl-och-put-boende-25057647",
+  "25060443": "vard-och-omsorgsforvaltningen-25060443",
+  "25078635": "sjonas-vard-och-motivationshem-25078635",
+  "25083817": "solhagagruppen-25083817",
+  "25084948": "villa-lindo-utredning-och-tjanster-ab-casator-care-25084948",
+  "25094673": "elisabethgardens-akut-och-utredningshem-ab-25094673",
+  "25142894": "hvb-vibor-kbt-ab-25142894",
+  "25201187": "fregatten-25201187",
+  "25207531": "kindshalsan-ab-25207531",
+  "25496902": "varmdo-kommun-25496902",
+  "25503525": "sallskapet-vanner-till-pauvres-honteux-25503525",
+  "25513789": "korpbergets-behandlingscenter-ab-25513789",
+  "25539172": "praktikertjanst-ab-25539172",
+  "25553348": "nyangens-gruppbostad-25553348",
+  "25665902": "tandlakare-thomas-kieri-ab-25665902",
+  "25728916": "solgardens-sjukhem-ab-25728916",
+  "25824129": "bralanda-aldreomsorg-25824129",
+  "25832155": "tandlakare-margareta-goralska-25832155",
+  "25902115": "elmstahemmet-ab-25902115",
+  "25927831": "kiropraktorgruppen-25927831",
+  "26168930": "ivonne-grants-tandlakare-ab-26168930",
+  "26272377": "strombacka-rehab-ab-26272377",
+  "26452524": "k-rehab-26452524",
+  "26457135": "norrbys-familjehem-26457135",
+  "26495358": "attendo-alerydsvagen-26495358",
+  "26535567": "softmedica-ab-26535567",
+  "26625608": "attendo-alvgarden-26625608",
+  "26628685": "erik-tullsten-ab-26628685",
+  "26731596": "valjeviken-26731596",
+  "26793554": "bodynfo-ab-26793554",
+  "26985788": "asylboendet-gymnasievagen-4-26985788",
+  "27022458": "notavillan-27022458",
+  "27028331": "sos-alarm-sverige-ab-27028331",
+  "27073907": "djurgardsgatans-stod-och-serviceboeende-27073907",
+  "27099068": "munin-ab-27099068",
+  "27117068": "cirrusgarden-vastra-malardalen-27117068",
+  "27125624": "tiara-home-ab-27125624",
+  "27125632": "duveholmsgruppen-27125632",
+  "27150291": "aneby-kommun-27150291",
+  "27179837": "valagarden-hvb-27179837",
+  "27185578": "katrineholms-kommun-27185578",
+  "27191048": "hammaro-kommun-27191048",
+  "27198670": "ellen-27198670",
+  "27269612": "fralsningsarmen-stodboende-kallan-27269612",
+  "27276203": "familjehem-fristad-ab-27276203",
+  "27277292": "amplexo-ab-27277292",
+  "27279983": "kreativ-omsorg-utbildning-i-motala-ab-27279983",
+  "27279991": "assistans-vikan-ab-27279991",
+  "27285097": "torpahemmet-27285097",
+  "27287762": "mikaelgarden-27287762",
+  "27287853": "stjarnbacken-hvb-27287853",
+  "27297381": "franshammars-fastighetsab-27297381",
+  "27306372": "cvo-27306372",
+  "27309723": "frosunda-hvb-hornefors-27309723",
+  "27317742": "frosunda-hvb-bomsund-27317742",
+  "27327782": "rudolf-steiner-stiftelsen-for-lakepedagogik-27327782",
+  "27350883": "specialforskola-ballskar-27350883",
+  "27353366": "akacia-skyddat-boende-27353366",
+  "27397421": "kognic-ab-27397421",
+  "27398015": "tandlakare-helena-mansson-27398015",
+  "27402825": "gruppbostader-27402825",
+  "27413103": "swedish-empowerment-center-27413103",
+  "27472281": "solhagagruppen-27472281",
+  "27479484": "foreningen-betaniahemmet-27479484",
+  "27485440": "finjagarden-ab-27485440",
+  "27485838": "aneby-kommun-27485838",
+  "27521723": "stromvillans-fritidsgard-27521723",
+  "27535731": "inom-eken-utslussningsenhet-hossna-27535731",
+  "27542299": "vob-syd-ab-27542299",
+  "27546373": "jarfalla-kommun-27546373",
+  "27555358": "cura-park-ungdomsboende-27555358",
+  "27555366": "albo-27555366",
+  "27564889": "attendo-sverige-ab-27564889",
+  "27571165": "tandlakare-gunilla-sterud-27571165",
+  "27585140": "stockholms-stadsmission-27585140",
+  "27586346": "branet-hvb-27586346",
+  "27586361": "magelungen-svedmyragruppen-27586361",
+  "27586379": "via-verna-ab-27586379",
+  "27597871": "nytida-ab-lotsen-27597871",
+  "28011781": "team-hellberg-zonterapi-ab-28011781",
+  "28022994": "praktikertjanst-28022994",
+  "28071801": "agatans-sjukgymnastik-ab-28071801",
+  "28095321": "lars-lavesson-psykologhuset-28095321",
+  "28209492": "villa-lindo-behandlingshem-i-kalmar-ab-28209492",
+  "28224871": "brosaters-sjukhem-ab-28224871",
+  "28310654": "bodafors-behandlings-utslussningsenhet-ab-28310654",
+  "28389781": "orana-kristianstad-ab-28389781",
+  "28575140": "frosunda-naset-28575140",
+  "28708725": "mias-fotvard-28708725",
+  "28753655": "praktikertjanst-ab-28753655",
+  "28816304": "familjehemmet-omtanke-28816304",
+  "28997815": "a-o-promise-minnesotabehandling-28997815",
+  "29171485": "tandlakare-per-erik-gunnarsson-ab-29171485",
+  "29247285": "stiftelsen-linden-29247285",
+  "29314580": "a-c-a-ambulansservice-cityjour-29314580",
+  "29410412": "orjan-johansson-naprapat-29410412",
+  "29478013": "wij-gard-vard-ab-29478013",
+  "29499118": "finjagarden-29499118",
+  "29598364": "bros-hvb-29598364",
+  "29617115": "colosseumkliniken-29617115",
+  "29722725": "ove-soderberg-29722725",
+  "29769205": "annebergs-behandlingshem-29769205",
+  "29789146": "cicerone-boende-for-ensamma-flyktingbarn-29789146",
+  "29789609": "alternativ-praktiken-jim-jensen-29789609",
+  "29879160": "venpunkten-ab-29879160",
+  "29957073": "saviq-kvinnobehandling-29957073",
+  "30012058": "tandlakare-bo-andersen-30012058",
+  "30027353": "malardalens-behandlingscentrum-ab-30027353",
+  "30048623": "skolds-frisk-och-sjukvard-ab-30048623",
+  "30058465": "tomas-norryd-30058465",
+  "30175525": "stennas-behandlingshem-30175525",
+  "30186373": "tandvarden-habo-ab-30186373",
+  "30286538": "nianfors-bruksherrgard-ab-30286538",
+  "30295794": "sveaparkens-tandlakarklinik-ab-30295794",
+  "30320691": "tolagen-ortoped-ab-30320691",
+  "30397491": "lejongardar-ab-30397491",
+  "30556039": "natverkscentrum-i-goteborg-ab-30556039",
+  "30576581": "tandlakare-katja-edling-ab-30576581",
+  "30579650": "forskolan-bubblan-30579650",
+  "30696553": "alvstrandsgarden-30696553",
+  "30762256": "colosseumkliniken-30762256",
+  "30786206": "halsoforum-i-storuman-ab-30786206",
+  "30788640": "acevou-ab-30788640",
+  "30833537": "praktikertjanst-ab-30833537",
+  "30835227": "solsidan-30835227",
+  "30865604": "ortopedteknisk-service-30865604",
+  "31022395": "baggium-ab-31022395",
+  "31116924": "forskolan-fantasia-31116924",
+  "31143852": "ekeborg-behandlingshem-ekonomisk-forening-31143852",
+  "31143944": "foraldraforeningen-yrsa-31143944",
+  "31181506": "bokskogens-hem-31181506",
+  "31224132": "rosenhill-tonarshem-ab-31224132",
+  "31597693": "strandgatans-psykologmottagning-31597693",
+  "31664154": "dala-naprapat-o-idrottsskadeklinik-31664154",
+  "31707938": "karbyhemmet-31707938",
+  "31739469": "praktikertjanst-31739469",
+  "31842222": "city-lakarmottagning-orebro-ab-31842222",
+  "31883804": "savik-behandlingshem-ab-31883804",
+  "31943012": "gudrun-jintons-psykologmottagning-31943012",
+  "32148082": "vi-omsorg-i-sverige-ab-32148082",
+  "32158891": "jordnara-vaxa-ab-32158891",
+  "32313108": "gammeluddshemmet-ab-32313108",
+  "32405557": "i-h-parfym-och-sjukvard-ab-32405557",
+  "32420481": "tandhalsan-i-mellerud-32420481",
+  "32444119": "ambis-sjukgymnastik-32444119",
+  "32497042": "medic24-ab-32497042",
+  "32527525": "ogonlakare-zeidan-al-tarcheh-ab-32527525",
+  "32575862": "caremore-32575862",
+  "32591448": "vallbyhemmet-hvb-32591448",
+  "32633554": "inom-kbt-32633554",
+  "32656126": "andra-chansen-ab-32656126",
+  "32656159": "solhagagruppen-32656159",
+  "32664369": "integrativ-fysioterapi-falun-32664369",
+  "32694259": "jokken-32694259",
+  "32836546": "doris-alternativbehandling-32836546",
+  "32893448": "foretagshalsovarden-i-strangnas-32893448",
+  "32970782": "bergslagens-behandlings-och-rehabiliterings-center-32970782",
+  "33008103": "frihamra-vard-ab-33008103",
+  "33044959": "dalby-gruppboende-33044959",
+  "33228339": "kraftaverk-ab-33228339",
+  "33248907": "aleris-ab-33248907",
+  "33250028": "stiftelsen-guldfallen-ekebo-33250028",
+  "33350554": "leg-psykolog-lena-rydbeck-33350554",
+  "33580986": "marianas-familjedaghem-33580986",
+  "33655705": "bo-brautigam-psykologi-33655705",
+  "33692674": "alternativ-medicin-zon-terapi-33692674",
+  "33707472": "dr-birgitta-cokorilo-33707472",
+  "33750993": "ericsbo-33750993",
+  "33788001": "rubinen-ab-33788001",
+  "33824111": "norrkopings-kognitiva-center-ab-33824111",
+  "33840844": "emma-soderstrom-33840844",
+  "34072850": "tanums-osteopati-zonterapi-34072850",
+  "34922518": "berghem-hvb-34922518",
+  "34968875": "tandlakaren-i-torsas-ab-34968875",
+  "35396563": "hpl-assistans-ab-35396563",
+  "35599323": "fothalsan-i-perstorp-modehalsan-35599323",
+  "35765304": "kiropraktor-eva-planas-35765304",
+  "35973221": "annettes-fotvard-35973221",
+  "36029692": "kampagarden-36029692",
+  "36038057": "villa-marma-36038057",
+  "36088599": "hvb-dammen-36088599",
+  "36108900": "tanja-ponjevic-36108900",
+  "36109148": "chatarinas-zonterapi-36109148",
+  "36136844": "glantans-behandlingshem-36136844",
+  "36140762": "strangnas-halsocenter-36140762",
+  "36141257": "familjedaghemmet-sussies-barntoffla-36141257",
+  "36166916": "skillstreaming-ab-36166916",
+  "36170553": "olivlunden-36170553",
+  "36265221": "j-36265221",
+  "36425577": "sune-andersson-s-sociala-natverksbehandling-36425577",
+  "36455640": "saltkallegarden-ab-36455640",
+  "36556132": "tandlakare-eva-hellstrom-ab-36556132",
+  "36679132": "grimmered-hvb-36679132",
+  "36715100": "sauna-behandlingshem-hvb-36715100",
+  "36765675": "boende-sodra-vi-36765675",
+  "36841435": "ryds-behandlingshem-ab-36841435",
+  "36847010": "attendo-lss-36847010",
+  "36849826": "colosseumkliniken-36849826",
+  "37009792": "obacka-mottagningen-37009792",
+  "37028719": "falkenbergs-osteopatklinik-anita-morken-37028719",
+  "37037975": "familjehemenheten-37037975",
+  "37148772": "medvindens-behandlingshem-37148772",
+  "37151438": "familjegarden-skogsdungen-37151438",
+  "37211745": "husinge-behandlingshem-37211745",
+  "37214889": "essagruppen-hvb-37214889",
+  "37313269": "nettans-med-fotvard-37313269",
+  "37397833": "tandlakare-anders-quist-ab-37397833",
+  "37400272": "trollhattans-chiroprakter-klinik-37400272",
+  "37489176": "u-95-familjehem-ab-37489176",
+  "37510757": "exit-stockholm-ab-37510757",
+  "37518065": "furuvagens-gruppbostad-daglig-verksamhet-37518065",
+  "37622347": "arabo-familjebehandling-37622347",
+  "37629193": "lillalvsgarden-37629193",
+  "37675691": "tandlakare-rolf-widman-ab-37675691",
+  "37700523": "linkopings-ungdomsboende-37700523",
+  "37868528": "sigtuna-ungdomshem-ab-37868528",
+  "37870136": "aleris-kognitiva-center-norrkoping-ab-37870136",
+  "38076337": "aldro-institutet-ab-38076337",
+  "38086823": "tursbo-rehab-ab-38086823",
+  "38225124": "skogsfamiljen-vardverksamheter-ab-38225124",
+  "38277265": "varbacka-plaza-38277265",
+  "38329769": "catoni-lena-legitimerad-psykoterapeut-38329769",
+  "38371605": "torneby-stodboende-ab-38371605",
+  "38405171": "farlens-familjedaghem-38405171",
+  "38424891": "geriatrik-specialisten-sth-ab-38424891",
+  "38427464": "guldlyran-ab-38427464",
+  "38427837": "cean-hvb-38427837",
+  "38431292": "vollsjo-friskola-och-hvb-hem-38431292",
+  "38442653": "varda-sverige-ab-38442653",
+  "38694204": "lillkullegatans-vardhem-liv-ab-38694204",
+  "38790994": "tandlakare-per-andren-ab-38790994",
+  "38792529": "kopparbols-behandlingshem-ab-38792529",
+  "38795217": "colosseumkliniken-38795217",
+  "38799805": "ga-lopkliniken-ab-38799805",
+  "38881033": "karlssons-38881033",
+  "38894648": "lp-verksamhetens-ideella-riksforening-38894648",
+  "38911632": "annas-naturmedicinska-praktik-38911632",
+  "39045646": "hassela-gotland-ab-svb-39045646",
+  "39111554": "skogsro-39111554",
+  "39240114": "capio-specialisthuset-39240114",
+  "39240288": "boa-mellanvard-ab-39240288",
+  "39244454": "nytida-ab-ljungbacken-39244454",
+  "39257704": "halmstad-naprapatklinik-39257704",
+  "39267224": "misa-ab-39267224",
+  "39267786": "staple-ungdomshem-ab-39267786",
+  "39270186": "nytida-stod-och-resurs-ab-39270186",
+  "39281746": "maud-brannsved-tandlakare-39281746",
+  "39356746": "vision-hvb-39356746",
+  "39414289": "kvinnohemmet-rosen-ab-39414289",
+  "39420914": "sorgardens-behandlingshem-39420914",
+  "39462361": "helene-s-barntradgard-39462361",
+  "39491824": "eldsjalen-39491824",
+  "39505706": "colosseumkliniken-39505706",
+  "39506340": "inom-skamingsfors-39506340",
+  "39571823": "ringmottagningen-ab-39571823",
+  "39637731": "hippocampus-39637731",
+  "39994603": "ryggbenke-ab-39994603",
+  "39999933": "kas-omsorgsverksamhet-ab-39999933",
+  "40133696": "namndemansgarden-idavallen-40133696",
+  "40141558": "ersta-hemtjanst-osteraker-40141558",
+  "40205759": "nytida-ab-lenagarden-40205759",
+  "40232951": "fothalsan-katarina-carlsson-40232951",
+  "40244238": "medorad-ab-40244238",
+  "40361891": "praktik-oskar-hardin-40361891",
+  "40427866": "boras-utvecklingsboende-40427866",
+  "40439424": "attendo-40439424",
+  "40442147": "goodbite-ab-40442147",
+  "40462152": "carina-florman-tandhygienist-40462152",
+  "40478182": "hedens-omvardnadscenter-ab-40478182",
+  "40544157": "ergotemp-ab-40544157",
+  "40547846": "alvens-grupphem-40547846",
+  "40613820": "ulla-falk-40613820",
+  "40734758": "90days-handelsbolag-40734758",
+  "40754673": "fothalsan-40754673",
+  "40855991": "tandlakar-n-i-ragunda-ab-40855991",
+  "40907156": "gokans-gard-40907156",
+  "40931594": "gynekolog-erik-rasmussen-40931594",
+  "40950404": "rehabhuset-tomelilla-ab-40950404",
+  "41067356": "behandlingshemmet-skeppet-ab-41067356",
+  "41070681": "falkopings-specialistlakarmottagning-41070681",
+  "41161613": "ab-nordic-medifield-service-41161613",
+  "41185745": "dianova-41185745",
+  "41223801": "kvarngarden-41223801",
+  "41228230": "svalan-hvb-41228230",
+  "41288432": "nytida-41288432",
+  "41338666": "inslussen-ab-41338666",
+  "41462565": "avstampet-i-norr-ab-41462565",
+  "41509688": "hemmabergets-hvb-hem-ab-41509688",
+  "41576901": "crewford-care-ab-41576901",
+  "41577081": "femcenter-41577081",
+  "41610783": "apoteket-valbo-41610783",
+  "41616079": "ringgarden-ab-41616079",
+  "41689977": "fotvardssalongen-mitt-i-city-41689977",
+  "41694613": "hultagarden-41694613",
+  "41696295": "juniagruppen-ab-41696295",
+  "41700709": "minnesota-i-malmo-ab-41700709",
+  "41790304": "familjehalsan-vardcentral-41790304",
+  "41810540": "humlans-hvb-ab-41810540",
+  "41823196": "astrid-lewison-konsult-ab-41823196",
+  "41826173": "albetol-grimstagatan-41826173",
+  "41872003": "mercy-behandlingshemmet-41872003",
+  "41913393": "bergasa-behandlingshem-ab-41913393",
+  "41919028": "maj-magnussons-sjukgymnastik-41919028",
+  "41928821": "ekangens-hvb-halvvagshus-ab-41928821",
+  "42017889": "ukkc-42017889",
+  "42018911": "ab-villa-bjorkudden-42018911",
+  "42087478": "rubinen-motivations-och-omvardnadsboende-42087478",
+  "42162016": "stanleys-chiropraktik-42162016",
+  "42199471": "kaderland-samtalskonsult-42199471",
+  "42208728": "mjosjo-gard-hvb-ab-42208728",
+  "42209585": "fysio-daniel-jusinski-ab-42209585",
+  "42356600": "stockholms-stadsmission-42356600",
+  "42371492": "aramia-omsorg-ab-42371492",
+  "42375469": "bollnas-boende-kooperativ-ekonomisk-forening-42375469",
+  "42375535": "selene-kollektivet-42375535",
+  "42392712": "forstarkta-familjehem-ramlosa-42392712",
+  "42393215": "fotparadiset-fotvard-behandlingar-42393215",
+  "42421701": "ocd-centret-ab-42421701",
+  "42439661": "anglahuset-i-bjorkvik-ab-42439661",
+  "42443424": "stationsvagens-gruppbostad-42443424",
+  "42458729": "stradivarius-hvb-ab-42458729",
+  "42696666": "makbo-ab-42696666",
+  "42748640": "responsgruppen-i-malardalen-ab-42748640",
+  "42762591": "ekekullen-hvb-42762591",
+  "42762914": "hhs-ab-familjehem-42762914",
+  "42767764": "gnesta-fotvard-42767764",
+  "42796581": "sellbergs-behandlingshem-ab-42796581",
+  "42811117": "guldstadens-hvb-42811117",
+  "42829184": "kongsryds-hvb-ab-42829184",
+  "42835843": "extro-ab-42835843",
+  "42911404": "tandlakare-kent-rikardsson-42911404",
+  "42986844": "memira-ab-42986844",
+  "43026830": "solutionfocus-i-mora-ab-43026830",
+  "43028612": "cymbalens-forskola-ab-43028612",
+  "43067024": "vasomed-ab-43067024",
+  "43135342": "villamea-43135342",
+  "43177278": "gotahalsan-ab-43177278",
+  "43289305": "norra-stockholms-ungdomshem-ab-43289305",
+  "43297530": "hammarbakkens-behandlingshem-43297530",
+  "43334937": "praktikertjanst-ab-43334937",
+  "43349232": "glad-mun-ab-43349232",
+  "43369354": "attendo-43369354",
+  "43373034": "cean-utbildning-ab-43373034",
+  "43374263": "strukturen-ustn-ab-43374263",
+  "43401470": "move-walk-sverige-ab-43401470",
+  "43437953": "srk-konsultation-ab-43437953",
+  "43466358": "hillringsbergs-rehabcenter-ab-43466358",
+  "43648781": "tandlakare-behzad-sharifi-43648781",
+  "43678333": "solklart-vard-ab-43678333",
+  "43782333": "fjallhalsan-harjedalen-43782333",
+  "43797885": "skerfe-kliniken-ab-43797885",
+  "43803733": "fotvardsspecialisten-43803733",
+  "43804145": "fotsidan-43804145",
+  "43838812": "salltappans-behandlingshem-ab-43838812",
+  "43962679": "living-nordic-ab-43962679",
+  "44112381": "svartnas-stodboende-44112381",
+  "44116283": "renkronans-behandlingshem-44116283",
+  "44127728": "hvilans-skolhem-44127728",
+  "44132165": "hoga-kusten-vard-och-omsorg-ab-44132165",
+  "44156230": "skargardens-hvb-44156230",
+  "44212900": "curatio-ungdomskonsult-44212900",
+  "44225605": "teamtandvarden-onsala-ab-44225605",
+  "44238616": "barrstigen-hem-for-ensamkommande-barn-44238616",
+  "44295137": "montessoriforskolan-villa-eken-ab-44295137",
+  "44382711": "forskolan-sakina-ek-for-44382711",
+  "44554772": "villa-vita-i-mullsjo-ab-44554772",
+  "44625515": "joy-psykologteam-handelsbolag-44625515",
+  "44662120": "laroriket-larileken-ab-44662120",
+  "44677763": "svensk-assistans-och-handikappservice-i-norrkoping-44677763",
+  "44761070": "apoteket-sergel-44761070",
+  "44826402": "toftanas-stormarknad-ab-44826402",
+  "44837623": "domesticus-ab-44837623",
+  "44898419": "ekotopia-44898419",
+  "44918084": "cureum-ab-44918084",
+  "44929800": "familjestodsgruppen-44929800",
+  "44986818": "nils-norrsell-44986818",
+  "45072865": "rasmusgarden-ab-45072865",
+  "45130606": "orana-asphult-45130606",
+  "45134392": "varius-familjehemsvard-45134392",
+  "45214483": "ict-relationsinvest-ab-45214483",
+  "45241973": "maritha-johanssons-samtalsmottagning-45241973",
+  "45300977": "fyrens-hvb-45300977",
+  "45421971": "norrtaljes-gemensamma-halso-sjukvard-och-omsorgs-45421971",
+  "45477791": "brizad-behandlingskonsult-ab-45477791",
+  "45507845": "jt-kliniken-ab-45507845",
+  "45509288": "tandhalsa-therese-ticander-ab-45509288",
+  "45532181": "anns-medicinska-fotvard-45532181",
+  "45660628": "vardcentralen-45660628",
+  "45663788": "gnistan-hvb-45663788",
+  "45685435": "tandlakare-fahimeh-farahmand-ab-45685435",
+  "45725041": "faster-veras-familjekollektiv-ab-45725041",
+  "45736105": "magelungen-gavle-45736105",
+  "45743622": "varudden-ab-45743622",
+  "45745361": "better-smile-45745361",
+  "45773066": "poldent-ab-45773066",
+  "45787041": "holmsgarden-omsorg-45787041",
+  "45858198": "attendo-45858198",
+  "45868387": "asih-tyreso-soderort-ab-45868387",
+  "45885712": "barnmottagningen-baltazar-ab-45885712",
+  "45889797": "ergostyling-45889797",
+  "45909454": "paloma-utredning-behandling-ab-45909454",
+  "45910833": "tandlakare-anette-olofsson-ab-45910833",
+  "45924636": "paradis-fotklinik-45924636",
+  "46026977": "familjehemmet-individ-omtanke-46026977",
+  "46039152": "pariza-46039152",
+  "46131033": "memira-ab-46131033",
+  "46131058": "memira-ab-46131058",
+  "46131066": "memira-ab-46131066",
+  "46131074": "memira-ab-46131074",
+  "46131082": "memira-ab-46131082",
+  "46131090": "memira-ab-46131090",
+  "46131116": "memira-ab-46131116",
+  "46131132": "memira-ab-46131132",
+  "46131157": "memira-ab-46131157",
+  "46135133": "fysioaktiv-sjukgymnastik-friskvard-46135133",
+  "46170957": "colosseumkliniken-46170957",
+  "46185476": "russinbacken-ab-46185476",
+  "46188504": "city-sjukgymnastikmottagning-46188504",
+  "46198743": "hudlakaren-i-palsjo-skog-46198743",
+  "46229308": "finntorpstandlakarna-ab-46229308",
+  "46234746": "inom-bjorntorps-hvb-hem-46234746",
+  "46254942": "helena-clip-on-hjalpmedel-46254942",
+  "46294575": "cedar-roingegarden-46294575",
+  "46307799": "libo-care-solbacken-hvb-46307799",
+  "46318572": "colosseumkliniken-46318572",
+  "46325940": "hans-duvinger-tandlakarpraktik-ab-46325940",
+  "46349783": "aramia-omsorg-ab-46349783",
+  "46406757": "val-bo-behandlingshem-46406757",
+  "46406823": "ludvika-kommun-46406823",
+  "46410015": "sjoboda-gard-ab-46410015",
+  "46413803": "leg-tandlakare-46413803",
+  "46466124": "aktiv-vard-46466124",
+  "46514162": "personalkooperativet-skogsfrona-46514162",
+  "46623278": "tandlakare-hildenborg-ab-46623278",
+  "46682720": "tandvardcentralen-akut-mottagning-malmo-ab-46682720",
+  "46697629": "harnosands-kommun-46697629",
+  "46697744": "inom-tibble-gard-46697744",
+  "46746798": "frosunda-hvb-skabo-46746798",
+  "46860151": "glob-ekonomisk-forening-46860151",
+  "46932406": "praktikertjanst-ab-46932406",
+  "46934253": "tyreso-kommun-46934253",
+  "46978656": "stafsinge-hvb-46978656",
+  "47029509": "fotjouren-47029509",
+  "47045323": "andersson-piltz-ungdomshem-ab-47045323",
+  "47059605": "din-kiropraktor-i-dalarna-ab-47059605",
+  "47060652": "brightcare-47060652",
+  "47077664": "cederangen-utrednings-och-behandlingshem-ab-47077664",
+  "47099916": "oasen-47099916",
+  "47104393": "coremed-47104393",
+  "47124193": "misa-vasteras-47124193",
+  "47130489": "familjehem-i-fokus-47130489",
+  "47157854": "memira-ab-47157854",
+  "47157862": "memira-ab-47157862",
+  "47157888": "memira-ab-47157888",
+  "47157896": "memira-ab-47157896",
+  "47157904": "memira-ab-47157904",
+  "47158894": "omsorgscompagniet-47158894",
+  "47175807": "giw-rehab-ab-47175807",
+  "47249586": "skelleftea-kiropraktorklinik-47249586",
+  "47259338": "kullabygdens-dbt-hem-47259338",
+  "47260047": "dxcm-sweden-ab-47260047",
+  "47270301": "attendo-kristina-47270301",
+  "47276837": "edlings-tandvard-ab-47276837",
+  "47298161": "ab-villa-bocilla-hvb-hem-47298161",
+  "47314307": "frosunda-hvb-ungbo-47314307",
+  "47315635": "srk-konsultation-ab-47315635",
+  "47367628": "befem-laro-mottagningen-47367628",
+  "47471677": "tandlakarna-lofstrom-ab-47471677",
+  "47499777": "skogmans-forskolor-ab-47499777",
+  "47514955": "domna-dental-ab-47514955",
+  "47660006": "bergbo-hvb-47660006",
+  "47695564": "fenix-47695564",
+  "47715370": "responsgruppen-i-malardalen-ab-47715370",
+  "47730379": "k-rehab-47730379",
+  "99000027": "violakliniken-99000027",
+  "99000075": "svensk-assistans-och-handikappservice-ab-99000075",
+  "99000084": "emt-kliniken-stockholm-99000084",
+  "99000181": "feelgood-foretagshalsovard-ab-99000181",
+  "99000187": "tandlakare-elisabet-linderot-99000187",
+  "99000209": "glaxosmithkline-ab-99000209",
+  "99000257": "tossebobarna-ekonomisk-forening-99000257",
+  "99000291": "viviann-spang-99000291",
+  "99000303": "cura-apoteket-flygstaden-99000303",
+  "99000440": "spec-oron-nas-halssjukdomar-99000440"
+ }
+}
