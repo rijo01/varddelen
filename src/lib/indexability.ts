@@ -12,9 +12,22 @@ import indexable from "@/data/indexable.json";
  * aldrig ligga i sitemapen och samtidigt svara noindex.
  *
  *   1. HUBBGRIND — /kommun/[slug]/[bransch]
- *      Minst 5 FAKTISKT LISTADE företag. Inte 5 rader i databasen: sidans
- *      query filtrerar på aeant >= 0 (index-shortcut), så rader med aeant NULL
- *      renderas aldrig. Räknat på DB-rader hade tomma hubbar hamnat i sitemapen.
+ *      Minst 5 listade företag — vilket sedan 2026-09-07 är samma sak som 5
+ *      rader i databasen.
+ *
+ *      Så var det inte när grinden byggdes. Hubbfrågan bar då ett
+ *      `.gte("aeant", 0)`, och eftersom NULL >= 0 är falskt i SQL renderades
+ *      de 1 222 vårdföretag som saknar anställningsuppgift aldrig. Grinden
+ *      räknade därför medvetet bara rader med aeant satt, för att inte
+ *      släppa in hubbar som såg fyllda ut i databasen men var tomma på
+ *      sidan. Rätt beslut givet filtret — men filtret självt var buggen.
+ *
+ *      Filtret är borta ur queries.ts (se applyAeantFilter där) och grinden
+ *      räknar nu alla rader. Omräkningen: 1 296 → 1 321 indexerbara hubbar
+ *      (+25, ingen bortfallen), och 545 hubbar hade dessförinnan ett
+ *      undertalat antal — Stockholm/Hälso & sjukvård stod som 1 393 i stället
+ *      för 1 454. Täckningen av företag i en indexerbar hubb går från
+ *      30 278 (85,2 %) till 30 421 (85,6 %).
  *
  *   2. SUBSTANSGRIND — /foretag/[slug]
  *      Beskrivning, egen tjänstelista eller verifierad kontakt. Se
@@ -40,6 +53,9 @@ import indexable from "@/data/indexable.json";
  *   bara gatuadress               (3 807 st)       20 /  23 /  24
  *   tel + adress, aeant NULL        (983 st)       16 /  22 /  51
  *   tel + adress, aeant >= 1     (27 777 st)       17 /  20 /  50
+ *   (Mätningen gjordes när aeant-filtret fortfarande fanns. Substansgrinden
+ *   rör aldrig aeant, så siffrorna ovan gäller oförändrat — 737 företags-
+ *   sidor passerar före som efter.)
  *   3–6 sökord                      (234 st)       21 /  26 /  31
  *   >= 8 sökord                      (57 st)       30 /  36 /  76
  *   beskrivning >= 20 ord           (114 st)       61 /  95 / 179
@@ -82,8 +98,8 @@ import indexable from "@/data/indexable.json";
  * ---------------------------------------------------------------------------
  * TRAPPAN — hur grindarna ska luckras upp
  * ---------------------------------------------------------------------------
- * Steg 0 (nu) är avsiktligt hårt: 737 av 35 528 företagssidor och 1 296 av
- * 4 047 hubbar. Motivet är att sajten just har lagt om kanonisk host och att
+ * Steg 0 (nu) är avsiktligt hårt: 737 av 35 528 företagssidor och 1 321 av
+ * 4 084 hubbar. Motivet är att sajten just har lagt om kanonisk host och att
  * crawlbudgeten ska gå till sidor som kan vinna, inte till 34 791 registerrader.
  *
  * Luckra upp ETT steg per GSC-avläsning, aldrig två — annars går det inte att
@@ -93,6 +109,8 @@ import indexable from "@/data/indexable.json";
  *     ~900 företagssidor. Provar om sökordslistan bär indexering.
  *   Steg 2 — hubbgrinden 5 → 3
  *     ~1 987 hubbar (+691), täcker 88,9 % av företagen i stället för 82,3 %.
+ *     (Uppskattningen är från mätningen under aeant-filtret och ligger nu
+ *     något lågt — räkna om med build-index-set.mjs innan steget tas.)
  *   Steg 3 — företagsgrinden får ett registerspår: tel + gatuadress + aeant >= 1
  *     ~28 400 företagssidor. Detta är ett helt annat vad än steg 1–2 och tas
  *     BARA om hubbarna dessförinnan indexeras rent.

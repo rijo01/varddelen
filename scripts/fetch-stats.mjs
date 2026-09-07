@@ -31,7 +31,7 @@ async function countForKommun({ code }) {
     headers: {
       apikey: KEY,
       Authorization: `Bearer ${KEY}`,
-      Prefer: "count=estimated",
+      Prefer: "count=exact",
     },
   });
   const cr = r.headers.get("content-range") ?? "";
@@ -61,7 +61,7 @@ async function countForBransch(id) {
     headers: {
       apikey: KEY,
       Authorization: `Bearer ${KEY}`,
-      Prefer: "count=estimated",
+      Prefer: "count=exact",
     },
   });
   const cr = r.headers.get("content-range") ?? "";

@@ -6,9 +6,9 @@ import { kommunBySlug } from "@/lib/kommuner";
 import {
   branschPageSlug,
   countForetagInKommun,
-  getBranschFordelning,
   listForetagInKommun,
 } from "@/lib/queries";
+import { branschFordelning } from "@/lib/counts";
 import { getBranschNamesBulk } from "@/lib/branscher";
 import { JsonLd, buildBreadcrumb } from "@/components/json-ld";
 import { Breadcrumb } from "@/components/breadcrumb";
@@ -45,13 +45,25 @@ export default async function KommunPage({ params }: { params: Params }) {
   const kommun = kommunBySlug(slug);
   if (!kommun) notFound();
 
-  const snapshot = kommunForetagCount(kommun.code);
+  /**
+   * Totalen och fördelningen måste komma UR SAMMA KÄLLA.
+   *
+   * Förr gjorde de inte det: totalen kom ur en handinklistrad estimated-lista
+   * (topp-25 kommuner) eller en estimated live-räkning, medan fördelningen
+   * räknades i app-lagret på ett stickprov som PostgREST tyst kapade till
+   * 1 000 rader. På Stockholm stod därför "5 019 vårdföretag registrerade"
+   * över en kategorilista vars 24 rader summerade till högst 1 000.
+   *
+   * Nu kommer båda ur räknesnapshoten, som byggs med count=exact och vars
+   * summeringsinvariant kollas vid bygget: summan av kategorierna ÄR totalen.
+   */
+  const snapshotTotal = kommunForetagCount(kommun.code);
+  const fordelning = branschFordelning(kommun.code, 24);
 
-  const [liveTotal, fordelning, foretagSample] = await Promise.all([
-    snapshot != null
-      ? Promise.resolve(snapshot)
+  const [liveTotal, foretagSample] = await Promise.all([
+    snapshotTotal != null
+      ? Promise.resolve(snapshotTotal)
       : countForetagInKommun(kommun.code),
-    getBranschFordelning(kommun.code, 24),
     listForetagInKommun(kommun.code, 12),
   ]);
 
@@ -148,7 +160,7 @@ export default async function KommunPage({ params }: { params: Params }) {
           ) : (
             <CompanyCardList>
               {foretagSample.map((f, i) => (
-                <li key={f.id}>
+                <li key={f.cfarnr}>
                   <CompanyCard
                     foretag={f}
                     rank={i + 1}

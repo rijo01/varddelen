@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { ArrowLeft, ArrowRight, Layers } from "lucide-react";
 import { kommunBySlug } from "@/lib/kommuner";
 import { getBranschName } from "@/lib/branscher";
 import {
+  branschPageSlug,
   listForetagInKommunByBransch,
   parseBranschSlug,
 } from "@/lib/queries";
@@ -30,15 +31,24 @@ export async function generateMetadata({
   const kommun = kommunBySlug(slug);
   const ng1 = parseBranschSlug(bransch);
   if (!kommun || !ng1) return { title: "Sida hittades inte" };
-  const name = (await getBranschName(ng1)) ?? `SNI ${ng1}`;
-  const title = `${name} i ${kommun.name}`;
-  const description = `Vårdföretag inom ${name.toLowerCase()} i ${kommun.name} kommun. Hitta lokala vård- och omsorgsföretag, kontaktuppgifter och adresser.`;
+  const name = await getBranschName(ng1);
+  // Samma dubblettyta som på företagssidan: parseBranschSlug läser bara
+  // siffrorna sist, så canonical måste byggas ur branschnamnet — aldrig ur
+  // den begärda sluggen. Utan känt branschnamn finns ingen kanonisk form att
+  // peka på, och då utelämnar vi canonical hellre än att självkanonikalisera.
+  const canonicalBransch = name ? branschPageSlug(name, ng1) : null;
+  const title = `${name ?? `SNI ${ng1}`} i ${kommun.name}`;
+  const description = `Vårdföretag inom ${(name ?? `SNI ${ng1}`).toLowerCase()} i ${kommun.name} kommun. Hitta lokala vård- och omsorgsföretag, kontaktuppgifter och adresser.`;
   return {
     title,
     description,
-    alternates: {
-      canonical: `${SITE_URL}/kommun/${kommun.slug}/${bransch}`,
-    },
+    ...(canonicalBransch
+      ? {
+          alternates: {
+            canonical: `${SITE_URL}/kommun/${kommun.slug}/${canonicalBransch}`,
+          },
+        }
+      : {}),
     openGraph: { title, description, type: "website", locale: "sv_SE" },
     // Hubbgrind: under 5 listade företag är sidan en omväg, inte ett urval.
     // noindex,follow — sidan lever kvar, länkflödet också. Se lib/indexability.ts.
@@ -69,7 +79,35 @@ export default async function BranschPage({
   const ng1 = parseBranschSlug(bransch);
   if (!kommun || !ng1) notFound();
 
-  const branschName = (await getBranschName(ng1)) ?? `SNI ${ng1}`;
+  const branschNameOrNull = await getBranschName(ng1);
+
+  /**
+   * ÖPPEN DUBBLETTYTA — stängd med 308, samma felklass som /foretag/[slug].
+   * /kommun/stockholm/vad-som-helst-86909 svarade 200 med egen canonical.
+   *
+   * Bara när branschnamnet är känt: utan namn finns ingen kanonisk slug att
+   * peka på (fallback-rubriken "SNI 86909" är inte en identitet), och en
+   * omdirigering dit hade bara flyttat problemet.
+   */
+  if (branschNameOrNull) {
+    const canonicalBransch = branschPageSlug(branschNameOrNull, ng1);
+    if (bransch !== canonicalBransch) {
+      // Behåll sid- och storleksparametrar — en omdirigering som tappar dem
+      // skickar besökaren till sida 1 utan filter, vilket ser ut som en bugg.
+      const qs = new URLSearchParams();
+      for (const [k, v] of Object.entries({
+        page: sp.page,
+        aeantMin: sp.aeantMin,
+        aeantMax: sp.aeantMax,
+      })) {
+        if (v) qs.set(k, v);
+      }
+      const suffix = qs.toString() ? `?${qs}` : "";
+      permanentRedirect(`/kommun/${kommun.slug}/${canonicalBransch}${suffix}`);
+    }
+  }
+
+  const branschName = branschNameOrNull ?? `SNI ${ng1}`;
   const page = Math.max(1, Number(sp.page) || 1);
   const aeantMin = sp.aeantMin ? Number(sp.aeantMin) : undefined;
   const aeantMax = sp.aeantMax ? Number(sp.aeantMax) : undefined;
@@ -211,7 +249,7 @@ export default async function BranschPage({
       ) : (
         <CompanyCardList>
           {rows.map((f, i) => (
-            <li key={f.id}>
+            <li key={f.cfarnr}>
               <CompanyCard
                 foretag={f}
                 rank={(page - 1) * PAGE_SIZE + i + 1}

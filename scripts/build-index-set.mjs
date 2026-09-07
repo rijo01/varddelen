@@ -22,11 +22,14 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 // ---------------------------------------------------------------------------
 
 /**
- * Hubbgrind: minsta antal FAKTISKT LISTADE företag på en bransch-i-kommun-sida.
+ * Hubbgrind: minsta antal listade företag på en bransch-i-kommun-sida.
  *
- * "Faktiskt listade" — inte antalet rader i databasen. listForetagInKommunByBransch
- * filtrerar på aeant >= 0 (index-shortcut), så rader med aeant = NULL renderas
- * aldrig. Räknar vi på DB-rader hamnar tomma hubbar i sitemapen.
+ * Grinden räknar DB-rader — och det är sedan 2026-09-07 samma sak som
+ * "faktiskt listade". Tidigare var det inte det: hubbfrågan bar ett
+ * `.gte("aeant", 0)`, NULL >= 0 är falskt, och 1 222 vårdföretag renderades
+ * aldrig. Grinden räknade därför bara rader med aeant satt, för att inte
+ * släppa in tomma hubbar i sitemapen — rätt svar på fel problem. Filtret är
+ * nu borta ur queries.ts, alla rader renderas, och grinden räknar dem alla.
  */
 const HUB_MIN_FORETAG = 5;
 
@@ -62,20 +65,148 @@ if (!SUPA_URL || !KEY) {
 }
 const headers = { apikey: KEY, Authorization: `Bearer ${KEY}` };
 
-async function fetchAll(path, select, extra = "") {
+/**
+ * PostgREST-taket. db-max-rows = 1000 på det här projektet: en `limit=5000`
+ * kapas TYST till 1000. Allt som hämtar "allt" måste därför paginera, och
+ * varje paginering måste stämmas av mot en exakt räkning — annars blir ett
+ * kapat svar en tyst undertalning i stället för ett fel.
+ */
+const PAGE_MAX = 1000;
+
+/** Exakt radantal för en filtrerad resurs. Aldrig count=estimated — se lib/counts.ts. */
+async function countExact(path, filter = "") {
+  // Inget select: HEAD + Prefer count=exact räcker, och vi slipper veta vilken
+  // kolumn resursen har.
+  const url = `${SUPA_URL}/rest/v1/${path}?limit=1${filter}`;
+  const r = await fetch(url, {
+    method: "HEAD",
+    headers: { ...headers, Prefer: "count=exact" },
+  });
+  if (!r.ok) throw new Error(`count ${path} ${r.status}`);
+  const m = (r.headers.get("content-range") ?? "").match(/\/(\d+)$/);
+  if (!m) throw new Error(`count ${path}: oläsbar content-range`);
+  return Number(m[1]);
+}
+
+/** SUMMERINGSINVARIANT — hämtat antal måste vara exakt DB:s antal. */
+function assertComplete(path, got, want) {
+  if (got !== want) {
+    throw new Error(
+      `${path}: hämtade ${got} rader men DB har ${want} (count=exact). ` +
+        `Pagineringen tappade eller dubblerade rader — avbryter hellre än ` +
+        `att skriva ett urval byggt på ofullständig data.`,
+    );
+  }
+}
+
+/**
+ * Keyset-paginering på en UNIK kolumn.
+ *
+ * Why inte limit/offset: offset är bara välbestämt om ORDER BY är en total
+ * ordning. Med ett icke-unikt sorteringsvärde är radernas inbördes ordning
+ * inom en grupp ospecificerad, och Postgres får byta den mellan två
+ * anrop — då hoppas rader över vid sidgränsen eller kommer med två gånger.
+ * `cfarnr` är unikt över foretag_publik (verifierat: 35 528 rader, 35 528
+ * distinkta) och ger en total ordning. `id` gör INTE det: 118 värden är
+ * dubbletter och id=0 ligger på 2 701 rader.
+ */
+async function fetchAllByUniqueKey(path, select, filter, keyCol) {
+  const want = await countExact(path, filter);
   const rows = [];
-  const STEP = 1000;
-  for (let offset = 0; ; offset += STEP) {
-    const url = `${SUPA_URL}/rest/v1/${path}?select=${select}${extra}&limit=${STEP}&offset=${offset}`;
+  let cursor = null;
+  for (;;) {
+    const seek = cursor === null ? "" : `&${keyCol}=gt.${cursor}`;
+    const url = `${SUPA_URL}/rest/v1/${path}?select=${select}${filter}${seek}&order=${keyCol}.asc&limit=${PAGE_MAX}`;
     const r = await fetch(url, { headers });
     if (!r.ok) throw new Error(`${path} ${r.status}: ${await r.text()}`);
     const d = await r.json();
+    if (d.length === 0) break;
     rows.push(...d);
-    process.stderr.write(`\r  ${path}: ${rows.length}`);
-    if (d.length < STEP) break;
+    cursor = d[d.length - 1][keyCol];
+    process.stderr.write(`\r  ${path}: ${rows.length}/${want}`);
+    if (d.length < PAGE_MAX) break;
   }
   process.stderr.write("\n");
+  assertComplete(path, rows.length, want);
   return rows;
+}
+
+/**
+ * Keyset-paginering på en ICKE-unik grupperingskolumn (sokordtable.cfarnr).
+ *
+ * Grundregeln är densamma — men en grupp får aldrig delas av en sidgräns,
+ * för då är ordningen inom gruppen ospecificerad. Vi kastar därför bort den
+ * sista (möjligen halva) gruppen på varje full sida och börjar om från den.
+ *
+ * Undantaget som gör det icke-trivialt: en enskild cfarnr har 1 143 sökord,
+ * alltså mer än hela sidtaket. Den gruppen kan aldrig "börjas om" utan att
+ * loopen står stilla, så den töms för sig med offset inom gruppen. Där är
+ * det säkert: sorteringen är då på sokord, alla kvarvarande lika-lägen är
+ * IDENTISKA strängvärden, och att byta plats på två identiska värden kan
+ * inte ändra vilken mängd vi får ut.
+ */
+async function fetchAllGrouped(path, select, filter, groupCol, orderCol) {
+  const want = await countExact(path, filter);
+  const rows = [];
+  let cursor = null;
+  for (;;) {
+    const seek = cursor === null ? "" : `&${groupCol}=gte.${cursor}`;
+    const url = `${SUPA_URL}/rest/v1/${path}?select=${select}${filter}${seek}&order=${groupCol}.asc,${orderCol}.asc&limit=${PAGE_MAX}`;
+    const r = await fetch(url, { headers });
+    if (!r.ok) throw new Error(`${path} ${r.status}: ${await r.text()}`);
+    const d = await r.json();
+    if (d.length === 0) break;
+
+    if (d.length < PAGE_MAX) {
+      rows.push(...d);
+      break;
+    }
+
+    const lastGroup = d[d.length - 1][groupCol];
+    const whole = d.filter((row) => row[groupCol] !== lastGroup);
+    if (whole.length === 0) {
+      // Hela sidan är EN grupp — töm den för sig och gå vidare.
+      rows.push(...(await drainGroup(path, select, filter, groupCol, orderCol, lastGroup)));
+      cursor = lastGroup + 1;
+    } else {
+      rows.push(...whole);
+      cursor = lastGroup;
+    }
+    process.stderr.write(`\r  ${path}: ${rows.length}/${want}`);
+  }
+  process.stderr.write("\n");
+  assertComplete(path, rows.length, want);
+  return rows;
+}
+
+async function drainGroup(path, select, filter, groupCol, orderCol, group) {
+  const groupFilter = `${filter}&${groupCol}=eq.${group}`;
+  const want = await countExact(path, groupFilter);
+  const out = [];
+  for (let offset = 0; offset < want; offset += PAGE_MAX) {
+    const url = `${SUPA_URL}/rest/v1/${path}?select=${select}${groupFilter}&order=${orderCol}.asc&limit=${PAGE_MAX}&offset=${offset}`;
+    const r = await fetch(url, { headers });
+    if (!r.ok) throw new Error(`${path} ${r.status}: ${await r.text()}`);
+    const d = await r.json();
+    if (d.length === 0) break;
+    out.push(...d);
+  }
+  assertComplete(`${path} (${groupCol}=${group})`, out.length, want);
+  return out;
+}
+
+/** Resurs som ryms på en sida. Invarianten fångar dagen den växer förbi taket. */
+async function fetchSinglePage(path, select, filter) {
+  const want = await countExact(path, filter);
+  if (want > PAGE_MAX) {
+    throw new Error(`${path}: ${want} rader > sidtaket ${PAGE_MAX} — behöver paginering`);
+  }
+  const url = `${SUPA_URL}/rest/v1/${path}?select=${select}${filter}&limit=${PAGE_MAX}`;
+  const r = await fetch(url, { headers });
+  if (!r.ok) throw new Error(`${path} ${r.status}: ${await r.text()}`);
+  const d = await r.json();
+  assertComplete(path, d.length, want);
+  return d;
 }
 
 // ---------------------------------------------------------------------------
@@ -166,14 +297,24 @@ console.error(`Vård-branscher: ${VARD.length} · kommuner: ${KOMMUN_SLUG.size}`
 
 const FORETAG_COLS =
   "cfarnr,firma,namn,ng1,kommun,aeant,tel,webb,epostadress,kontaktperson,logotyp,poang,infotext";
-const foretag = await fetchAll(
+const VARD_FILTER = `&ng1=in.(${VARD.join(",")})`;
+const foretag = await fetchAllByUniqueKey(
   "foretag_publik",
   FORETAG_COLS,
-  `&ng1=in.(${VARD.join(",")})&order=cfarnr.asc`,
+  VARD_FILTER,
+  "cfarnr",
 );
 
 // Sökord per cfarnr — unika, case-insensitivt, precis som listSokordForCfarnr.
-const sokordRows = await fetchAll("sokordtable", "cfarnr,sokord", "&order=cfarnr.asc");
+// sokord=not.is.null: 932 rader saknar sökord och räknas ändå inte. Att
+// filtrera bort dem vid källan gör att keyset-ordningen slipper NULL-lägen.
+const sokordRows = await fetchAllGrouped(
+  "sokordtable",
+  "cfarnr,sokord",
+  "&sokord=not.is.null",
+  "cfarnr",
+  "sokord",
+);
 const sokordCount = new Map();
 {
   const seen = new Map();
@@ -188,7 +329,7 @@ const sokordCount = new Map();
   for (const [k, v] of seen) sokordCount.set(k, v.size);
 }
 
-const branschRows = await fetchAll(
+const branschRows = await fetchSinglePage(
   "t_bransch",
   "branschid,beskrivning",
   `&branschid=in.(${VARD.join(",")})`,
@@ -201,17 +342,24 @@ for (const r of branschRows) {
 }
 
 // --- Grind 1: hubbar ------------------------------------------------------
-const hubRendered = new Map(); // "kommun|ng1" -> antal listade företag
+// hubAll = alla rader (= alla renderade rader, sedan aeant-filtret togs bort).
+// hubMedAeant behålls bara för att kunna rapportera diffen mot förra veckans
+// urval, som räknade under filtret.
 const hubAll = new Map();
+const hubMedAeant = new Map();
+const kommunTotal = new Map();
+const branschTotal = new Map();
 for (const r of foretag) {
+  if (r.ng1 != null) branschTotal.set(r.ng1, (branschTotal.get(r.ng1) ?? 0) + 1);
   if (r.kommun == null || r.ng1 == null) continue;
   const k = `${r.kommun}|${r.ng1}`;
   hubAll.set(k, (hubAll.get(k) ?? 0) + 1);
-  if (r.aeant != null) hubRendered.set(k, (hubRendered.get(k) ?? 0) + 1);
+  kommunTotal.set(r.kommun, (kommunTotal.get(r.kommun) ?? 0) + 1);
+  if (r.aeant != null) hubMedAeant.set(k, (hubMedAeant.get(k) ?? 0) + 1);
 }
 const hubs = [];
 const hubSkippedMissingName = new Set();
-for (const [k, count] of hubRendered) {
+for (const [k, count] of hubAll) {
   if (count < HUB_MIN_FORETAG) continue;
   const [kommunCode, ng1] = k.split("|");
   const namn = branschNamn.get(ng1);
@@ -249,6 +397,31 @@ for (const r of foretag) {
 }
 foretagPass.sort((a, b) => a.cfarnr - b.cfarnr);
 
+// --- Diff mot förra veckans grind ----------------------------------------
+// Förra urvalet räknade renderade rader UNDER .gte("aeant", 0). Nu renderas
+// alla rader, så grinden räknar alla. Skillnaden redovisas explicit.
+const gammalGrind = new Set(
+  [...hubMedAeant].filter(([, c]) => c >= HUB_MIN_FORETAG).map(([k]) => k),
+);
+const nyGrind = new Set(hubs.map((h) => h.key));
+const tillkomna = [...nyGrind].filter((k) => !gammalGrind.has(k));
+const bortfallna = [...gammalGrind].filter((k) => !nyGrind.has(k));
+let undertalade = 0;
+for (const [k, c] of hubAll) if ((hubMedAeant.get(k) ?? 0) !== c) undertalade++;
+
+// --- Summeringsinvarianter ------------------------------------------------
+const sumKommun = [...kommunTotal.values()].reduce((a, b) => a + b, 0);
+const sumHub = [...hubAll.values()].reduce((a, b) => a + b, 0);
+const utanKommun = foretag.filter((r) => r.kommun == null || r.ng1 == null).length;
+if (sumKommun !== sumHub) {
+  throw new Error(`Invariant: kommunsumma ${sumKommun} != hubbsumma ${sumHub}`);
+}
+if (sumKommun + utanKommun !== foretag.length) {
+  throw new Error(
+    `Invariant: ${sumKommun} + ${utanKommun} utan kommun/bransch != ${foretag.length} företag`,
+  );
+}
+
 // --- Skriv ---------------------------------------------------------------
 const foretagMap = {};
 for (const f of foretagPass) foretagMap[f.cfarnr] = f.slug;
@@ -265,9 +438,10 @@ const data = {
     foretag_totalt: foretag.length,
     foretag_indexerbara: foretagPass.length,
     hub_totalt: hubAll.size,
-    hub_med_listade_rader: hubRendered.size,
     hub_indexerbara: hubs.length,
     hub_utan_branschnamn: hubSkippedMissingName.size,
+    /** Vad grinden hade valt med förra veckans räkning (under .gte(aeant,0)). */
+    hub_indexerbara_fore_aeantfix: gammalGrind.size,
   },
   /** [nyckel "kommunkod|ng1", sökväg] — nyckeln driver robots, sökvägen sitemapen. */
   hubs: hubs.map((h) => [h.key, h.path]),
@@ -279,9 +453,39 @@ writeFileSync(
   JSON.stringify(data, null, 1) + "\n",
 );
 
+/**
+ * Räknesnapshot — EN källa till alla tal sajten visar.
+ *
+ * Talen kommer ur samma fullständiga radhämtning som grinden ovan, alltså ur
+ * count=exact-verifierade rader. Tidigare kom de från count=estimated och
+ * från handinklistrade listor i stats.ts, och drev därför isär: totalen låg
+ * 7,7 % fel och fem branschtal hade fastnat på estimatgolvet 1001.
+ *
+ * Invarianten som gäller per konstruktion och kollas ovan:
+ *   summa(kommun_bransch för en kommun) === kommun[kommun]
+ *   summa(kommun) + rader utan kommun/bransch === total
+ */
+const countsData = {
+  generated_at: new Date().toISOString(),
+  metod: "count=exact via fullständig keyset-hämtning av foretag_publik",
+  total: foretag.length,
+  utan_kommun_eller_bransch: utanKommun,
+  kommun: Object.fromEntries([...kommunTotal].sort((a, b) => b[1] - a[1])),
+  bransch: Object.fromEntries([...branschTotal].sort((a, b) => b[1] - a[1])),
+  bransch_namn: Object.fromEntries(branschNamn),
+  kommun_bransch: Object.fromEntries([...hubAll].sort((a, b) => b[1] - a[1])),
+};
+writeFileSync(
+  new URL("../src/data/counts.json", import.meta.url),
+  JSON.stringify(countsData, null, 1) + "\n",
+);
+
 console.error("");
 console.error("=== URVAL ===");
-console.error(`hubbar:   ${hubs.length} av ${hubRendered.size} med minst ett listat företag (${hubAll.size} kombinationer i DB)`);
+console.error(`hubbar:   ${hubs.length} av ${hubAll.size} kombinationer i DB`);
+console.error(`  grind FÖRE (räknat under .gte(aeant,0)) : ${gammalGrind.size}`);
+console.error(`  grind EFTER (alla renderade rader)      : ${nyGrind.size}`);
+console.error(`  diff: +${tillkomna.length} / -${bortfallna.length} · ${undertalade} hubbar hade undertalat antal`);
 console.error(`företag:  ${foretagPass.length} av ${foretag.length}`);
 console.error(`  beskrivning >= ${INFOTEXT_MIN_ORD} ord : ${foretag.filter(harBeskrivning).length}`);
 console.error(`  sökord >= ${SOKORD_MIN}               : ${foretag.filter(harTjanstelista).length}`);

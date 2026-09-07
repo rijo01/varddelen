@@ -1,5 +1,15 @@
-// Engångsskript — räknar vårdföretag totalt + per vård-branschid + per kommun.
-// Resultat skrivs till stdout som JSON, klistras in i src/lib/stats.ts.
+// ERSATT 2026-09-07 — använd `node scripts/build-index-set.mjs`.
+//
+// Skriptet räknade med Prefer: count=estimated och resultatet klistrades in
+// för hand i src/lib/stats.ts. Estimaten låg 7,7 % fel totalt och fastnade på
+// golvet 1001 för fem branscher, och inklistringen gjorde talen omöjliga att
+// hålla i synk med resten av sajten. stats.ts härleds numera ur
+// src/data/counts.json, som byggs med count=exact och verifierade
+// summeringsinvarianter.
+//
+// Behålls som fristående räknare för engångskontroller. Prefer är rättad till
+// count=exact så att det som står här är sant — men det som körs i bygget är
+// build-index-set.mjs.
 //
 // Kör: node scripts/fetch-vard-stats.mjs > /tmp/vard-stats.json
 import { readFileSync } from "node:fs";
@@ -52,7 +62,7 @@ async function countHead(url) {
     headers: {
       apikey: KEY,
       Authorization: `Bearer ${KEY}`,
-      Prefer: "count=estimated",
+      Prefer: "count=exact",
     },
   });
   const cr = r.headers.get("content-range") ?? "";

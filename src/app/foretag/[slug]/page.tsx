@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import {
   ArrowRight,
   Building2,
@@ -18,6 +18,7 @@ import {
 import { kommunByCode } from "@/lib/kommuner";
 import {
   branschPageSlug,
+  foretagSlug,
   getForetagByCfarnr,
   listRelatedForetag,
   listSokordForCfarnr,
@@ -59,6 +60,11 @@ export async function generateMetadata({
   if (!cfarnr) return { title: "Företag hittades inte" };
   const f = await getForetagByCfarnr(cfarnr);
   if (!f) return { title: "Företag hittades inte" };
+  // Kanonisk slug, inte den begärda. Sidan 308:ar visserligen bort felslugar
+  // (se ForetagPage), men metadatan får aldrig kunna peka på en URL som inte
+  // är kanonisk — det var precis den självkanonikaliseringen som gjorde varje
+  // felslug till en indexerbar dublett.
+  const canonicalSlug = foretagSlug(f);
   const name = displayName(f);
   const kommun = f.kommun ? kommunByCode(f.kommun) : null;
   const title = kommun ? `${name} – ${kommun.name}` : name;
@@ -68,7 +74,7 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: { canonical: `${SITE_URL}/foretag/${slug}` },
+    alternates: { canonical: `${SITE_URL}/foretag/${canonicalSlug}` },
     openGraph: { title, description, type: "website", locale: "sv_SE" },
     // Substansgrind: utan beskrivning, tjänstelista eller verifierad kontakt är
     // sidan en registerrad — mätt 20 unika ord mot mallen. noindex,follow.
@@ -82,6 +88,22 @@ export default async function ForetagPage({ params }: { params: Params }) {
   if (!cfarnr) notFound();
   const f = await getForetagByCfarnr(cfarnr);
   if (!f) notFound();
+
+  /**
+   * ÖPPEN DUBBLETTYTA — stängd med 308.
+   *
+   * parseCfarnrFromSlug läser bara siffrorna sist i sluggen, så /foretag/
+   * <vad-som-helst>-4711 svarade 200 med fullt innehåll OCH en canonical som
+   * pekade på den begärda sluggen. Varje företag hade därmed obegränsat många
+   * självkanonikaliserande dubletter, och vem som helst kunde skapa fler genom
+   * att länka en påhittad slug.
+   *
+   * Rätt svar är en permanent omdirigering till den enda kanoniska URL:en.
+   * Ingen loop är möjlig: foretagSlug() slutar alltid på samma cfarnr, så den
+   * kanoniska sluggen är per konstruktion ett fixpunkt.
+   */
+  const canonicalSlug = foretagSlug(f);
+  if (slug !== canonicalSlug) permanentRedirect(`/foretag/${canonicalSlug}`);
 
   const kommun = f.kommun ? kommunByCode(f.kommun) : null;
   const branschName = f.ng1 ? await getBranschName(f.ng1) : null;
@@ -574,7 +596,7 @@ export default async function ForetagPage({ params }: { params: Params }) {
           </div>
           <CompanyCardList>
             {related.map((rf) => (
-              <li key={rf.id}>
+              <li key={rf.cfarnr}>
                 <CompanyCard
                   foretag={rf}
                   branschName={branschName}

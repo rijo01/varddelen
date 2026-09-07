@@ -134,8 +134,9 @@ export async function GET(req: Request) {
         config: "swedish_unaccent",
       })
       .in("ng1", VARD_BRANSCHER)
-      .gte("aeant", 0)
-      .order("aeant", { ascending: false })
+      // Inget aeant-golv: NULL >= 0 är falskt, så .gte("aeant", 0) tog bort
+      // 1 222 vårdföretag ur autocompleten. Se applyAeantFilter i lib/queries.ts.
+      .order("aeant", { ascending: false, nullsFirst: false })
       .order("cfarnr", { ascending: true })
       .limit(5);
 

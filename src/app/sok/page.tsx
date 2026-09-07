@@ -258,7 +258,7 @@ async function ResultsAsync({
           {rows.map((f, i) => {
             const k = f.kommun ? kommunByCode(f.kommun) : null;
             return (
-              <li key={f.id}>
+              <li key={f.cfarnr}>
                 <CompanyCard
                   foretag={f}
                   rank={offset + i + 1}

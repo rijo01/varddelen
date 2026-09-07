@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-09-07T11:33:13.793Z",
+ "generated_at": "2026-09-07T12:39:08.817Z",
  "rules": {
   "hub_min_foretag": 5,
   "infotext_min_ord": 20,
@@ -16,9 +16,9 @@
   "foretag_totalt": 35528,
   "foretag_indexerbara": 737,
   "hub_totalt": 4084,
-  "hub_med_listade_rader": 4047,
-  "hub_indexerbara": 1296,
-  "hub_utan_branschnamn": 0
+  "hub_indexerbara": 1321,
+  "hub_utan_branschnamn": 0,
+  "hub_indexerbara_fore_aeantfix": 1296
  },
  "hubs": [
   [
@@ -48,6 +48,10 @@
   [
    "1489|87201",
    "/kommun/alingsas/behandlingshem-87201"
+  ],
+  [
+   "1489|86211",
+   "/kommun/alingsas/halso-sjukvard-86211"
   ],
   [
    "1489|86212",
@@ -164,6 +168,10 @@
   [
    "2321|87901",
    "/kommun/are/behandlingshem-87901"
+  ],
+  [
+   "2321|86211",
+   "/kommun/are/halso-sjukvard-86211"
   ],
   [
    "2321|86212",
@@ -658,6 +666,10 @@
    "/kommun/eslov/behandlingshem-87201"
   ],
   [
+   "1285|87901",
+   "/kommun/eslov/behandlingshem-87901"
+  ],
+  [
    "1285|86212",
    "/kommun/eslov/halso-sjukvard-86212"
   ],
@@ -1018,6 +1030,10 @@
    "/kommun/gotene/halso-sjukvard-86905"
   ],
   [
+   "1471|86230",
+   "/kommun/gotene/tandlakare-86230"
+  ],
+  [
    "980|47730",
    "/kommun/gotland/apotek-47730"
   ],
@@ -1330,6 +1346,10 @@
    "/kommun/hassleholm/halso-sjukvard-86909"
   ],
   [
+   "1293|46460",
+   "/kommun/hassleholm/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
    "1293|86222",
    "/kommun/hassleholm/specialistlakare-86222"
   ],
@@ -1360,6 +1380,10 @@
   [
    "2083|87201",
    "/kommun/hedemora/behandlingshem-87201"
+  ],
+  [
+   "2083|87901",
+   "/kommun/hedemora/behandlingshem-87901"
   ],
   [
    "2083|88910",
@@ -1962,6 +1986,14 @@
    "/kommun/klippan/tandlakare-86230"
   ],
   [
+   "330|87201",
+   "/kommun/knivsta/behandlingshem-87201"
+  ],
+  [
+   "330|87901",
+   "/kommun/knivsta/behandlingshem-87901"
+  ],
+  [
    "330|86212",
    "/kommun/knivsta/halso-sjukvard-86212"
   ],
@@ -2438,6 +2470,10 @@
    "/kommun/ljungby/halso-sjukvard-86905"
   ],
   [
+   "781|86909",
+   "/kommun/ljungby/halso-sjukvard-86909"
+  ],
+  [
    "781|86230",
    "/kommun/ljungby/tandlakare-86230"
   ],
@@ -2546,6 +2582,10 @@
    "/kommun/lund/dagbarnvard-88910"
   ],
   [
+   "1281|86102",
+   "/kommun/lund/halso-sjukvard-86102"
+  ],
+  [
    "1281|86211",
    "/kommun/lund/halso-sjukvard-86211"
   ],
@@ -2632,6 +2672,10 @@
   [
    "1280|88991",
    "/kommun/malmo/behandlingshem-88991"
+  ],
+  [
+   "1280|88992",
+   "/kommun/malmo/behandlingshem-88992"
   ],
   [
    "1280|88910",
@@ -3296,6 +3340,10 @@
   [
    "1421|86230",
    "/kommun/orust/tandlakare-86230"
+  ],
+  [
+   "1273|86905",
+   "/kommun/osby/halso-sjukvard-86905"
   ],
   [
    "1273|86909",
@@ -3990,6 +4038,10 @@
    "/kommun/sotenas/halso-sjukvard-86909"
   ],
   [
+   "1230|87201",
+   "/kommun/staffanstorp/behandlingshem-87201"
+  ],
+  [
    "1230|86212",
    "/kommun/staffanstorp/halso-sjukvard-86212"
   ],
@@ -4270,6 +4322,10 @@
    "/kommun/sunne/halso-sjukvard-86905"
   ],
   [
+   "1766|86909",
+   "/kommun/sunne/halso-sjukvard-86909"
+  ],
+  [
    "1214|86909",
    "/kommun/svalov/halso-sjukvard-86909"
   ],
@@ -4350,6 +4406,10 @@
    "/kommun/taby/tandlakare-86904"
   ],
   [
+   "160|87302",
+   "/kommun/taby/vard-och-omsorg-i-sarskilda-boendeformer-for-personer-med-funktionshinder-87302"
+  ],
+  [
    "1435|86905",
    "/kommun/tanum/halso-sjukvard-86905"
   ],
@@ -4400,6 +4460,10 @@
   [
    "763|86230",
    "/kommun/tingsryd/tandlakare-86230"
+  ],
+  [
+   "1419|56293",
+   "/kommun/tjorn/centralkoksverksamhet-for-skolor-omsorgs-och-andra-institutioner-56293"
   ],
   [
    "1419|86909",
@@ -4498,6 +4562,10 @@
    "/kommun/trollhattan/halso-sjukvard-86909"
   ],
   [
+   "1488|46460",
+   "/kommun/trollhattan/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
    "1488|86222",
    "/kommun/trollhattan/specialistlakare-86222"
   ],
@@ -4586,6 +4654,10 @@
    "/kommun/uddevalla/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
   [
+   "1485|86221",
+   "/kommun/uddevalla/specialistlakare-86221"
+  ],
+  [
    "1485|86222",
    "/kommun/uddevalla/specialistlakare-86222"
   ],
@@ -4646,6 +4718,10 @@
    "/kommun/umea/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
   [
+   "2480|86221",
+   "/kommun/umea/specialistlakare-86221"
+  ],
+  [
    "2480|86222",
    "/kommun/umea/specialistlakare-86222"
   ],
@@ -4670,6 +4746,10 @@
    "/kommun/upplands-vasby/behandlingshem-87201"
   ],
   [
+   "114|56293",
+   "/kommun/upplands-vasby/centralkoksverksamhet-for-skolor-omsorgs-och-andra-institutioner-56293"
+  ],
+  [
    "114|88910",
    "/kommun/upplands-vasby/dagbarnvard-88910"
   ],
@@ -4692,6 +4772,10 @@
   [
    "114|46460",
    "/kommun/upplands-vasby/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
+  ],
+  [
+   "114|86222",
+   "/kommun/upplands-vasby/specialistlakare-86222"
   ],
   [
    "114|86230",
@@ -4830,6 +4914,10 @@
    "/kommun/vanersborg/halso-sjukvard-86102"
   ],
   [
+   "1487|86211",
+   "/kommun/vanersborg/halso-sjukvard-86211"
+  ],
+  [
    "1487|86212",
    "/kommun/vanersborg/halso-sjukvard-86212"
   ],
@@ -4862,6 +4950,10 @@
    "/kommun/vara/behandlingshem-87201"
   ],
   [
+   "1470|86905",
+   "/kommun/vara/halso-sjukvard-86905"
+  ],
+  [
    "1470|86230",
    "/kommun/vara/tandlakare-86230"
   ],
@@ -4872,6 +4964,10 @@
   [
    "1383|87201",
    "/kommun/varberg/behandlingshem-87201"
+  ],
+  [
+   "1383|86211",
+   "/kommun/varberg/halso-sjukvard-86211"
   ],
   [
    "1383|86212",
@@ -5196,6 +5292,10 @@
   [
    "1286|86909",
    "/kommun/ystad/halso-sjukvard-86909"
+  ],
+  [
+   "1286|86221",
+   "/kommun/ystad/specialistlakare-86221"
   ],
   [
    "1286|86222",

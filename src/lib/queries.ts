@@ -24,6 +24,32 @@ function applyGeoFilter<T>(q: T, opts: GeoFilter): T {
   return q;
 }
 
+type AeantFilter = { aeantMin?: number; aeantMax?: number };
+
+/**
+ * Applicera storleksfilter — ENBART när användaren valt ett spann.
+ *
+ * Why ingen default: `.gte("aeant", 0)` såg ut som en gratis index-genväg men
+ * är ett innehållsfilter. NULL >= 0 är falskt, så varje sökväg som satte det
+ * tappade tyst de 1 222 vårdföretag (3,44 % av 35 528) som saknar
+ * anställningsuppgift i SCB-registret. Ett filter användaren inte bad om ska
+ * inte finnas, och mätningen visar att det inte heller betalade sig: djup
+ * paginering på Stockholms största hubb blev 2,8x SNABBARE utan det.
+ *
+ * En vald undre gräns > 0 exkluderar NULL-rader avsiktligt — den som filtrerar
+ * på "minst 10 anställda" har bett om just det.
+ */
+function applyAeantFilter<T>(q: T, opts: AeantFilter): T {
+  let out = q;
+  if (opts.aeantMin && opts.aeantMin > 0) {
+    out = (out as unknown as { gte(c: string, v: number): T }).gte("aeant", opts.aeantMin);
+  }
+  if (opts.aeantMax && opts.aeantMax > 0) {
+    out = (out as unknown as { lte(c: string, v: number): T }).lte("aeant", opts.aeantMax);
+  }
+  return out;
+}
+
 /**
  * Datalager. Alla anrop går mot vyn `foretag_publik` via anon-nyckeln.
  *
@@ -35,9 +61,26 @@ function applyGeoFilter<T>(q: T, opts: GeoFilter): T {
  * GDPR: kolumnen `orgnr_masked` är redan maskad vid källan. Vi gör ingen
  * ytterligare maskning här — single source of truth är databasvyn.
  *
- * Prestandanot: anon-rollen kör genom RLS overhead. Sortering på okindexerad
- * kolumn (aeant) och `count: estimated` på filtrerade vyer triggar statement
- * timeout. Vi sorterar därför enbart på PK (id) och undviker count på vy.
+ * Prestandanot (omvärderad 2026-09-07): den gamla noten här påstod att
+ * sortering på aeant och exakt count mot vyn triggar statement timeout, och
+ * motiverade två genvägar som båda visade sig kosta mer än de gav:
+ *
+ *   - `count: "estimated"` gav planner-estimat, inte antal. Mätt mot exakt
+ *     count låg felet på -7,7 % totalt (32 793 mot 35 528) och estimatet
+ *     fastnade dessutom på golvet 1001 för fem branscher vars verkliga antal
+ *     var 1 006-2 057. Exakt count svarar på 0,3-1,1 s. Alla räkningar går
+ *     numera via count=exact.
+ *   - `.gte("aeant", 0)` som defaultfilter. NULL >= 0 är falskt i SQL, så
+ *     filtret dolde 1 222 vårdföretag (3,44 %) i varje sökväg. Mätt är det
+ *     inte ens snabbare: hubbfrågan för Stockholm/86909 går från 794 ms till
+ *     288 ms på djup sida NÄR filtret tas bort. Filtret läggs numera på
+ *     enbart via applyAeantFilter, dvs. när användaren valt ett spann.
+ *
+ * Kvar står: `id` är INTE unikt i vyn (118 dubblettvärden, id=0 på 2 701
+ * rader) och duger varken som React-nyckel eller pagineringsankare. cfarnr
+ * är unikt över alla 35 528 rader och är den stabila nyckeln. orgnr duger
+ * inte heller: 12 546 rader saknar det och 656 värden delas av flera
+ * arbetsställen.
  */
 
 export type Foretag = {
@@ -140,12 +183,21 @@ function mapRow(row: Partial<PublikRow>): Foretag {
   };
 }
 
-/** Antal vårdföretag i en kommun (estimated, inom Vårddelen-nischen). */
+/**
+ * Antal vårdföretag i en kommun — EXAKT, inom Vårddelen-nischen.
+ *
+ * Reservväg. Normalfallet läser ur snapshoten i src/lib/counts.ts, som är
+ * byggd med samma exakta räkning men utan DB-träff per sidvisning. Denna
+ * används när en kommunkod saknas i snapshoten.
+ *
+ * count=exact mätt på tyngsta kommunen (Stockholm): 494 ms. Den gamla
+ * estimated-varianten svarade på 282 ms och gav 4 506 i stället för 5 546.
+ */
 export async function countForetagInKommun(kommunCode: string): Promise<number> {
   const supa = getSupabaseAnon();
   const { count, error } = await supa
     .from(VIEW)
-    .select("id", { count: "estimated", head: true })
+    .select("cfarnr", { count: "exact", head: true })
     .eq("kommun", kommunCode)
     .in("ng1", VARD_BRANSCHER);
   if (error) {
@@ -186,30 +238,48 @@ export async function listForetagInKommun(
 }
 
 /**
- * Branschfördelning i en kommun. Samplar upp till 5000 rader och räknar
- * i app-lagret — representativt för topp-N i UI.
+ * Branschfördelning i en kommun — reservväg, normalfallet är snapshoten i
+ * src/lib/counts.ts.
+ *
+ * Why keyset och inte `.limit(5000)`: PostgREST har db-max-rows = 1000 och
+ * kapar tyst. Den gamla varianten bad om 5 000 rader, fick 1 000, och
+ * räknade fördelningen på dem. På Stockholm (5 546 vårdföretag) betydde det
+ * att kommunsidan visade en 18-procentig stickprovsfördelning bredvid ett
+ * totaltal från en annan källa — summan av kategorierna kunde aldrig gå ihop
+ * med totalen. Nu pagineras hela mängden på cfarnr (unikt), så räkningen är
+ * exakt och summan är invariant mot totalen.
  */
 export async function getBranschFordelning(
   kommunCode: string,
   limit = 20,
 ): Promise<Array<{ ng1: number; count: number }>> {
   const supa = getSupabaseAnon();
-  const { data, error } = await supa
-    .from(VIEW)
-    .select("ng1")
-    .eq("kommun", kommunCode)
-    .in("ng1", VARD_BRANSCHER)
-    .limit(5000);
-  if (error || !data) {
-    console.error("getBranschFordelning", error);
-    return [];
-  }
   const counts = new Map<number, number>();
-  for (const row of data as Array<{ ng1: number | null }>) {
-    if (row.ng1 == null || row.ng1 === 0) continue;
-    // Dubbelkolla mot whitelist (defensiv — DB-filtret bör räcka).
-    if (!VARD_BRANSCHER_SET.has(row.ng1)) continue;
-    counts.set(row.ng1, (counts.get(row.ng1) ?? 0) + 1);
+  let cursor = -1;
+  // Tak: 40 sidor à 1000 = 40 000 rader, väl över största kommunens 5 546.
+  for (let guard = 0; guard < 40; guard++) {
+    const { data, error } = await supa
+      .from(VIEW)
+      .select("ng1,cfarnr")
+      .eq("kommun", kommunCode)
+      .in("ng1", VARD_BRANSCHER)
+      .gt("cfarnr", cursor)
+      .order("cfarnr", { ascending: true })
+      .limit(1000);
+    if (error || !data) {
+      console.error("getBranschFordelning", error);
+      return [];
+    }
+    const rows = data as Array<{ ng1: number | null; cfarnr: number }>;
+    if (rows.length === 0) break;
+    for (const row of rows) {
+      if (row.ng1 == null || row.ng1 === 0) continue;
+      // Dubbelkolla mot whitelist (defensiv — DB-filtret bör räcka).
+      if (!VARD_BRANSCHER_SET.has(row.ng1)) continue;
+      counts.set(row.ng1, (counts.get(row.ng1) ?? 0) + 1);
+    }
+    cursor = rows[rows.length - 1]!.cfarnr;
+    if (rows.length < 1000) break;
   }
   return Array.from(counts.entries())
     .map(([ng1, count]) => ({ ng1, count }))
@@ -220,9 +290,9 @@ export async function getBranschFordelning(
 /**
  * Företag i kommun + bransch, paginerat.
  *
- * Returnerar `hasMore` i stället för exakt total — exakt count på vyn
- * triggar statement timeout via anon. Vi hämtar pageSize+1 rader och kollar
- * om den sista returnerades.
+ * Returnerar `hasMore` i stället för total: pageSize+1 rader hämtas och den
+ * sista avgör om det finns en nästa sida. (Exakt count vore numera möjligt —
+ * se prestandanoten överst — men hasMore kostar noll extra rundturer.)
  */
 export async function listForetagInKommunByBransch(
   kommunCode: string,
@@ -247,22 +317,16 @@ export async function listForetagInKommunByBransch(
 
   const supa = getSupabaseAnon();
   // Primär sort: aeant DESC (störst arbetsgivare först).
-  // Sekundär: cfarnr ASC — deterministisk tie-break så att samma företag
-  // aldrig dyker upp på flera sidor.
-  //
-  // Why .gte("aeant", 0): indexet på (kommun, aeant DESC NULLS LAST) räcker
-  // för kommun-sample men inte för kombinationen kommun + ng1 — Postgres
-  // tappar sort-shortcut och försöker materialisera hela kommun-resultset
-  // innan filter på ng1, vilket triggar statement timeout på storstäder.
-  // Genom att exkludera rader med aeant=null kan planneren använda
-  // ng1-filter på en mindre datamängd och sorten blir billig.
+  // Sekundär: cfarnr ASC — unik över hela vyn och därmed en total ordning.
+  // Utan den skulle .range() vara odefinierad vid lika poang+aeant och samma
+  // företag kunna dyka upp på två sidor (eller falla mellan dem). `id` duger
+  // INTE till detta: 118 värden är dubbletter, id=0 finns på 2 701 rader.
   let q = supa
     .from(VIEW)
     .select(COLUMNS_LIST)
     .eq("kommun", kommunCode)
-    .eq("ng1", ng1)
-    .gte("aeant", Math.max(0, opts.aeantMin ?? 0));
-  if (opts.aeantMax && opts.aeantMax > 0) q = q.lte("aeant", opts.aeantMax);
+    .eq("ng1", ng1);
+  q = applyAeantFilter(q, opts);
 
   // Poäng primärt (betalkunder överst), sedan storlek, sedan cfarnr.
   const { data, error } = await q
@@ -357,15 +421,11 @@ export async function findBranschIdsForQuery(
  *      Dedupa på cfarnr så samma arbetsställe inte syns två gånger.
  *   3. Annars ren textSearch på search_vector.
  *
- * Why aeant >= 2 (inte 1) för ng1.in()-queryn:
- *   PostgreSQLs partiella index på aeant exkluderar de allra vanligaste
- *   värdena (0, 1) eftersom de täcker majoriteten av raderna. Med
- *   aeant >= 1 tvingas planneren göra full scan av ng1-filtrerad delmängd
- *   och triggar statement_timeout för stora branscher (Byggmästare,
- *   Företagskonsulter m.fl.). aeant >= 2 håller sig inom indexet och
- *   svarar på ~500ms. Trade-off: solo-firmor (1 anställd) syns inte i
- *   bransch-resultaten — men de är ändå "brus" i en topp-N-vy som
- *   sorterar på storlek.
+ * Storleksfilter läggs på via applyAeantFilter — dvs. bara när användaren
+ * valt ett spann. Den tidigare texten här motiverade ett hårdkodat
+ * aeant-golv med partial-index och statement_timeout; ommätt 2026-09-07
+ * stämmer inget av det (bransch-sök Stockholm/86230: 286 ms med golv,
+ * 275 ms utan), och golvet dolde 1 222 företag ur sökningen.
  */
 export async function searchForetag(
   query: string,
@@ -442,15 +502,12 @@ async function runKategoriBrowse(
   matchedBransch: null;
 }> {
   const supa = getSupabaseAnon();
-  // Använd aeant >= 2 av samma index-skäl som ng1.in()-queryn i runBranschSearch.
-  const minAeant = Math.max(0, opts.aeantMin ?? 0);
   let q = supa
     .from(VIEW)
     .select(COLUMNS_LIST)
-    .in("ng1", ng1List as number[])
-    .gte("aeant", minAeant);
+    .in("ng1", ng1List as number[]);
   q = applyGeoFilter(q, opts);
-  if (opts.aeantMax && opts.aeantMax > 0) q = q.lte("aeant", opts.aeantMax);
+  q = applyAeantFilter(q, opts);
   const { data, error } = await q
     .order("poang", { ascending: false, nullsFirst: false })
     .order("aeant", { ascending: false, nullsFirst: false })
@@ -492,17 +549,12 @@ async function runBranschSearch(
   pageSize: number;
   matchedBransch: string | null;
 }> {
-  // Bransch-queryn kräver aeant >= 2 för att hålla sig inom partial-indexet
-  // och svara snabbt. Användarens aeantMin höjs vid behov.
-  const branschMin = Math.max(0, opts.aeantMin ?? 0);
-
   const supa = getSupabaseAnon();
   // Bransch-uppslaget ger redan ids från vård-whitelist (findBranschIdsForQuery
   // filtrerar mot VARD_BRANSCHER), men vi dubbel-konstraint:ar för säkerhet.
   let qA = supa.from(VIEW).select(COLUMNS_LIST).in("ng1", branschInfo.ids);
   qA = applyGeoFilter(qA, opts);
-  qA = qA.gte("aeant", branschMin);
-  if (opts.aeantMax && opts.aeantMax > 0) qA = qA.lte("aeant", opts.aeantMax);
+  qA = applyAeantFilter(qA, opts);
   const branschQuery = qA
     .order("poang", { ascending: false, nullsFirst: false })
     .order("aeant", { ascending: false, nullsFirst: false })
@@ -525,9 +577,7 @@ async function runBranschSearch(
           })
           .in("ng1", VARD_BRANSCHER);
         qB = applyGeoFilter(qB, opts);
-        const nameMin = Math.max(0, opts.aeantMin ?? 0);
-        qB = qB.gte("aeant", nameMin);
-        if (opts.aeantMax && opts.aeantMax > 0) qB = qB.lte("aeant", opts.aeantMax);
+        qB = applyAeantFilter(qB, opts);
         return qB
           .order("poang", { ascending: false, nullsFirst: false })
           .order("aeant", { ascending: false, nullsFirst: false })
@@ -619,8 +669,7 @@ async function runTextSearch(
   q = applyGeoFilter(q, opts);
   // Användarens ng1-filter måste också ligga inom vård-whitelist.
   if (opts.ng1 && VARD_BRANSCHER_SET.has(opts.ng1)) q = q.eq("ng1", opts.ng1);
-  q = q.gte("aeant", Math.max(0, opts.aeantMin ?? 0));
-  if (opts.aeantMax && opts.aeantMax > 0) q = q.lte("aeant", opts.aeantMax);
+  q = applyAeantFilter(q, opts);
 
   const textQuery = q
     .order("poang", { ascending: false, nullsFirst: false })
@@ -689,7 +738,6 @@ export async function listRelatedForetag(
     .eq("kommun", kommunCode)
     .eq("ng1", ng1)
     .neq("cfarnr", excludeCfarnr)
-    .gte("aeant", 0)
     .order("poang", { ascending: false, nullsFirst: false })
     .order("aeant", { ascending: false, nullsFirst: false })
     .order("cfarnr", { ascending: true })
@@ -800,8 +848,7 @@ async function fetchByCfarnrs(
     .in("cfarnr", cfarnrs)
     .in("ng1", VARD_BRANSCHER);
   q = applyGeoFilter(q, opts);
-  if (opts.aeantMin && opts.aeantMin > 0) q = q.gte("aeant", opts.aeantMin);
-  if (opts.aeantMax && opts.aeantMax > 0) q = q.lte("aeant", opts.aeantMax);
+  q = applyAeantFilter(q, opts);
   const { data, error } = await q
     .order("poang", { ascending: false, nullsFirst: false })
     .order("aeant", { ascending: false, nullsFirst: false });
