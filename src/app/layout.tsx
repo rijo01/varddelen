@@ -3,7 +3,9 @@ import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { Heart } from "lucide-react";
 import "./globals.css";
 import { SiteNav, MobileBottomNav } from "@/components/site-nav";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, GA_ID } from "@/lib/site";
+import { GoogleAnalytics } from "@next/third-parties/google";
+
 
 function HeartIcon() {
   return (
@@ -166,6 +168,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
+        <GoogleAnalytics gaId={GA_ID} />
       </body>
     </html>
   );
