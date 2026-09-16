@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseAnon } from "./supabase";
 import { getSupabaseAdmin } from "./supabase-admin";
 import { branschPageSlug, foretagSlug } from "./queries";
+import { VARD_BRANSCHER } from "./vard-branscher";
 import { kommunByCode } from "./kommuner";
 import { getBranschNamesBulk } from "./branscher";
 import {
@@ -410,6 +411,12 @@ export async function overlayRevalidatePaths(
   );
 
   const paths = new Set<string>();
+
+  // Sitemapen listar betalda profiler (se src/app/sitemap.ts). En publicering
+  // eller avpublicering ändrar den listan, så routen måste med — annars ligger
+  // en ny kund utanför sitemapen i upp till en timme.
+  paths.add("/sitemap.xml");
+
   for (const r of rader) {
     if (r.cfarnr == null) continue;
     paths.add(`/foretag/${foretagSlug({ firma: r.firma, namn: r.namn, cfarnr: r.cfarnr })}`);
@@ -423,4 +430,89 @@ export async function overlayRevalidatePaths(
     }
   }
   return [...paths];
+}
+
+// ── Indexerbarhet ───────────────────────────────────────────────────────────
+
+/**
+ * Sidorna som en BETALD PROFIL gör indexerbara, som sitemap-sökvägar.
+ *
+ * VARFÖR DEN HÄR FUNKTIONEN FINNS, och varför den är ett runtime-uppslag och
+ * inte en post i src/data/indexable.json:
+ *
+ * Vårddelens indexerbarhet byggde på ett förberäknat urval — 737 av 35 528
+ * företagssidor — och en overlay-kund utanför det urvalet fick en publicerad,
+ * betald profil på en sida märkt `noindex, follow`. Kunden betalar för
+ * synlighet i Google och fick en sida som uttryckligen bad Google att inte
+ * visa den. Det är inte en avvägning, det är en produkt som inte levereras.
+ *
+ * En post i snapshoten hade inte räckt: snapshoten byggs av
+ * scripts/build-index-set.mjs och fryses vid deploy, så varje ny kund hade
+ * legat noindex ända till nästa bygge. "Aldrig" tål inte ett sådant fönster.
+ *
+ * Invarianten som hela indexability.ts vilar på — att SAMMA regel driver både
+ * robots-metan och sitemapen — hålls därför genom att båda frågar overlay:
+ * robotsForForetagMedOverlay() på sidan, den här funktionen i sitemapen.
+ *
+ * NISCHGRINDEN GÄLLER FORTFARANDE. getForetagByCfarnr() filtrerar på
+ * VARD_BRANSCHER och 404:ar allt utanför; en URL i sitemapen som svarar 404
+ * vore ett sämre fel än det vi just löste. Därför samma filter här.
+ */
+export async function overlayIndexerbaraSokvagar(): Promise<string[]> {
+  const lager = await loadAktivaOverlays();
+
+  // Bara rader som faktiskt BÄR något. En tom overlay-rad gör inte en naken
+  // registerrad värd att indexera — då är vi tillbaka i tunt innehåll.
+  const cfarnr: string[] = [];
+  const orgnr: string[] = [];
+  for (const [nyckel, rad] of lager.byCfar) {
+    if (harInnehall(rad)) cfarnr.push(nyckel);
+  }
+  for (const [nyckel, rad] of lager.byOrgnr) {
+    if (harInnehall(rad)) orgnr.push(nyckel);
+  }
+  if (cfarnr.length === 0 && orgnr.length === 0) return [];
+
+  const klient = getSupabaseAnon();
+  const träffar: Array<{ cfarnr: number | null; firma: string | null; namn: string | null }> = [];
+
+  if (cfarnr.length > 0) {
+    const { data } = await klient
+      .from(KATALOG_VY)
+      .select("cfarnr,firma,namn")
+      .in("cfarnr", cfarnr.map(Number))
+      .in("ng1", VARD_BRANSCHER);
+    träffar.push(...((data ?? []) as typeof träffar));
+  }
+
+  if (orgnr.length > 0) {
+    // Ett bolagsköp gäller varje arbetsställe med det orgnumret. Båda
+    // orgnr-formerna frågas — registret lagrar bindestrecksvarianten.
+    const former = orgnr.flatMap(orgnrVarianter);
+    const { data } = await klient
+      .from(KATALOG_VY)
+      .select("cfarnr,firma,namn")
+      .in("orgnr", former)
+      .in("ng1", VARD_BRANSCHER)
+      .limit(500);
+    träffar.push(...((data ?? []) as typeof träffar));
+  }
+
+  const ut = new Set<string>();
+  for (const r of träffar) {
+    if (r.cfarnr == null) continue;
+    ut.add(`/foretag/${foretagSlug({ firma: r.firma, namn: r.namn, cfarnr: r.cfarnr })}`);
+  }
+  return [...ut];
+}
+
+/** Bär raden något besökaren faktiskt kan läsa? */
+function harInnehall(rad: OverlayProfilRow): boolean {
+  return Boolean(
+    rad.info_html ||
+      rad.hemsida ||
+      rad.logo_url ||
+      (rad.keywords?.length ?? 0) > 0 ||
+      (rad.kategorier?.length ?? 0) > 0,
+  );
 }

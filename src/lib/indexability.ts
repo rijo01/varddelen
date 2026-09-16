@@ -188,9 +188,37 @@ export function robotsForHub(kommunCode: string, ng1: number): Pick<Metadata, "r
   return isIndexableHub(kommunCode, ng1) ? {} : NOINDEX_FOLLOW;
 }
 
-/** robots-metan för en företagssida. */
+/** robots-metan för en företagssida, enbart enligt urvalet. */
 export function robotsForForetag(cfarnr: number): Pick<Metadata, "robots"> {
   return isIndexableForetag(cfarnr) ? {} : NOINDEX_FOLLOW;
+}
+
+/**
+ * robots-metan för en företagssida, MED hänsyn till en betald profil.
+ *
+ * EN BETALD PROFIL LIGGER ALDRIG PÅ EN NOINDEX-SIDA. Kunden betalar för
+ * synlighet i Google; en sida som ber Google att inte visa den är inte en
+ * avvägning utan en produkt som inte levereras.
+ *
+ * Urvalet i src/data/indexable.json är alltså ett GOLV, inte ett tak: det
+ * avgör vilka av de 35 528 registerraderna som är värda att indexera, och
+ * overlay lägger till dem någon faktiskt köpt. Ordningen mellan dem spelar
+ * ingen roll — båda vägarna leder till index,follow.
+ *
+ * Invarianten som hela den här modulen vilar på är att SAMMA regel driver både
+ * robots-metan och sitemapen. Den hålls: sitemapen frågar
+ * overlayIndexerbaraSokvagar() i lib/overlay.ts, som filtrerar på exakt samma
+ * villkor (aktiv rad med innehåll, inom nischen).
+ *
+ * `harBetaldProfil` skickas in i stället för att slås upp här, så att den här
+ * modulen förblir fri från databasanrop. Sidan har ändå redan raden i handen.
+ */
+export function robotsForForetagMedOverlay(
+  cfarnr: number,
+  harBetaldProfil: boolean,
+): Pick<Metadata, "robots"> {
+  if (harBetaldProfil) return {};
+  return robotsForForetag(cfarnr);
 }
 
 /**

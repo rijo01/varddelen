@@ -113,7 +113,12 @@ const sidor = [
   },
   {
     fil: "src/app/foretag/[slug]/page.tsx",
-    fn: "robotsForForetag",
+    // Sedan overlay-utrullningen är det den HÄR regeln sidan måste fråga, inte
+    // robotsForForetag(). Skillnaden är att en betald profil alltid är
+    // indexerbar; skrevs anropet om till den snävare varianten skulle en kund
+    // kunna hamna på en noindex-sida igen, och det är precis den regressionen
+    // spärren ska fånga.
+    fn: "robotsForForetagMedOverlay",
   },
 ];
 
@@ -160,6 +165,12 @@ for (const { fil, fn } of sidor) {
 const sitemapSrc = read("src/app/sitemap.ts");
 if (!sitemapSrc.includes("hubSitemapPaths") || !sitemapSrc.includes("foretagSitemapPaths")) {
   fel.push("src/app/sitemap.ts hämtar inte sina URL:er ur lib/indexability.ts");
+}
+if (!sitemapSrc.includes("overlayIndexerbaraSokvagar")) {
+  fel.push(
+    "src/app/sitemap.ts tar inte med de betalda profilerna — " +
+      "de svarar index,follow och måste finnas i sitemapen",
+  );
 }
 
 // --- Färskhet ---------------------------------------------------------------

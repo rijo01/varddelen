@@ -11,6 +11,7 @@
  *                        tidigare, endpointen svarar
  *   1. publish rev 1 (arbetsstalle) → aktiv, logo i bucket, företagssidan,
  *                        listplacering, 1.1-fälten lagrade
+ *   1b. indexerbarhet   → sidan är inte noindex och finns i sitemapen
  *   2. omspelning av rev 1 → 200 utan skrivning (återförsök), sedan rev 1 med
  *                        ändrat innehåll → 409
  *   3. bolagsnivån → egen rad, och arbetsstället vinner på sidan
@@ -34,6 +35,8 @@ import { createClient } from "@supabase/supabase-js";
 // ENDA stället som skiljer sig mellan sajterna. Måste stämma med lib/overlay.ts.
 const SAJT = "varddelen";
 const FORETAG_BAS = "/foretag";
+/** Listar sajtens sitemap enskilda företagssidor? Regionsdelens gör inte det. */
+const SITEMAP_LISTAR_FORETAG = true;
 
 const TABELL = "overlay_profil";
 const BUCKET = "overlay-logos";
@@ -577,6 +580,51 @@ async function steg1(foretag) {
   return foretagssida;
 }
 
+// ── Steg 1b: en betald profil ligger ALDRIG på en noindex-sida ─────────────
+
+/**
+ * Kunden betalar för synlighet i Google. En publicerad profil på en sida som
+ * ber Google att inte visa den är inte en avvägning utan en produkt som inte
+ * levereras.
+ *
+ * Två håll måste stämma, och de kan gå isär var för sig:
+ *   • sidan får inte svara noindex, och
+ *   • sidan måste finnas i sitemapen — en sida som svarar index,follow men
+ *     inte annonseras är samma fel spegelvänt.
+ */
+async function stegIndexerbarhet(foretagssida) {
+  steg("1b", "betald profil är aldrig noindex");
+
+  const sida = await hamta(foretagssida);
+  kolla(sida.kod === 200, "företagssidan svarar 200", `HTTP ${sida.kod}`);
+
+  const metaNoindex = /<meta[^>]+name=["']robots["'][^>]*content=["'][^"']*noindex/i.test(
+    sida.html,
+  );
+  const headerNoindex = /noindex/i.test(sida.headers.get("x-robots-tag") ?? "");
+  kolla(
+    !metaNoindex && !headerNoindex,
+    "sidan svarar INTE noindex",
+    metaNoindex ? "noindex i robots-metan" : "noindex i x-robots-tag",
+  );
+
+  if (!SITEMAP_LISTAR_FORETAG) {
+    info("sajtens sitemap listar inga företagssidor — inget att kontrollera där");
+    return;
+  }
+
+  // Sitemapen revalideras av endpointen vid publicering, men ISR regenererar
+  // vid FÖRSTA requesten efteråt. Polla hellre än att sova en fast tid.
+  const i = await vantaPa("/sitemap.xml", (r) => r.html.includes(foretagssida), {
+    forsok: 10,
+  });
+  kolla(
+    i.ok,
+    "företagssidan finns i sitemap.xml",
+    `försök ${i.forsok} — en indexerbar sida som inte annonseras är samma fel spegelvänt`,
+  );
+}
+
 // ── Steg 2: idempotens och konflikt ─────────────────────────────────────────
 
 async function steg2() {
@@ -827,6 +875,7 @@ async function main() {
 
   try {
     const foretagssida = await steg1(foretag);
+    if (foretagssida) await stegIndexerbarhet(foretagssida);
     await steg2();
     if (foretagssida) await steg3(foretagssida);
     await steg4();

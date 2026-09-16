@@ -44,14 +44,14 @@ import {
 import { isPersonalOrgnr } from "@/lib/jurform";
 import { sanitizeInfotext, safeLogotypUrl } from "@/lib/sanitize-html";
 import { SITE_URL } from "@/lib/site";
-import { robotsForForetag } from "@/lib/indexability";
+import { robotsForForetagMedOverlay } from "@/lib/indexability";
 import {
   getOverlayForForetag,
   getOverlayUtkastForForetag,
   loadAktivaOverlays,
   overlayFor,
 } from "@/lib/overlay";
-import { ordnaBoostade } from "@/lib/overlay-rankning";
+import { ordnaBoostade, overlayGerSubstans } from "@/lib/overlay-rankning";
 import SponsradProfil from "@/components/sponsrad-profil";
 
 type Params = Promise<{ slug: string }>;
@@ -84,7 +84,12 @@ export async function generateMetadata({
     openGraph: { title, description, type: "website", locale: "sv_SE" },
     // Substansgrind: utan beskrivning, tjänstelista eller verifierad kontakt är
     // sidan en registerrad — mätt 20 unika ord mot mallen. noindex,follow.
-    ...robotsForForetag(cfarnr),
+    // En betald profil är ALLTID indexerbar — uppslaget är cachat per request
+    // och delar rundtur med sidan nedan. Se robotsForForetagMedOverlay().
+    ...robotsForForetagMedOverlay(
+      cfarnr,
+      overlayGerSubstans(await getOverlayForForetag(f)),
+    ),
   };
 }
 
