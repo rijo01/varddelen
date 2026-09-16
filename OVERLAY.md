@@ -171,6 +171,34 @@ båda hållningarna ("sajten avgör själv vad den gör"), och att skriva en rad
 En fristående profilsida är en ny route med egna SEO- och sitemap-följder, och
 den är medvetet inte byggd här. Tills den finns är `bas` lagrad men osynlig.
 
+## Indexerbarhet och sitemap
+
+**En betald profil ligger aldrig på en noindex-sida.** Kunden betalar för
+synlighet i Google; en sida som ber Google att inte visa den är inte en
+avvägning utan en produkt som inte levereras.
+
+Regeln gäller på två ytor, och de kan glida isär var för sig:
+
+| Yta | Hur | Fördröjning |
+|---|---|---|
+| `robots`-metan på företagssidan | `robotsForForetagMedOverlay()` — betald profil ⇒ `index, follow` | **omedelbar** |
+| `/sitemap.xml` | unionerar urvalet med `overlayIndexerbaraSokvagar()` | **upp till en timme** |
+
+Fördröjningen i sitemapen är mätt, inte antagen. `/api/overlay/publish` anropar
+`revalidatePath("/sitemap.xml")`, men mot produktion 2026-09-16 slog det inte
+igenom på 300 sekunder: `x-vercel-cache` svarade `HIT` hela vägen och `age`
+växte i takt med klockan. Sidrevalideringen fungerar — steg 1 i sviten bevisar
+det — men metadata-routens edge-cache rörs inte. Den verkliga gränsen är
+`revalidate = 3600` i `sitemap.ts`.
+
+Det är ofarligt: en sitemap är en ledtråd för upptäckt, och Google hämtar den på
+sin egen kadens ändå, oftast en gång per dygn. Det som måste gälla omedelbart är
+robots-metan, och den gör det.
+
+Byggspärren kräver båda hållen: att sidan frågar den bredare regeln, och att
+sitemapen tar med de betalda profilerna. Sviten kontrollerar robots-metan i
+varje körning; sitemapen kan väntas ut med `--sitemap`.
+
 ## Verifiering
 
 ```bash

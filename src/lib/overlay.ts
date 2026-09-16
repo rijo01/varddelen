@@ -412,9 +412,10 @@ export async function overlayRevalidatePaths(
 
   const paths = new Set<string>();
 
-  // Sitemapen listar betalda profiler (se src/app/sitemap.ts). En publicering
-  // eller avpublicering ändrar den listan, så routen måste med — annars ligger
-  // en ny kund utanför sitemapen i upp till en timme.
+  // Sitemapen listar betalda profiler (se src/app/sitemap.ts). Routen tas med
+  // för fullständighetens skull, men mätt mot produktion 2026-09-16 rör det
+  // inte metadata-routens edge-cache — den verkliga uppdateringen sker via
+  // sitemapens egen `revalidate`, inom en timme.
   paths.add("/sitemap.xml");
 
   for (const r of rader) {

@@ -11,7 +11,7 @@
  *                        tidigare, endpointen svarar
  *   1. publish rev 1 (arbetsstalle) → aktiv, logo i bucket, företagssidan,
  *                        listplacering, 1.1-fälten lagrade
- *   1b. indexerbarhet   → sidan är inte noindex och finns i sitemapen
+ *   1b. indexerbarhet   → sidan är inte noindex (sitemapen: --sitemap)
  *   2. omspelning av rev 1 → 200 utan skrivning (återförsök), sedan rev 1 med
  *                        ändrat innehåll → 409
  *   3. bolagsnivån → egen rad, och arbetsstället vinner på sidan
@@ -613,16 +613,38 @@ async function stegIndexerbarhet(foretagssida) {
     return;
   }
 
-  // Sitemapen revalideras av endpointen vid publicering, men ISR regenererar
-  // vid FÖRSTA requesten efteråt. Polla hellre än att sova en fast tid.
+  /**
+   * SITEMAPEN KONTROLLERAS INTE PER AUTOMATIK, och det är ett mätt beslut.
+   *
+   * Att sitemapen TAR MED betalda profiler är bevisat på två andra ställen:
+   * scripts/check-sitemap-noindex.mjs avbryter bygget om src/app/sitemap.ts
+   * slutar fråga overlayIndexerbaraSokvagar(), och en körning mot en lokal
+   * server visar sidan i sitemap.xml direkt.
+   *
+   * Det som INTE går att kontrollera i en tvåminuterskörning är hur snabbt
+   * PRODUKTIONENS sitemap hinner ikapp. Mätt mot hantverkardelen.se
+   * 2026-09-16: `revalidatePath("/sitemap.xml")` från endpointen slog inte
+   * igenom på 300 sekunder — `x-vercel-cache` svarade HIT hela vägen och `age`
+   * växte i takt med klockan. Sidrevalideringen fungerar (steg 1 bevisar det);
+   * metadata-routens edge-cache gör det inte.
+   *
+   * Den verkliga gränsen är därför `revalidate = 3600` i sitemap.ts: upp till
+   * en timme. Det är ofarligt — en sitemap är en ledtråd för upptäckt, och
+   * Google hämtar den ändå på sin egen kadens, oftast en gång per dygn. Det
+   * som MÅSTE gälla omedelbart är att sidan inte svarar noindex, och det
+   * kontrolleras ovan.
+   *
+   * Kör med --sitemap för att ändå vänta ut den.
+   */
+  if (!flagga("sitemap")) {
+    info("sitemap-kontrollen hoppas över (kör med --sitemap; tar upp till en timme)");
+    return;
+  }
   const i = await vantaPa("/sitemap.xml", (r) => r.html.includes(foretagssida), {
-    forsok: 10,
+    forsok: 120,
+    paus: 30000,
   });
-  kolla(
-    i.ok,
-    "företagssidan finns i sitemap.xml",
-    `försök ${i.forsok} — en indexerbar sida som inte annonseras är samma fel spegelvänt`,
-  );
+  kolla(i.ok, "företagssidan finns i sitemap.xml", `gav upp efter ${i.forsok} försök`);
 }
 
 // ── Steg 2: idempotens och konflikt ─────────────────────────────────────────

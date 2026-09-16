@@ -21,9 +21,18 @@ import { overlayIndexerbaraSokvagar } from "@/lib/overlay";
  * i sitemapen.
  *
  * Därför är funktionen async och revaliderar: urvalet är fryst vid bygget, men
- * kundlistan ändras när en order publiceras. /api/overlay/publish revaliderar
- * dessutom den här routen direkt, så en ny kund är med i sitemapen inom
- * sekunder i stället för vid nästa deploy.
+ * kundlistan ändras när en order publiceras.
+ *
+ * FÖRDRÖJNINGEN ÄR UPP TILL EN TIMME, och det ska stå rakt ut.
+ * /api/overlay/publish anropar visserligen revalidatePath("/sitemap.xml"), men
+ * mätt mot produktion 2026-09-16 slog det inte igenom på 300 sekunder:
+ * `x-vercel-cache` svarade HIT hela vägen och `age` växte i takt med klockan.
+ * Sidrevalideringen fungerar; metadata-routens edge-cache gör det inte. Den
+ * verkliga gränsen är därför `revalidate` nedan.
+ *
+ * Det är ofarligt. En sitemap är en ledtråd för upptäckt, och Google hämtar den
+ * på sin egen kadens ändå. Det som måste gälla OMEDELBART är att sidan inte
+ * svarar noindex, och det gör den inte — se robotsForForetagMedOverlay().
  */
 export const revalidate = 3600;
 
