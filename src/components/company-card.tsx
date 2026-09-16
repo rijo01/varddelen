@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Globe, Mail, MapPin, Phone, Sparkles, Users } from "lucide-react";
 import { foretagSlug, type Foretag } from "@/lib/queries";
+import type { OverlayProfilRow } from "@/lib/overlay-contract";
 import {
   displayName,
   employerSize,
@@ -24,17 +25,26 @@ export function CompanyCard({
   branschName,
   kommunName,
   showOrt = true,
+  /**
+   * Den betalda profilen, när företaget har en. Skickas in av listsidan så att
+   * kortet slipper göra ett eget uppslag per rad — listan har redan hela lagret
+   * i minnet (se loadAktivaOverlays).
+   */
+  overlay = null,
 }: {
   foretag: Foretag;
   rank?: number;
   branschName?: string | null;
   kommunName?: string | null;
   showOrt?: boolean;
+  overlay?: OverlayProfilRow | null;
 }) {
-  const name = displayName(foretag);
+  const name = overlay?.popularnamn?.trim() || displayName(foretag);
   const size = employerSize(foretag.aeant);
   const legalForm = legalFormFor(foretag);
-  const featured = isFeatured(foretag);
+  // "Utvald" gäller båda betallagren: registrets poang och overlay-köpets
+  // featured. Ett köp som inte syns i listan är inte levererat.
+  const featured = isFeatured(foretag) || Boolean(overlay?.featured);
   const href = `/foretag/${foretagSlug(foretag)}`;
   const orterad =
     [foretag.gatuadress, foretag.postort].filter(Boolean).join(" · ") ||
@@ -59,16 +69,36 @@ export function CompanyCard({
         </span>
       ) : null}
 
-      {/* Monogram */}
-      <Link
-        href={href}
-        aria-hidden
-        tabIndex={-1}
-        className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl text-lg font-bold text-white shadow-[0_4px_12px_-4px_rgba(225,29,39,0.5)] ring-1 ring-white/40 sm:size-14 sm:text-xl"
-        style={{ backgroundImage: monogramGradient(foretag.cfarnr) }}
-      >
-        {initialFor(name)}
-      </Link>
+      {/* Logotyp för betalande kund, annars monogram. Monogrammet är en
+          platshållare vi ritat själva; har kunden lämnat en riktig logotyp är
+          den alltid bättre. */}
+      {overlay?.logo_url ? (
+        <Link
+          href={href}
+          aria-hidden
+          tabIndex={-1}
+          className="inline-flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[var(--rule)] bg-white p-1 sm:size-14"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={overlay.logo_url}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="size-full object-contain"
+          />
+        </Link>
+      ) : (
+        <Link
+          href={href}
+          aria-hidden
+          tabIndex={-1}
+          className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl text-lg font-bold text-white shadow-[0_4px_12px_-4px_rgba(225,29,39,0.5)] ring-1 ring-white/40 sm:size-14 sm:text-xl"
+          style={{ backgroundImage: monogramGradient(foretag.cfarnr) }}
+        >
+          {initialFor(name)}
+        </Link>
+      )}
 
       <div className="min-w-0 flex-1 space-y-1.5">
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">

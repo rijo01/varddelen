@@ -12,6 +12,8 @@ import {
 import { JsonLd, buildBreadcrumb } from "@/components/json-ld";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { CompanyCard, CompanyCardList } from "@/components/company-card";
+import { loadAktivaOverlays, overlayFor } from "@/lib/overlay";
+import { ordnaBoostade } from "@/lib/overlay-rankning";
 import { SITE_URL } from "@/lib/site";
 import { robotsForHub } from "@/lib/indexability";
 
@@ -112,11 +114,20 @@ export default async function BranschPage({
   const aeantMin = sp.aeantMin ? Number(sp.aeantMin) : undefined;
   const aeantMax = sp.aeantMax ? Number(sp.aeantMax) : undefined;
 
-  const { rows, hasMore } = await listForetagInKommunByBransch(
-    kommun.code,
-    ng1,
-    { page, pageSize: PAGE_SIZE, aeantMin, aeantMax },
-  );
+  // Databasen sorterar `poang desc, aeant desc, cfarnr asc`. Overlay-lagret
+  // läggs ovanpå den ordningen, inte i stället för den: sorteringen är stabil,
+  // så ett företag utan featured/list_priority hamnar exakt där det hade
+  // hamnat utan overlay. Räckvidden är sidan — se ordnaBoostade().
+  const [{ rows: oboostade, hasMore }, overlays] = await Promise.all([
+    listForetagInKommunByBransch(kommun.code, ng1, {
+      page,
+      pageSize: PAGE_SIZE,
+      aeantMin,
+      aeantMax,
+    }),
+    loadAktivaOverlays(),
+  ]);
+  const rows = ordnaBoostade(oboostade, overlays);
 
   const breadcrumbItems = [
     { name: "Vårddelen", href: "/" },
@@ -252,6 +263,7 @@ export default async function BranschPage({
             <li key={f.cfarnr}>
               <CompanyCard
                 foretag={f}
+                overlay={overlayFor(f, overlays)}
                 rank={(page - 1) * PAGE_SIZE + i + 1}
                 branschName={branschName}
                 kommunName={kommun.name}

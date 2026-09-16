@@ -14,6 +14,8 @@ import { JsonLd, buildBreadcrumb } from "@/components/json-ld";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { kommunForetagCount } from "@/lib/stats";
 import { CompanyCard, CompanyCardList } from "@/components/company-card";
+import { loadAktivaOverlays, overlayFor } from "@/lib/overlay";
+import { ordnaBoostade } from "@/lib/overlay-rankning";
 import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 86400;
@@ -60,12 +62,17 @@ export default async function KommunPage({ params }: { params: Params }) {
   const snapshotTotal = kommunForetagCount(kommun.code);
   const fordelning = branschFordelning(kommun.code, 24);
 
-  const [liveTotal, foretagSample] = await Promise.all([
+  const [liveTotal, oboostadeForetag, overlays] = await Promise.all([
     snapshotTotal != null
       ? Promise.resolve(snapshotTotal)
       : countForetagInKommun(kommun.code),
     listForetagInKommun(kommun.code, 12),
+    loadAktivaOverlays(),
   ]);
+
+  // Overlay-vikten läggs ovanpå sajtens ordning (störst arbetsgivare först).
+  // Stabil sortering: den som inte köpt framhävning står kvar där den stod.
+  const foretagSample = ordnaBoostade(oboostadeForetag, overlays);
 
   const branschNames = await getBranschNamesBulk(fordelning.map((f) => f.ng1));
 
@@ -163,6 +170,7 @@ export default async function KommunPage({ params }: { params: Params }) {
                 <li key={f.cfarnr}>
                   <CompanyCard
                     foretag={f}
+                    overlay={overlayFor(f, overlays)}
                     rank={i + 1}
                     kommunName={kommun.name}
                   />

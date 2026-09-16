@@ -116,11 +116,42 @@ const sidor = [
     fn: "robotsForForetag",
   },
 ];
-for (const { fil, fn } of sidor) {
+
+/**
+ * En page-fil får delegera sin generateMetadata till en granne:
+ *
+ *     export { generateMetadata } from "./ForetagSida";
+ *
+ * Företagssidan gör det sedan overlay-utrullningen, för att
+ * förhandsvisningsrouten ska kunna återanvända sidans innehåll utan att den
+ * publika sidan behöver läsa searchParams och tappa sin ISR.
+ *
+ * Kontrollen följer därför återexporten ETT steg och granskar filen som
+ * faktiskt äger metadatan. Att i stället lätta på kravet hade tagit bort hela
+ * spärren: det är just en omskrivning av generateMetadata som den finns för
+ * att fånga.
+ */
+function metadataKalla(fil) {
   const src = read(fil);
-  if (!src.includes(`from "@/lib/indexability"`) || !src.includes(`...${fn}(`)) {
+  const m = src.match(/export\s*\{[^}]*\bgenerateMetadata\b[^}]*\}\s*from\s*["'](\.\/[^"']+)["']/);
+  if (!m) return { fil, src };
+  const grannFil = fil.replace(/[^/]+$/, m[1].replace(/^\.\//, ""));
+  for (const ext of ["", ".tsx", ".ts"]) {
+    try {
+      return { fil: grannFil + ext, src: read(grannFil + ext) };
+    } catch {
+      // nästa ändelse
+    }
+  }
+  fel.push(`${fil} återexporterar generateMetadata från ${m[1]}, som inte gick att läsa`);
+  return { fil, src };
+}
+
+for (const { fil, fn } of sidor) {
+  const kalla = metadataKalla(fil);
+  if (!kalla.src.includes(`from "@/lib/indexability"`) || !kalla.src.includes(`...${fn}(`)) {
     fel.push(
-      `${fil} sprider inte ut ${fn}(...) i generateMetadata — ` +
+      `${kalla.fil} sprider inte ut ${fn}(...) i generateMetadata — ` +
         `sidan skulle svara index,follow oavsett grind`,
     );
   }
