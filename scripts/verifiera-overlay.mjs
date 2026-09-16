@@ -63,6 +63,7 @@ const SECRET = arg("secret", process.env.OVERLAY_PUBLISH_SECRET);
 const BYPASS = process.env.VERCEL_AUTOMATION_BYPASS_SECRET ?? null;
 const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!CFARNR || !BAS) {
   console.error(
@@ -74,6 +75,7 @@ for (const [namn, v] of [
   ["OVERLAY_PUBLISH_SECRET", SECRET],
   ["NEXT_PUBLIC_SUPABASE_URL", SUPA_URL],
   ["SUPABASE_SERVICE_ROLE_KEY", SERVICE_KEY],
+  ["NEXT_PUBLIC_SUPABASE_ANON_KEY", ANON_KEY],
 ]) {
   if (!v) {
     console.error(`Saknar ${namn}. Kör med --env-file=.env.local.`);
@@ -82,6 +84,21 @@ for (const [namn, v] of [
 }
 
 const admin = createClient(SUPA_URL, SERVICE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
+
+/**
+ * Registret läses med ANON-nyckeln, inte service role.
+ *
+ * `foretag_publik` är grantad till anon och postgres — service_role har INTE
+ * SELECT på vyn. Det är avsiktligt (vyn är den maskade ytan, service role
+ * kringgår RLS), och det betyder att en service-role-klient får
+ * "permission denied for view foretag_publik". Avläst 2026-09-16.
+ *
+ * Samma uppdelning gäller i endpointen: den läser registret med anon och
+ * skriver overlay_profil med service role.
+ */
+const anon = createClient(SUPA_URL, ANON_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
@@ -123,6 +140,9 @@ function previewToken(externalId, revision, ttlSekunder = 86400) {
 
 /** Identiteten som testas. Sätts av steg 0 när registerraden är läst. */
 let ORGNR = null;
+
+/** Markören i bolagsradens info_html. Sätts av steg 3, läses av steg 4. */
+let BOLAGSNONCE = null;
 
 function byggPayload({
   action,
@@ -382,7 +402,7 @@ async function forutsattningar() {
 
   const reg = await kor(
     () =>
-      admin
+      anon
         .from(REGISTER)
         .select("cfarnr,orgnr,firma,namn,kommun,ng1,poang,infotext,logotyp")
         .eq("cfarnr", Number(CFARNR)),
@@ -521,9 +541,33 @@ async function steg1(foretag) {
   // ytor raden påverkar. Är listan tom är DET felet — inte att vi letade fel.
   const listor = (svar.revalidated ?? []).filter((p) => p.startsWith("/kommun/"));
   kolla(listor.length > 0, "endpointen revaliderade minst en listsida", JSON.stringify(svar.revalidated));
-  for (const lista of listor.slice(0, 2)) {
-    const r = await vantaPa(lista, (x) => x.kod === 200 && x.html.includes("Utvald"));
-    kolla(r.ok, `listsidan visar företaget som utvalt (${lista})`, `HTTP ${r.svar?.kod}`);
+
+  /**
+   * Lyftet är SIDLOKALT, och kontrollen måste vara ärlig om det.
+   *
+   * ordnaBoostade() sorterar de rader som listsidan faktiskt hämtade. Finns
+   * företaget inte i sidans urval — en kommunsida visar tolv företag, sorterade
+   * på antal anställda — finns det ingenting att lyfta, och att kräva "Utvald"
+   * där vore att kräva något koden aldrig lovat.
+   *
+   * Så: står företaget på sidan MÅSTE det vara märkt utvalt. Står det inte där
+   * rapporteras det som en upplysning, inte ett fel. Se OVERLAY.md,
+   * "Vad lyftet inte gör".
+   */
+  const slugg = foretagssida.slice(FORETAG_BAS.length + 1);
+  for (const lista of listor.slice(0, 3)) {
+    const r = await vantaPa(lista, (x) => x.kod === 200 && x.html.includes(slugg), {
+      forsok: 6,
+    });
+    if (!r.ok) {
+      info(`${lista}: företaget ligger utanför sidans urval — inget att lyfta`);
+      continue;
+    }
+    kolla(
+      r.svar.html.includes("Utvald"),
+      `listsidan visar företaget som utvalt (${lista})`,
+      "företaget står på sidan men saknar utvald-märkningen",
+    );
   }
 
   // Söksidan är force-dynamic — ingen väntan behövs, den läser overlay direkt.
@@ -576,7 +620,11 @@ async function steg3(foretagssida) {
     return;
   }
 
-  const bolagsNonce = `${NONCE}-bolag`;
+  // Egen markör, INTE `${NONCE}-bolag`: en superstring hade gjort varje
+  // `includes(NONCE)`-kontroll sann även när det är bolagsraden som renderas,
+  // och steg 4 hade då aldrig kunnat skilja de två åt.
+  const bolagsNonce = NONCE.replace("verifiering", "bolagsniva");
+  BOLAGSNONCE = bolagsNonce;
   const svar = await skicka(
     byggPayload({
       action: "publish",
@@ -625,11 +673,26 @@ async function steg4() {
   const fil = await filFinns();
   kolla(fil.ok, "logotypfilen ligger kvar efter unpublish", JSON.stringify(fil.filer));
 
-  // Företagssidan ska falla tillbaka på registerdatan.
+  /**
+   * Vad företagssidan ska visa när ARBETSSTÄLLETS köp tagits ner.
+   *
+   * Inte registerdatan — utan BOLAGETS profil, om steg 3 hann publicera en.
+   * Det är företrädesregeln baklänges: mest specifik vinner, och när den
+   * specifika försvinner tar den bredare över. Att kräva en naken registerrad
+   * här hade varit att testa fel sak.
+   */
   const sidor = (ok.revalidated ?? []).filter((p) => p.startsWith(`${FORETAG_BAS}/`));
   if (sidor.length > 0) {
+    const harBolagsrad = BOLAGSNONCE !== null;
     const r = await vantaPa(sidor[0], (x) => !x.html.includes(NONCE));
-    kolla(r.ok, "företagssidan visar inte längre profilen", `försök ${r.forsok}`);
+    kolla(r.ok, "arbetsställets profil är borta från företagssidan", `försök ${r.forsok}`);
+    if (harBolagsrad && r.ok) {
+      kolla(
+        r.svar.html.includes(BOLAGSNONCE),
+        "sidan faller tillbaka på bolagets profil",
+        "mest specifik vann; när den tas ner ska den bredare ta över",
+      );
+    }
   }
 
   // Och en uppspelad publish av rev 1 får inte återuppliva den.

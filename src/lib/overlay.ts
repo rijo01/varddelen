@@ -118,6 +118,25 @@ export function identiteterFor(f: {
   return ut;
 }
 
+/**
+ * Orgnumrets två skepnader.
+ *
+ * Overlay-nyckeln är rena siffror — så lagrar CRM:et det, och så normaliserar
+ * identiteterFor(). Men REGISTRET lagrar `556033-9086`, med bindestreck. En
+ * `.eq("orgnr", "5560339086")` mot `foretag_publik` träffar därför ingenting,
+ * och ett bolagsköp hade revaliderat noll sidor och saknat förhandsvisningslänk
+ * — utan att något såg trasigt ut.
+ *
+ * Båda formerna frågas alltså, alltid. Avläst mot riktiga rader 2026-09-16:
+ * kolumnen bär bindestrecksformen.
+ */
+export function orgnrVarianter(externalId: string): string[] {
+  const siffror = externalId.replace(/\D/g, "");
+  if (siffror.length !== 10) return [externalId];
+  const medBindestreck = `${siffror.slice(0, 6)}-${siffror.slice(6)}`;
+  return Array.from(new Set([siffror, medBindestreck, externalId]));
+}
+
 // ── Uppslag för EN sida ─────────────────────────────────────────────────────
 
 /**
@@ -370,7 +389,7 @@ export async function overlayRevalidatePaths(
   q =
     rad.entity_type === "arbetsstalle"
       ? q.eq("cfarnr", Number(rad.external_id))
-      : q.eq("orgnr", rad.external_id);
+      : q.in("orgnr", orgnrVarianter(rad.external_id));
 
   const { data, error } = await q.limit(200);
   if (error || !data) return [];

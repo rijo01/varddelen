@@ -50,17 +50,42 @@ Filerna körs i ordning, **en gång för hela klustret**:
 ```bash
 supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay.sql
 supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay-hardening-001.sql
+supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay-hardening-002-grants.sql
 supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay-v1.1.sql
 ```
 
 - `overlay.sql` — kontraktets frysta v1-schema. Ändras aldrig.
 - `overlay-hardening-001.sql` — låser `search_path` på funktionerna.
+- `overlay-hardening-002-grants.sql` — **tabellrättigheterna.** Utan den här
+  fungerar ingenting, och det ena av de två felen är tyst. Se nedan.
 - `overlay-v1.1.sql` — 1.1-fälten, och `contract_version` från `integer` till
   `numeric(4,2)`. Utan typbytet avrundas 1.1 tyst till 1 och raden ljuger om
   sitt ursprung. Filen kör om härdningen själv, eftersom
   `create or replace function` nollställer `SET`-klausuler.
 
-Alla tre är idempotenta.
+Alla fyra är idempotenta.
+
+### Varför grants-filen behövs
+
+`overlay.sql` sätter RLS och en policy, men grantar aldrig några
+tabellrättigheter — den utgår från Supabases standard, där nya tabeller i
+`public` automatiskt får grants via `alter default privileges`. **Det här
+klustret är en migrerad legacy-bas och har inte de default-privilegierna.**
+Avläst ur `information_schema.role_table_grants` 2026-09-16: `overlay_profil`
+hade `REFERENCES, TRIGGER, TRUNCATE` för både `anon` och `service_role`, och
+ingenting annat.
+
+Följden är två fel som ser ut som olika saker:
+
+1. Endpointen svarar 500 på varje publicering — `service_role` får
+   `permission denied for table`. Det syns direkt.
+2. **En RLS-policy utan SELECT-grant släpper igenom ingenting.** Policyn är en
+   filtrering av en rättighet man redan har, inte en tilldelning av den. Sajten
+   hade renderat varje betald profil som tom, utan felmeddelande — `lib/overlay.ts`
+   svarar `null` på ett läsfel och sidan faller tillbaka på registerdatan.
+   Sålt, publicerat, osynligt.
+
+Det andra är det farliga. Verifieringssviten fångar båda.
 
 Bucketen `overlay-logos` är publik, har 500 kB-tak och tillåter bara
 `image/png`, `image/jpeg` och `image/webp` — samma gränser som kontraktet, men

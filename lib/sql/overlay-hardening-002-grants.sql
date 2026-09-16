@@ -1,0 +1,80 @@
+-- ============================================================================
+-- overlay-hardening-002 — tabellrättigheter i en bas utan Supabase-standard
+-- ============================================================================
+-- Körs EFTER overlay.sql. Separat fil därför att overlay.sql är fryst
+-- (overlay-kontrakt v1) och inte får ändras — och därför att det HÄR är ett
+-- problem som bara finns i det delade klustret, inte i kontraktet.
+--
+-- VAD SOM SAKNADES, OCH VARFÖR DET INTE SYNTES
+--
+-- `overlay.sql` sätter RLS och en policy som släpper anon på aktiva rader, och
+-- grantar EXECUTE på overlay_publicera() till service_role. Den grantar aldrig
+-- några TABELLrättigheter — den utgår från Supabases standardinställning, där
+-- `alter default privileges` ger anon/authenticated/service_role rättigheter på
+-- nya tabeller i public automatiskt. På åkeriguiden, ett vanligt
+-- Supabase-projekt, stämmer det.
+--
+-- DEN HÄR BASEN (ymqbimerrvycbknstsai) ÄR EN MIGRERAD LEGACY-BAS och har inte
+-- de default-privilegierna. Avläst 2026-09-16, direkt ur
+-- information_schema.role_table_grants:
+--
+--   overlay_profil  anon          REFERENCES, TRIGGER, TRUNCATE
+--   overlay_profil  service_role  REFERENCES, TRIGGER, TRUNCATE
+--
+-- Alltså: ingen SELECT för anon, ingen DML för service_role. Grannen
+-- crm_profiles har explicita grants till service_role — någon har stött på
+-- samma sak förut och löst det för hand.
+--
+-- KONSEKVENSEN AV ATT MISSA DEN HÄR FILEN är två fel som ser ut som olika saker:
+--
+--   • Endpointen svarar 500 "Kunde inte läsa overlay-tabellen" på varje
+--     publicering — service_role får `permission denied for table`.
+--   • Och även om den kom förbi det: en RLS-POLICY UTAN SELECT-GRANT SLÄPPER
+--     IGENOM INGENTING. Policyn `to anon using (status = 'aktiv')` är en
+--     FILTRERING av en rättighet man redan har, inte en tilldelning av den.
+--     Sajten hade renderat varje betald profil som tom — utan felmeddelande,
+--     eftersom lib/overlay.ts svarar null på ett läsfel och sidan faller
+--     tillbaka på registerdatan. Sålt, publicerat, osynligt.
+--
+-- Det andra felet är det farliga: det första syns direkt, det andra syns bara
+-- om någon tittar på rätt sida vid rätt tillfälle.
+--
+-- VAD SOM GES, OCH INTE MER ÄN SÅ
+--
+--   anon          SELECT      — publik läsning. RLS begränsar den till
+--                               status = 'aktiv'; grantet öppnar inte mer.
+--   authenticated SELECT      — samma policy gäller. Sajten har inga inloggade
+--                               användare i dag, men policyn nämner rollen, och
+--                               en policy utan grant är en lögn i schemat.
+--   service_role  SELECT,
+--                 INSERT,
+--                 UPDATE,
+--                 DELETE      — endpointen. Den kringgår RLS och är därför
+--                               ensam om att kunna skriva och att se utkast.
+--
+-- INGEN roll får TRUNCATE eller rättigheter på sekvenser: primärnyckeln är en
+-- uuid med `gen_random_uuid()`, och det finns ingen sekvens att grantea.
+--
+-- Idempotent: grant är idempotent i Postgres.
+-- ============================================================================
+
+grant select on table public.overlay_profil to anon, authenticated;
+
+grant select, insert, update, delete
+  on table public.overlay_profil to service_role;
+
+-- ── Varför det INTE finns någon `alter default privileges` här ──────────────
+--
+-- Det vore bekvämt att sätta default-privilegier för schemat och slippa tänka
+-- på det nästa gång. Det vore också fel, och det är värt att skriva ner så att
+-- ingen "förbättrar" filen med det senare.
+--
+-- Den här basen håller anon utanför sina råtabeller MED FLIT. `aesamtable` bär
+-- `peorgnr` — personnummer — och den publika ytan är den maskade vyn
+-- `foretag_publik`, som är den enda tabellika sak anon har SELECT på. Att sätta
+-- `alter default privileges ... grant select on tables to anon` hade gett anon
+-- läsrätt på VARJE tabell som skapas i public härefter, inklusive nästa
+-- importtabell någon lägger upp med råa personuppgifter i.
+--
+-- Bekvämligheten är inte värd den risken. Nya tabeller får sina grants
+-- uttryckligen, en i taget, av den som vet vad de innehåller.

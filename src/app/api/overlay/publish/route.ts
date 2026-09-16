@@ -8,6 +8,7 @@ import {
   STODDA_ENTITY_TYPES,
   STODD_CONTRACT_VERSION,
   idagISO,
+  orgnrVarianter,
   overlayRevalidatePaths,
 } from "@/lib/overlay";
 import { foretagSlug } from "@/lib/queries";
@@ -395,7 +396,7 @@ async function previewUrl(
   q =
     entityType === "arbetsstalle"
       ? q.eq("cfarnr", Number(externalId))
-      : q.eq("orgnr", externalId);
+      : q.in("orgnr", orgnrVarianter(externalId));
 
   const { data } = await q.limit(1).maybeSingle();
   const rad = data as { cfarnr: number | null; firma: string | null; namn: string | null } | null;
