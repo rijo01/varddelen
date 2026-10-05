@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Globe, Mail, MapPin, Phone, Sparkles, Users } from "lucide-react";
 import { foretagSlug, type Foretag } from "@/lib/queries";
 import type { OverlayProfilRow } from "@/lib/overlay-contract";
+import { visatTelefon } from "@/lib/visat-telefon";
 import {
   displayName,
   employerSize,
@@ -40,6 +41,8 @@ export function CompanyCard({
   overlay?: OverlayProfilRow | null;
 }) {
   const name = overlay?.popularnamn?.trim() || displayName(foretag);
+  // Samma regel som profilsidan: kundens köpta nummer ersätter registrets.
+  const telefon = visatTelefon(foretag.tel, overlay);
   const size = employerSize(foretag.aeant);
   const legalForm = legalFormFor(foretag);
   // "Utvald" gäller båda betallagren: registrets poang och overlay-köpets
@@ -157,14 +160,14 @@ export function CompanyCard({
 
       {/* Action-kolumn */}
       <div className="flex shrink-0 flex-col items-end gap-1.5">
-        {foretag.tel && (
+        {telefon && (
           <a
-            href={`tel:${foretag.tel}`}
+            href={`tel:${telefon}`}
             className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[#0c8a3d] px-3.5 text-xs font-semibold text-white shadow-[0_4px_12px_-4px_rgba(12,138,61,0.5)] transition hover:bg-[#076b2f] active:scale-[0.98]"
             aria-label={`Ring ${name}`}
           >
             <Phone className="size-3.5" aria-hidden />
-            <span className="hidden sm:inline">{foretag.tel}</span>
+            <span className="hidden sm:inline">{telefon}</span>
             <span className="sm:hidden">Ring</span>
           </a>
         )}

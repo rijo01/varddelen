@@ -10,7 +10,8 @@
     "start": "next start",
     "verify:sitemap": "node scripts/verify-sitemap-live.mjs",
     "overlay:verifiera": "node --env-file=.env.local scripts/verifiera-overlay.mjs",
-    "kontaktsparr:verifiera": "node --no-warnings --env-file=.env.local scripts/verifiera-kontaktsparr.mjs"
+    "kontaktsparr:verifiera": "node --no-warnings --env-file=.env.local scripts/verifiera-kontaktsparr.mjs",
+    "dolj:verifiera": "node --no-warnings --env-file=.env.local scripts/verifiera-dolj-nummer.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
