@@ -12,7 +12,9 @@ import {
   overlayRevalidatePaths,
 } from "@/lib/overlay";
 import { foretagSlug } from "@/lib/queries";
+import { hanteraKontaktsparr } from "./kontaktsparr";
 import {
+  arKontaktsparrPaket,
   OVERLAY_PROMOTE_ARG,
   OVERLAY_PROMOTE_RPC,
   SIGNATURE_HEADER,
@@ -121,6 +123,12 @@ export async function POST(req: Request) {
     json = JSON.parse(raw);
   } catch {
     return svar(400, { ok: false, error: "Bodyn är inte giltig JSON" });
+  }
+
+  // Kontrakt 1.2: en kontaktspärr har eget schema och egen tabell, men samma
+  // signatur, samma tidsfönster och samma revisionsregel. Se ./kontaktsparr.ts.
+  if (arKontaktsparrPaket(json)) {
+    return hanteraKontaktsparr(json, admin, anon, svar);
   }
 
   const parsed = overlayPublishRequestSchema.safeParse(json);

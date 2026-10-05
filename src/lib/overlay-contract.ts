@@ -36,14 +36,27 @@ import { z } from "zod";
  * kopia är exakt det som gör att de avvisar ett 1.1-paket — vilket är rätt
  * beteende, men det ska aldrig behöva inträffa.
  */
-export const CONTRACT_VERSION = 1.1;
+export const CONTRACT_VERSION = 1.2;
 
 /** Versionen som bara har v1.0-formen. Skickas till sajter som inte kan mer. */
 export const CONTRACT_VERSION_1_0 = 1;
 
+/**
+ * Overlay-paketets form är OFÖRÄNDRAD sedan 1.1. Version 1.2 lade bara till en
+ * ny action (`kontaktsparr`, se längre ned), så ett overlay-paket bär fortsatt
+ * 1.1 — annars hade varje publicering mot en sajt som ännu står på 1.1 avvisats
+ * med 409 för ett tal och inte för en form.
+ */
+export const CONTRACT_VERSION_1_1 = 1.1;
+
 /** Stödjer en sajt på den här versionen 1.1-fälten? */
 export function stodjerV11(sajtensVersion: number): boolean {
   return sajtensVersion >= 1.1;
+}
+
+/** Kan sajten ta emot `action: "kontaktsparr"`? Tillkom i 1.2. */
+export function stodjerKontaktsparr(sajtensVersion: number): boolean {
+  return sajtensVersion >= 1.2;
 }
 
 // ── Uppräkningar ────────────────────────────────────────────────────────────
@@ -398,6 +411,12 @@ export const overlayPublishResponseSchema = z.object({
   revision: z.number().int(),
   revalidated: z.array(z.string()),
   preview_url: z.string().optional(),
+  /**
+   * 1.2, bara för `kontaktsparr`: hur många bolag (arbetsställen) i sajtens
+   * register som bar uppgiften när spärren lades. Antal, aldrig vilka — svaret
+   * loggas i CRM:et och ska inte bli en andra kopia av registret.
+   */
+  berorda: z.number().int().min(0).optional(),
   /** Satt när ok = false. Aldrig stacktrace, aldrig interna id:n. */
   error: z.string().optional(),
 });
@@ -827,4 +846,274 @@ export function sanitizeInfoHtml(input: string | null | undefined): string | nul
 
   const trimmad = ut.replace(/(?:\s|<br \/>|<p><\/p>)+$/g, "").trim();
   return trimmad.length > 0 ? trimmad : null;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// KONTAKTSPÄRR (1.2)
+// ════════════════════════════════════════════════════════════════════════════
+//
+// En spärr nycklad på en KONTAKTUPPGIFT, inte på ett bolag. Den finns för
+// GDPR-ärenden: en privatperson begär att hans eller hennes mobilnummer, som
+// felaktigt står på ett bolag i registret, inte ska visas. Numret kan stå på
+// flera bolag, i fritext och i strukturerad data — spärren följer NUMRET.
+//
+// Sajten lagrar spärren i sin egen tabell (`kontaktsparr`, overlay-kontaktsparr.sql)
+// och tillämpar den VID LÄSNING:
+//
+//   kontaktfält som innehåller uppgiften  → returneras tomma (null)
+//   fritext (infotext, sökord, info_html)  → uppgiften skrubbas bort
+//   strukturerad data (JSON-LD)            → byggs av det redan filtrerade
+//   sajtens egen sökning                   → en fråga på uppgiften ger 0 träffar
+//
+// Källdatan (`aesamtable`, `foretag`) rörs ALDRIG. Det är samma princip som
+// overlay: sajten lägger sitt lager ovanpå, och därför kan en återimport av
+// registret aldrig få tillbaka numret — filtret sitter efter källan.
+//
+// NORMALISERINGEN LIGGER HÄR och delas av CRM:et och varje mottagare. Hade
+// sidorna normaliserat på var sitt sätt hade "+46 70-509 65 02" kunnat vara
+// spärrat i CRM:et och fritt på sajten. Samma regel finns i SQL i
+// overlay-kontaktsparr.sql, och självtestet bevisar att de två är överens.
+
+export const KONTAKTSPARR_TYPER = ["telefon", "epost"] as const;
+export type KontaktsparrTyp = (typeof KONTAKTSPARR_TYPER)[number];
+
+/**
+ * `register` — gäller varje sajt som läser samma databas. I klustret
+ *              (hantverkardelen/vårddelen/regionsdelen) täcker EN rad alla tre.
+ * `sajt`     — gäller bara den mottagande sajten.
+ */
+export const KONTAKTSPARR_SCOPES = ["register", "sajt"] as const;
+export type KontaktsparrScope = (typeof KONTAKTSPARR_SCOPES)[number];
+
+/** `sparra` lägger spärren, `hav` häver den. Båda bär en höjd revision. */
+export const KONTAKTSPARR_OPS = ["sparra", "hav"] as const;
+export type KontaktsparrOp = (typeof KONTAKTSPARR_OPS)[number];
+
+/**
+ * Telefonnummer → E.164-siffror utan plustecken. `null` om det inte är ett nummer.
+ *
+ *   070-509 65 02 · 0705096502 · +46705096502 · 0046705096502 · 46705096502
+ *   +46 (0)70 509 65 02 · 70-509 65 02                       → "46705096502"
+ *
+ * Sverige är standardlandet: en inledande nolla är ett nationellt nummer, och
+ * 7–9 siffror utan prefix är ett nationellt nummer utan nolla. "(0)" tas bort —
+ * den skrivs ut i internationella nummer men slås aldrig.
+ */
+export function normaliseraTelefon(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const s = raw.normalize("NFKC").replace(/\(\s*0\s*\)/g, "").trim();
+  // Bara siffror, avgränsare och ett inledande plus. Bokstäver betyder att det
+  // inte är ett telefonnummer utan en text som innehåller ett.
+  if (!/^\+?[\d\s\-./()\u00a0]+$/.test(s)) return null;
+  const plus = s.startsWith("+");
+  let d = s.replace(/\D/g, "");
+  if (plus) {
+    // redan internationellt
+  } else if (d.startsWith("00")) {
+    d = d.slice(2);
+  } else if (d.startsWith("0")) {
+    d = "46" + d.slice(1);
+  } else if (d.startsWith("46") && d.length >= 10) {
+    // internationellt utan plus
+  } else if (d.length >= 7 && d.length <= 9) {
+    d = "46" + d;
+  } else {
+    return null;
+  }
+  if (!/^[1-9]\d{7,14}$/.test(d)) return null;
+  // Ett svenskt nationellt nummer är 7–9 siffror efter landskoden.
+  if (d.startsWith("46") && (d.length < 9 || d.length > 11)) return null;
+  return d;
+}
+
+/** E-post → gemener, trimmad. `null` om det inte ser ut som en adress. */
+export function normaliseraEpost(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const s = raw.normalize("NFKC").trim().toLowerCase();
+  return /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(s) && s.length <= 254 ? s : null;
+}
+
+export function normaliseraKontakt(typ: KontaktsparrTyp, raw: string | null | undefined): string | null {
+  return typ === "telefon" ? normaliseraTelefon(raw) : normaliseraEpost(raw);
+}
+
+/**
+ * Avgränsare MELLAN siffrorna i ett nummer så som det skrivs i fritext och HTML.
+ * Högst tre i rad: "070 - 509 65 02" ska fångas, två nummer med en mening
+ * emellan ska inte bli ett.
+ */
+const SEP = "(?:[\\s./()\\u00a0-]|&nbsp;|&#160;){0,3}";
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Mönstret som hittar uppgiften i fritext, i alla skrivsätt.
+ *
+ * Skrivet i den gemensamma delmängden av JavaScripts och PostgreSQL:s
+ * reguljära uttryck (lookbehind, icke-fångande grupper, `\s`, `\u00a0`), så att
+ * EXAKT samma sträng används i mottagarens rendering, i CRM:ets sök och i
+ * SQL-funktionen kontaktsparr_monster(). Siffergränserna `(?<![0-9])` och
+ * `(?![0-9])` gör att numret inte hittas inuti ett längre nummer.
+ *
+ * För e-post jämförs skiftlägesokänsligt: använd flaggan `i` (JS) eller `~*` (SQL).
+ */
+export function kontaktsparrMonster(typ: KontaktsparrTyp, nyckel: string): string {
+  if (typ === "epost") {
+    return `(?<![A-Za-z0-9._%+-])${escapeRegex(nyckel)}(?![A-Za-z0-9-])`;
+  }
+  // Svenskt nummer: landskoden kan stå som +46, 0046, 46 — eller ersättas av en
+  // nolla, eller saknas helt ("70-509 65 02"). Övriga länder: landskoden med
+  // valfritt + eller 00 framför.
+  let prefix: string;
+  let rest: string;
+  if (nyckel.startsWith("46")) {
+    rest = nyckel.slice(2);
+    prefix = `(?:(?:\\+|00)${SEP}46${SEP}(?:\\(0\\)${SEP})?|46${SEP}|0${SEP})?`;
+  } else {
+    rest = nyckel;
+    prefix = `(?:\\+|00)?${SEP}`;
+  }
+  return `(?<![0-9])${prefix}${rest.split("").join(SEP)}(?![0-9])`;
+}
+
+/** En spärr som sajten läser ur sin tabell. */
+export interface Kontaktsparr {
+  typ: KontaktsparrTyp;
+  nyckel: string;
+}
+
+/**
+ * Filtret sajten tillämpar vid läsning. Byggs EN gång per request ur sajtens
+ * aktiva spärrar och används på varje fält som kan bära en kontaktuppgift.
+ *
+ * `failClosed`: spärrlistan gick inte att läsa. Då döljs ALLA telefonnummer
+ * och e-postadresser i den renderingen — en sida som visar för lite är ett
+ * mindre fel än en sida som visar det någon begärt att få raderat.
+ */
+export interface KontaktsparrFilter {
+  /** Antal aktiva spärrar. 0 och inte failClosed = filtret är en no-op. */
+  readonly antal: number;
+  readonly failClosed: boolean;
+  /** Bär texten en spärrad uppgift? */
+  traffar(v: string | null | undefined): boolean;
+  /** Kontaktfält: hela fältet blir null om det bär en spärrad uppgift. */
+  falt(v: string | null | undefined): string | null;
+  /** Fritext: den spärrade uppgiften skrubbas bort, resten står kvar. */
+  skrubba(v: string | null | undefined): string | null;
+  /** Sökfråga: ska sajtens sökning svara med noll träffar? */
+  sparradFraga(q: string | null | undefined): boolean;
+}
+
+/** Vad en skrubbad uppgift ersätts med. Ingenting — inte ens en markör. */
+export const KONTAKTSPARR_ERSATTNING = "";
+
+/** Varje telefonliknande sekvens, för fail-closed. */
+const ALLA_TELEFONNUMMER = new RegExp(
+  `(?<![0-9])(?:\\+|00)?[0-9](?:${SEP}[0-9]){6,14}(?![0-9])`,
+  "g"
+);
+const ALLA_EPOSTADRESSER = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+
+export function skapaKontaktsparrFilter(
+  sparrar: readonly Kontaktsparr[] | null
+): KontaktsparrFilter {
+  const failClosed = sparrar === null;
+  const monster = failClosed
+    ? [ALLA_TELEFONNUMMER, ALLA_EPOSTADRESSER]
+    : sparrar.map(
+        (s) => new RegExp(kontaktsparrMonster(s.typ, s.nyckel), s.typ === "epost" ? "gi" : "g")
+      );
+  const nycklar = new Set((sparrar ?? []).map((s) => `${s.typ}:${s.nyckel}`));
+
+  const traffar = (v: string | null | undefined): boolean => {
+    if (!v || monster.length === 0) return false;
+    return monster.some((m) => {
+      m.lastIndex = 0;
+      return m.test(v);
+    });
+  };
+
+  return {
+    antal: nycklar.size,
+    failClosed,
+    traffar,
+    falt: (v) => (v == null ? null : traffar(v) ? null : v),
+    skrubba: (v) => {
+      if (v == null) return null;
+      if (monster.length === 0) return v;
+      let ut = v;
+      for (const m of monster) {
+        m.lastIndex = 0;
+        ut = ut.replace(m, KONTAKTSPARR_ERSATTNING);
+      }
+      return ut;
+    },
+    sparradFraga: (q) => {
+      if (!q) return false;
+      if (traffar(q)) return true; // fail-closed: alla nummer och adresser
+      if (failClosed) return false;
+      // En fråga som BARA är ett nummer, skrivet på ett sätt mönstret inte
+      // känner (t.ex. utan nolla och med fem mellanslag), fångas på nyckeln.
+      const t = normaliseraTelefon(q);
+      const e = normaliseraEpost(q);
+      return (t !== null && nycklar.has(`telefon:${t}`)) || (e !== null && nycklar.has(`epost:${e}`));
+    },
+  };
+}
+
+/**
+ * Paketet i POST /api/overlay/publish när `action = "kontaktsparr"`.
+ *
+ * Eget schema, inte en utvidgning av overlay-paketet: en kontaktspärr har
+ * ingen identitet, ingen order och inget innehåll — bara en uppgift, ett
+ * omfång och ett ärende. Signatur, `sent_at`-fönster och versionsgrind är
+ * desamma som för overlay.
+ *
+ * `nyckel` ska redan vara normaliserad. Mottagaren normaliserar om och avvisar
+ * paketet om resultatet skiljer sig — en avsändare som normaliserat fel ska få
+ * ett nej, inte en spärr på fel nummer.
+ *
+ * `arende` är ärendenumret, aldrig den registrerades namn.
+ */
+export const kontaktsparrRequestSchema = z
+  .object({
+    action: z.literal("kontaktsparr"),
+    op: z.enum(KONTAKTSPARR_OPS),
+    sajt: z.string().min(1).max(60),
+    typ: z.enum(KONTAKTSPARR_TYPER),
+    nyckel: z.string().min(3).max(254),
+    scope: z.enum(KONTAKTSPARR_SCOPES),
+    arende: z.string().trim().min(1).max(60),
+    /** Monoton per (scope, typ, nyckel). Samma regel som overlay: bedomRevision(). */
+    revision: z.number().int().min(1),
+    contract_version: z.number().min(1.2),
+    sent_at: z.string().datetime({ offset: true }),
+  })
+  .strict()
+  .refine((d) => normaliseraKontakt(d.typ, d.nyckel) === d.nyckel, {
+    message: "nyckel är inte normaliserad enligt kontraktet",
+    path: ["nyckel"],
+  });
+export type KontaktsparrRequest = z.infer<typeof kontaktsparrRequestSchema>;
+
+/** Är den här (redan JSON-parsade) bodyn en kontaktspärr? Avgör vilket schema som gäller. */
+export function arKontaktsparrPaket(body: unknown): boolean {
+  return (
+    typeof body === "object" && body !== null && (body as { action?: unknown }).action === "kontaktsparr"
+  );
+}
+
+/**
+ * Fingeravtryck för revisionsregeln.
+ *
+ * `sajt` ingår INTE. En spärr med scope `register` tas emot av alla tre
+ * klustersajterna och landar i SAMMA rad; den andra och tredje mottagaren ska
+ * se ett ofarligt återförsök, inte en konflikt. `sent_at` ingår inte av samma
+ * skäl som för overlay.
+ */
+export async function kontaktsparrHash(req: KontaktsparrRequest): Promise<string> {
+  const { sajt: _sajt, sent_at: _sentAt, ...resten } = req;
+  return sha256(JSON.stringify(kanoniskt(resten)));
 }

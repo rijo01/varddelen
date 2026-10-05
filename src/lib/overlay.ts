@@ -6,6 +6,7 @@ import { branschPageSlug, foretagSlug } from "./queries";
 import { VARD_BRANSCHER } from "./vard-branscher";
 import { kommunByCode } from "./kommuner";
 import { getBranschNamesBulk } from "./branscher";
+import { filtreraOverlay, kontaktsparrFilter } from "./kontaktsparr";
 import {
   CONTRACT_VERSION,
   arPubliktSynlig,
@@ -163,7 +164,9 @@ export async function getOverlay(
     return null;
   }
   const rad = (data as unknown as OverlayProfilRow | null) ?? null;
-  return rad && arPubliktSynlig(rad, idagISO()) ? rad : null;
+  return rad && arPubliktSynlig(rad, idagISO())
+    ? filtreraOverlay(rad, await kontaktsparrFilter())
+    : null;
 }
 
 /**
@@ -207,7 +210,7 @@ export const getOverlayForForetag = cache(async function getOverlayForForetag(f:
     const träff = rader.find(
       (r) => r.entity_type === id.entity_type && r.external_id === id.external_id,
     );
-    if (träff) return träff;
+    if (träff) return filtreraOverlay(träff, await kontaktsparrFilter());
   }
   return null;
 });
@@ -240,8 +243,10 @@ export const loadAktivaOverlays = cache(
       return lager;
     }
     const idag = idagISO();
-    for (const rad of (data ?? []) as unknown as OverlayProfilRow[]) {
-      if (!arPubliktSynlig(rad, idag)) continue;
+    const kf = await kontaktsparrFilter();
+    for (const orad of (data ?? []) as unknown as OverlayProfilRow[]) {
+      if (!arPubliktSynlig(orad, idag)) continue;
+      const rad = filtreraOverlay(orad, kf);
       if (rad.entity_type === "arbetsstalle") lager.byCfar.set(rad.external_id, rad);
       else if (rad.entity_type === "bolag") lager.byOrgnr.set(rad.external_id, rad);
     }
@@ -342,8 +347,10 @@ export async function getOverlayUtkast(
 
   // Utkastet visas oavsett giltig_from/giltig_till — poängen är att se hur det
   // KOMMER att se ut, inte om avtalet löper just idag.
+  // Kontaktspärren gäller också förhandsvisningen: en säljare ska inte kunna
+  // visa en kund ett spärrat nummer på en länk.
   const { preview_token: _token, ...utanToken } = rad;
-  return utanToken as OverlayProfilRow;
+  return filtreraOverlay(utanToken as OverlayProfilRow, await kontaktsparrFilter());
 }
 
 /**
