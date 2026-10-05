@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { visatTelefon as visatTelefonFor } from "@/lib/visat-telefon";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import {
@@ -183,9 +184,7 @@ export default async function ForetagSida({
    * kund som kryssat i rutan och sedan tömt sitt nummerfält fått en sida helt
    * utan telefonnummer, vilket är motsatsen till vad de betalade för.
    */
-  const overlayTelefon = overlay?.telefon_override?.trim() || null;
-  const doljRegistretsNummer = Boolean(overlay?.dolj_andra_nummer && overlayTelefon);
-  const visatTelefon = doljRegistretsNummer ? overlayTelefon : f.tel ?? overlayTelefon;
+  const visatTelefon = visatTelefonFor(f.tel, overlay);
 
   /**
    * Sökorden i strukturerad data. Kundens egna ord först, dubbletter bort
@@ -245,7 +244,7 @@ export default async function ForetagSida({
   };
 
   // FAQ — kontextuell, dynamisk
-  const faqItems = buildFaq({ name, branschName, kommun: kommun?.name ?? null, f });
+  const faqItems = buildFaq({ name, branschName, kommun: kommun?.name ?? null, f, telefon: visatTelefon });
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -765,11 +764,14 @@ function buildFaq({
   branschName,
   kommun,
   f,
+  telefon,
 }: {
   name: string;
   branschName: string | null;
   kommun: string | null;
   f: Foretag;
+  /** Numret sidan visar — visatTelefon(), aldrig f.tel. FAQ:n hamnar också i JSON-LD. */
+  telefon: string | null;
 }): FaqItem[] {
   const items: FaqItem[] = [];
 
@@ -795,9 +797,9 @@ function buildFaq({
     });
   }
 
-  if (f.tel || f.epostadress || f.webb) {
+  if (telefon || f.epostadress || f.webb) {
     const ch: string[] = [];
-    if (f.tel) ch.push(`telefon ${f.tel}`);
+    if (telefon) ch.push(`telefon ${telefon}`);
     if (f.epostadress) ch.push(`e-post ${f.epostadress}`);
     if (f.webb) ch.push(`hemsida ${f.webb}`);
     items.push({
