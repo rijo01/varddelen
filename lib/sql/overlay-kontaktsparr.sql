@@ -17,10 +17,21 @@
 --     om att få raderade är själv en personuppgift, och den läses därför bara
 --     av sajtens server med service role.
 --
--- Idempotent: kan köras om.
+-- Idempotent: kan köras om. Varje funktion DROPPAS FÖRST — en
+-- `create or replace` med ändrad parameterlista skapar annars en överlagring
+-- bredvid den gamla, och varje anrop blir tvetydigt (foretagskolls incident
+-- 0042, 8 september 2026). Där ett CHECK-villkor eller en trigger beror på
+-- funktionen används CASCADE, och filen återskapar sedan beroendet själv:
+-- triggrarna längre ned, villkoret med en uttrycklig `add constraint`.
 -- ============================================================================
 
 create extension if not exists pgcrypto;
+
+drop function if exists kontakt_normalisera_telefon(text) cascade;
+drop function if exists kontakt_normalisera_epost(text) cascade;
+drop function if exists kontaktsparr_monster(text, text);
+drop function if exists kontaktsparr_satt_updated_at() cascade;
+drop function if exists kontaktsparr_handelse_las() cascade;
 
 -- ── Normaliseringen, i SQL ──────────────────────────────────────────────────
 -- SAMMA regel som normaliseraTelefon() i overlay.types.ts. Ändras den ena ska
@@ -134,11 +145,16 @@ create table if not exists kontaktsparr (
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now(),
 
-  constraint kontaktsparr_scope_sajt check ((scope = 'register') = (sajt is null)),
-  constraint kontaktsparr_nyckel_normaliserad check (
-    nyckel = case typ when 'telefon' then kontakt_normalisera_telefon(nyckel)
-                      else kontakt_normalisera_epost(nyckel) end
-  )
+  constraint kontaktsparr_scope_sajt check ((scope = 'register') = (sajt is null))
+);
+
+-- Normaliseringsvillkoret läggs UTANFÖR create table: en omkörning droppar
+-- normaliseringsfunktionerna med CASCADE, och då försvinner villkoret med dem.
+-- Det ska komma tillbaka varje gång, inte bara första.
+alter table kontaktsparr drop constraint if exists kontaktsparr_nyckel_normaliserad;
+alter table kontaktsparr add constraint kontaktsparr_nyckel_normaliserad check (
+  nyckel = case typ when 'telefon' then kontakt_normalisera_telefon(nyckel)
+                    else kontakt_normalisera_epost(nyckel) end
 );
 
 -- EN rad per (omfång, uppgift). NULLS NOT DISTINCT: två register-rader för
@@ -210,6 +226,9 @@ comment on column kontaktsparr.nyckel is
   'telefon: E.164-siffror utan plus (46705096502). epost: gemener. Se normaliseraKontakt().';
 comment on column kontaktsparr.arende is
   'Ärendenummer i CRM:et. Aldrig den registrerades namn.';
+
+-- PostgREST cachar schemat. Utan omladdning anropar den den gamla formen.
+notify pgrst, 'reload schema';
 
 -- ── Beviset ─────────────────────────────────────────────────────────────────
 -- Normaliseringen och mönstret ska ge SAMMA svar som kontraktets JS. Proverna
