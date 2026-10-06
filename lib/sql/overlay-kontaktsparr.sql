@@ -217,6 +217,10 @@ create trigger kontaktsparr_handelse_append_only
 alter table kontaktsparr enable row level security;
 alter table kontaktsparr_handelse enable row level security;
 revoke all on kontaktsparr, kontaktsparr_handelse from anon, authenticated;
+-- Identitetskolumnens sekvens får default-rättigheterna (anon: rwU) precis som
+-- tabellen. setval() kräver UPDATE — en publik nyckel ska inte kunna vrida
+-- loggens id-serie. Glömdes i första versionen; hittades i hvb-hem 6 okt 2026.
+revoke all on sequence kontaktsparr_handelse_id_seq from anon, authenticated;
 grant select, insert, update on kontaktsparr to service_role;
 grant select, insert on kontaktsparr_handelse to service_role;
 
