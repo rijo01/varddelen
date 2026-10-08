@@ -1261,3 +1261,121 @@ export async function kontaktsparrHash(req: KontaktsparrRequest): Promise<string
   const { sajt: _sajt, sent_at: _sentAt, ...resten } = req;
   return sha256(JSON.stringify(kanoniskt(resten)));
 }
+
+// ── Logotypens filer: förhandsvisning och live hålls isär (8 okt 2026) ──────
+//
+// FÖRHANDSVISNINGEN SKREV ÖVER LIVE-LOGOTYPEN. Mottagaren laddade upp en
+// förhandsvisad logotyp till SAMMA sökväg som den publicerade (`upsert: true`),
+// så en ny logotyp syntes på den publika sidan så fort CDN:en tappade sin kopia
+// — före admins godkännande. Och `remove_logo` i en förhandsvisning raderade
+// live-filen medan live-raden fortfarande pekade på den.
+//
+// REGELN: ett utkasts logotyp ligger under `utkast/` med revisionen i namnet och
+// rör aldrig live-filen. Publiceringen skriver live-filen och städar utkastets.
+// Ingen förändring av trådformatet — det här är hur mottagaren lagrar det den
+// fått, och därför ingen ny kontraktsversion. Funktionen är gemensam för alla
+// sju mottagare och bevisas i test/overlay.test.ts.
+
+export const UTKAST_LOGO_MAPP = "utkast";
+
+/**
+ * Utkastets sökväg för en live-sökväg och revision.
+ *   "hantverkardelen/bolag/123.png", 7 → "hantverkardelen/bolag/utkast/123-r7.png"
+ *   "5560472630.png", 7                → "utkast/5560472630-r7.png"
+ */
+export function utkastLogoSokvag(livePath: string, revision: number): string {
+  const i = livePath.lastIndexOf("/");
+  const mapp = i >= 0 ? livePath.slice(0, i + 1) : "";
+  const fil = livePath.slice(i + 1);
+  const punkt = fil.lastIndexOf(".");
+  const namn = punkt > 0 ? fil.slice(0, punkt) : fil;
+  const ext = punkt > 0 ? fil.slice(punkt) : "";
+  return `${mapp}${UTKAST_LOGO_MAPP}/${namn}-r${revision}${ext}`;
+}
+
+/** Ligger sökvägen bland utkastens filer? */
+export function arUtkastLogo(path: string | null | undefined): boolean {
+  if (!path) return false;
+  return path.startsWith(`${UTKAST_LOGO_MAPP}/`) || path.includes(`/${UTKAST_LOGO_MAPP}/`);
+}
+
+/** `<publicUrl>/<bucket>/<sökväg>?v=<rev>` → sökvägen inom bucketen. */
+export function logoSokvagUrUrl(url: string | null | undefined, bucket: string): string | null {
+  if (!url) return null;
+  const utanFraga = url.split("?")[0];
+  const i = utanFraga.indexOf(`/${bucket}/`);
+  if (i === -1) return null;
+  return utanFraga.slice(i + bucket.length + 2) || null;
+}
+
+export interface Logoplan {
+  /** Sökvägen bilden laddas upp till, eller null. */
+  ladda_upp: string | null;
+  /** Filer att radera innan raden skrivs. */
+  radera_fore: string[];
+  /** Filer att radera när raden skrivits — utkastets, efter en publicering. */
+  radera_efter: string[];
+  /**
+   * Radens logo_url: den uppladdade filen, null, en befintlig URL, eller
+   * "behall" = utelämna nyckeln så att overlay_publicera() behåller live-värdet.
+   */
+  logo_url: { typ: "ny" } | { typ: "null" } | { typ: "behall" } | { typ: "satt"; url: string };
+}
+
+/**
+ * Vad mottagaren gör med logotypens filer.
+ *
+ * `live_path` är sajtens egen sökväg för identiteten och bildens filändelse —
+ * sajterna namnger olika (`<sajt>/<typ>/<id>`, `<orgnr>`, IVO-numret) och det
+ * får de fortsätta med. Den behövs bara när en bild skickats.
+ *
+ * GARANTIN, som testet bevisar: vid `preview` ligger varje sökväg i
+ * `ladda_upp` och `radera_fore` under `utkast/`. En förhandsvisning kan inte
+ * skriva eller radera en publicerad fil.
+ */
+export function planeraLogo(p: {
+  action: "preview" | "publish";
+  har_bild: boolean;
+  remove_logo: boolean;
+  live_path: string | null;
+  revision: number;
+  publicerad_logo_url: string | null;
+  utkast_logo_url: string | null;
+  bucket: string;
+}): Logoplan {
+  const live = logoSokvagUrUrl(p.publicerad_logo_url, p.bucket);
+  const utkastFil = logoSokvagUrUrl(p.utkast_logo_url, p.bucket);
+  const gammaltUtkast = arUtkastLogo(utkastFil) ? [utkastFil as string] : [];
+
+  if (p.action === "preview") {
+    if (p.remove_logo) {
+      return { ladda_upp: null, radera_fore: gammaltUtkast, radera_efter: [], logo_url: { typ: "null" } };
+    }
+    if (p.har_bild && p.live_path) {
+      const ny = utkastLogoSokvag(p.live_path, p.revision);
+      return {
+        ladda_upp: ny,
+        radera_fore: gammaltUtkast.filter((f) => f !== ny),
+        radera_efter: [],
+        logo_url: { typ: "ny" },
+      };
+    }
+    // Inget skickat: utkastet visar det som ligger live, så att förhandsvisningen
+    // ser ut som sidan kommer att se ut.
+    return {
+      ladda_upp: null,
+      radera_fore: gammaltUtkast,
+      radera_efter: [],
+      logo_url: p.publicerad_logo_url ? { typ: "satt", url: p.publicerad_logo_url } : { typ: "null" },
+    };
+  }
+
+  if (p.remove_logo) {
+    const liveFil = live && !arUtkastLogo(live) ? [live] : [];
+    return { ladda_upp: null, radera_fore: [...liveFil, ...gammaltUtkast], radera_efter: [], logo_url: { typ: "null" } };
+  }
+  if (p.har_bild && p.live_path) {
+    return { ladda_upp: p.live_path, radera_fore: [], radera_efter: gammaltUtkast, logo_url: { typ: "ny" } };
+  }
+  return { ladda_upp: null, radera_fore: [], radera_efter: gammaltUtkast, logo_url: { typ: "behall" } };
+}

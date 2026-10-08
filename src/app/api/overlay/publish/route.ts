@@ -19,6 +19,7 @@ import {
   OVERLAY_PROMOTE_RPC,
   SIGNATURE_HEADER,
   avkodaLogo,
+  planeraLogo,
   bedomRevision,
   overlayPayloadHash,
   overlayPublishRequestSchema,
@@ -269,17 +270,24 @@ export async function POST(req: Request) {
   // Semantiken ligger i kontraktet: utelämnat fält = behåll filen,
   // remove_logo = ta bort, objekt = ersätt. Nyckeln utelämnas ur raden när
   // filen ska behållas — overlay_publicera() COALESCE:ar då mot befintligt värde.
-  let logoFalt: { logo_url: string | null } | Record<string, never> = {};
+  // VAR FILEN HAMNAR avgörs av planeraLogo() i kontraktet: en förhandsvisning
+  // skriver och raderar bara under utkast/ och rör aldrig den publicerade filen.
+  // Publiceringen skriver live-filen och städar utkastets när raden är skriven.
+  const logoplan = planeraLogo({
+    action: forUtkast ? "preview" : "publish",
+    har_bild: Boolean(bild?.ok),
+    remove_logo: body.remove_logo,
+    live_path: bild?.ok ? `${SAJT}/${body.entity_type}/${body.external_id}.${bild.ext}` : null,
+    revision: body.revision,
+    publicerad_logo_url: publicerad?.logo_url ?? null,
+    utkast_logo_url: utkast?.logo_url ?? null,
+    bucket: LOGO_BUCKET,
+  });
+  await raderaLogofiler(admin, logoplan.radera_fore);
 
-  if (body.remove_logo) {
-    const gammal = publicerad?.logo_url ?? utkast?.logo_url ?? null;
-    if (gammal) await raderaLogo(admin, gammal);
-    logoFalt = { logo_url: null };
-  } else if (bild?.ok) {
-    // Filnamnet bär nivån. Utan prefixet skulle ett orgnr och ett cfarnr kunna
-    // kollidera på samma filnamn i en bucket som tre sajter delar.
-    const path = `${SAJT}/${body.entity_type}/${body.external_id}.${bild.ext}`;
-    const { error } = await admin.storage.from(LOGO_BUCKET).upload(path, bild.bytes, {
+  let logoFalt: { logo_url: string | null } | Record<string, never> = {};
+  if (logoplan.ladda_upp && bild?.ok) {
+    const { error } = await admin.storage.from(LOGO_BUCKET).upload(logoplan.ladda_upp, bild.bytes, {
       contentType: bild.mime,
       upsert: true,
       cacheControl: "31536000",
@@ -288,10 +296,14 @@ export async function POST(req: Request) {
       console.error("[overlay] logotyp-uppladdning misslyckades", error.message);
       return svar(502, { ok: false, error: "Kunde inte spara logotypen" });
     }
-    const { data } = admin.storage.from(LOGO_BUCKET).getPublicUrl(path);
-    // ?v=<revision>: filnamnet är stabilt (en identitet = en logotyp), och utan
-    // versionsparametern skulle CDN:en fortsätta servera den gamla bilden.
+    const { data } = admin.storage.from(LOGO_BUCKET).getPublicUrl(logoplan.ladda_upp);
+    // ?v=<revision>: filnamnet är stabilt, och utan versionsparametern skulle
+    // CDN:en fortsätta servera den gamla bilden.
     logoFalt = { logo_url: `${data.publicUrl}?v=${body.revision}` };
+  } else if (logoplan.logo_url.typ === "null") {
+    logoFalt = { logo_url: null };
+  } else if (logoplan.logo_url.typ === "satt") {
+    logoFalt = { logo_url: logoplan.logo_url.url };
   }
 
   const rad = {
@@ -364,6 +376,7 @@ export async function POST(req: Request) {
     console.error("[overlay] publicering misslyckades", promoteFel.message);
     return svar(500, { ok: false, error: "Kunde inte publicera overlay-raden" });
   }
+  await raderaLogofiler(admin, logoplan.radera_efter);
 
   const revalidated = await revalidera(anon, body.entity_type, body.external_id);
   return svar(200, { ok: true, revision: body.revision, revalidated });
@@ -415,22 +428,16 @@ async function previewUrl(
 }
 
 /**
- * Tar bort logotypfilen ur sajtens bucket. Anropas ENDAST för remove_logo —
- * aldrig vid unpublish, där filen ska överleva till nästa publicering.
+ * Tar bort logotypfiler ur sajtens bucket. Vilka avgörs av planeraLogo() i
+ * kontraktet — aldrig vid unpublish, där filen ska överleva till nästa
+ * publicering, och vid en förhandsvisning bara utkastets egna filer.
  */
-async function raderaLogo(admin: SupabaseClient, logoUrl: string): Promise<void> {
-  // logo_url är `<publicUrl>/<sajt>/<typ>/<id>.<ext>?v=<rev>`. Vi behöver
-  // sökvägen INOM bucketen, alltså allt efter bucketnamnet.
-  const utanFraga = logoUrl.split("?")[0];
-  const i = utanFraga.indexOf(`/${LOGO_BUCKET}/`);
-  if (i === -1) return;
-  const path = utanFraga.slice(i + LOGO_BUCKET.length + 2);
-  if (!path) return;
-
-  const { error } = await admin.storage.from(LOGO_BUCKET).remove([path]);
+async function raderaLogofiler(admin: SupabaseClient, sokvagar: string[]): Promise<void> {
+  if (sokvagar.length === 0) return;
+  const { error } = await admin.storage.from(LOGO_BUCKET).remove(sokvagar);
   if (error) {
     // Inte fatalt: raden pekar inte längre på filen, och en föräldralös fil i
     // bucketen är ett städproblem, inte ett publiceringsfel.
-    console.warn("[overlay] kunde inte radera logotyp", path, error.message);
+    console.warn("[overlay] kunde inte radera logotyp", sokvagar.join(", "), error.message);
   }
 }
