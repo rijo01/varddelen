@@ -1379,3 +1379,31 @@ export function planeraLogo(p: {
   }
   return { ladda_upp: null, radera_fore: [], radera_efter: gammaltUtkast, logo_url: { typ: "behall" } };
 }
+
+// ── Sidhuvudets logotyp: overlayns före registrets (8 okt 2026) ─────────────
+//
+// Klustersajterna (hantverkardelen, varddelen, regionsdelen) har en logotyp i
+// sitt EGET register (`foretag_publik.logotyp`) och visade bara den i
+// sidhuvudet. En köpt logotyp syntes därför bara i det sponsrade kortet längre
+// ner — den som betalat för att synas såg sin gamla bild, eller ingen, överst.
+
+/**
+ * Logotypen sidhuvudet ska visa.
+ *
+ * `overlay` är raden sidan redan läst: den publicerade för en publik
+ * rendering, utkastet bakom en förhandsvisning. Den som anropar ansvarar för
+ * att den är synlig — samma rad som det sponsrade kortet visar.
+ *
+ * Bara https. En adress i en kolumn är inte en bild vi vet var den kommer
+ * ifrån, och sidhuvudet är sidans mest synliga plats.
+ */
+export function sidhuvudetsLogotyp(
+  overlay: { logo_url?: string | null } | null | undefined,
+  registrets: string | null | undefined
+): { url: string; kalla: "overlay" | "register" } | null {
+  const https = (v: string | null | undefined) => (v && /^https:\/\//i.test(v.trim()) ? v.trim() : null);
+  const fran = https(overlay?.logo_url);
+  if (fran) return { url: fran, kalla: "overlay" };
+  const reg = https(registrets);
+  return reg ? { url: reg, kalla: "register" } : null;
+}
