@@ -145,10 +145,15 @@ export type AdressOverride = z.infer<typeof adressOverrideSchema>;
 // ── Logotyp ─────────────────────────────────────────────────────────────────
 
 /**
- * Max 500 kB. En logotyp som är större är inte en logotyp, den är ett misstag —
- * och en sajt ska inte behöva servera den.
+ * Max 2 MB (1.3, 8 okt 2026; var 500 kB). Logotypen sparas i sin egen form,
+ * obeskuren och nedskalad till högst MAX_LOGO_SIDA — en bred logotyp i 800 px
+ * med genomskinlighet kan väga mer än 500 kB, och en logotyp som avvisas på
+ * vägen ut är sämre än en som är lite tung.
  */
-export const MAX_LOGO_BYTES = 500 * 1024;
+export const MAX_LOGO_BYTES = 2 * 1024 * 1024;
+
+/** Längsta sidan CRM:et skalar ner till. Mottagaren kräver det inte. */
+export const MAX_LOGO_SIDA = 800;
 
 export const LOGO_MIMES = ["image/png", "image/jpeg", "image/webp"] as const;
 export type LogoMime = (typeof LOGO_MIMES)[number];
@@ -170,11 +175,21 @@ export type LogoMime = (typeof LOGO_MIMES)[number];
 export const logoSchema = z
   .object({
     /** Rå base64 utan `data:`-prefix. */
-    data_base64: z.string().min(1).max(1_000_000),
+    data_base64: z.string().min(1).max(Math.ceil((MAX_LOGO_BYTES * 4) / 3) + 16),
     /** Avsändarens påstående. Avgör INTE ensamt — se avkodaLogo(). */
     mime: z.enum(LOGO_MIMES),
+    /**
+     * 1.3: bildens mått i pixlar. Valfria — en 1.2-avsändare skickar dem inte —
+     * men skickas de måste de stämma med filen (avkodaLogo kontrollerar). Sajten
+     * får dem i logo_url (`&b=&h=`, se logoUrlMedMatt) och kan sätta width/height.
+     */
+    bredd: z.number().int().min(1).max(10000).optional(),
+    hojd: z.number().int().min(1).max(10000).optional(),
   })
-  .strict();
+  .strict()
+  .refine((l) => (l.bredd === undefined) === (l.hojd === undefined), {
+    message: "bredd och hojd skickas tillsammans eller inte alls",
+  });
 export type OverlayLogo = z.infer<typeof logoSchema>;
 
 /** Filändelse per mime. Sajten namnger filen `<external_id>.<ext>`. */
@@ -214,8 +229,80 @@ export function identifieraBildtyp(bytes: Uint8Array): LogoMime | null {
 }
 
 export type LogoResultat =
-  | { ok: true; bytes: Uint8Array; mime: LogoMime; ext: string }
+  | { ok: true; bytes: Uint8Array; mime: LogoMime; ext: string; matt: Bildmatt | null }
   | { ok: false; error: string };
+
+export interface Bildmatt {
+  bredd: number;
+  hojd: number;
+}
+
+/**
+ * Bildens mått ur filens egna bytes — PNG (IHDR), JPEG (SOFn) och WebP
+ * (VP8/VP8L/VP8X). null när de inte går att läsa; då är filen trasig eller av
+ * en variant vi inte känner, och avkodaLogo() avgör vad det betyder.
+ */
+export function bildMatt(b: Uint8Array): Bildmatt | null {
+  const u16be = (i: number) => (b[i] << 8) | b[i + 1];
+  const u32be = (i: number) => ((b[i] << 24) | (b[i + 1] << 16) | (b[i + 2] << 8) | b[i + 3]) >>> 0;
+  const u16le = (i: number) => b[i] | (b[i + 1] << 8);
+  const u24le = (i: number) => b[i] | (b[i + 1] << 8) | (b[i + 2] << 16);
+  const typ = identifieraBildtyp(b);
+  if (typ === "image/png") {
+    if (b.length < 24) return null;
+    return { bredd: u32be(16), hojd: u32be(20) };
+  }
+  if (typ === "image/jpeg") {
+    let i = 2;
+    while (i + 9 < b.length) {
+      if (b[i] !== 0xff) { i++; continue; }
+      const m = b[i + 1];
+      // SOF0–SOF15 utom DHT (C4), JPG (C8) och DAC (CC) bär måtten.
+      if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) {
+        return { bredd: u16be(i + 7), hojd: u16be(i + 5) };
+      }
+      if (m === 0xd8 || m === 0x01 || (m >= 0xd0 && m <= 0xd7)) { i += 2; continue; }
+      i += 2 + u16be(i + 2);
+    }
+    return null;
+  }
+  if (typ === "image/webp") {
+    if (b.length < 30) return null;
+    const chunk = String.fromCharCode(b[12], b[13], b[14], b[15]);
+    if (chunk === "VP8X") return { bredd: u24le(24) + 1, hojd: u24le(27) + 1 };
+    if (chunk === "VP8 ") return { bredd: u16le(26) & 0x3fff, hojd: u16le(28) & 0x3fff };
+    if (chunk === "VP8L") {
+      const bits = b[21] | (b[22] << 8) | (b[23] << 16) | (b[24] << 24);
+      return { bredd: (bits & 0x3fff) + 1, hojd: ((bits >>> 14) & 0x3fff) + 1 };
+    }
+  }
+  return null;
+}
+
+/**
+ * Logotypens publika adress med revision och mått:
+ * `<publicUrl>?v=<revision>&b=<bredd>&h=<hojd>`.
+ *
+ * MÅTTEN BOR I ADRESSEN och inte i egna kolumner. `logo_url` skrivs i samma
+ * rad, i samma transaktion, som filen den pekar på — då kan måtten aldrig tala
+ * om en annan fil än den som visas, och ingen sajt behöver en migration eller
+ * en ny overlay_publicera() för att få dem.
+ */
+export function logoUrlMedMatt(publicUrl: string, revision: number, matt: Bildmatt | null): string {
+  const bas = `${publicUrl}?v=${revision}`;
+  return matt ? `${bas}&b=${matt.bredd}&h=${matt.hojd}` : bas;
+}
+
+/** Måtten ur en logo_url, för `<img width height>`. null för en äldre adress. */
+export function logoMatt(url: string | null | undefined): Bildmatt | null {
+  if (!url) return null;
+  const q = url.split("?")[1];
+  if (!q) return null;
+  const p = new URLSearchParams(q);
+  const bredd = Number(p.get("b"));
+  const hojd = Number(p.get("h"));
+  return Number.isInteger(bredd) && Number.isInteger(hojd) && bredd > 0 && hojd > 0 ? { bredd, hojd } : null;
+}
 
 /**
  * Avkodar och GODKÄNNER en logotyp: base64 → bytes → storlek → magic bytes.
@@ -255,7 +342,15 @@ export function avkodaLogo(logo: OverlayLogo): LogoResultat {
     };
   }
 
-  return { ok: true, bytes, mime: faktisk, ext: LOGO_FILANDELSER[faktisk] };
+  const matt = bildMatt(bytes);
+  if (logo.bredd !== undefined && (!matt || matt.bredd !== logo.bredd || matt.hojd !== logo.hojd)) {
+    return {
+      ok: false,
+      error: `Logotypen är ${matt ? `${matt.bredd}×${matt.hojd}` : "av okända mått"} men skickades som ${logo.bredd}×${logo.hojd}`,
+    };
+  }
+
+  return { ok: true, bytes, mime: faktisk, ext: LOGO_FILANDELSER[faktisk], matt };
 }
 
 /** Vad ett telefonnummer är för sorts nummer. */

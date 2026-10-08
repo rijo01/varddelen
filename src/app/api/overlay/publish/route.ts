@@ -20,6 +20,7 @@ import {
   SIGNATURE_HEADER,
   avkodaLogo,
   planeraLogo,
+  logoUrlMedMatt,
   bedomRevision,
   overlayPayloadHash,
   overlayPublishRequestSchema,
@@ -298,8 +299,9 @@ export async function POST(req: Request) {
     }
     const { data } = admin.storage.from(LOGO_BUCKET).getPublicUrl(logoplan.ladda_upp);
     // ?v=<revision>: filnamnet är stabilt, och utan versionsparametern skulle
-    // CDN:en fortsätta servera den gamla bilden.
-    logoFalt = { logo_url: `${data.publicUrl}?v=${body.revision}` };
+    // CDN:en fortsätta servera den gamla bilden. &b=&h= är bildens mått (1.3),
+    // lästa ur filen — se logoUrlMedMatt() i kontraktet.
+    logoFalt = { logo_url: logoUrlMedMatt(data.publicUrl, body.revision, bild.matt) };
   } else if (logoplan.logo_url.typ === "null") {
     logoFalt = { logo_url: null };
   } else if (logoplan.logo_url.typ === "satt") {

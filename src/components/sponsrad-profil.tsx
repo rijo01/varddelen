@@ -6,6 +6,7 @@ import {
   Phone,
   User,
 } from "lucide-react";
+import { logoMatt } from "@/lib/overlay-contract";
 import type { OverlayProfilRow, Telefontyp } from "@/lib/overlay-contract";
 import { normalizeWebb, shortWebb } from "@/lib/foretag-format";
 
@@ -119,6 +120,8 @@ export default function SponsradProfil({
             <img
               src={overlay.logo_url}
               alt={`${rubriknamn} logotyp`}
+              width={logoMatt(overlay.logo_url)?.bredd}
+              height={logoMatt(overlay.logo_url)?.hojd}
               loading="lazy"
               decoding="async"
               className="h-16 w-auto max-w-[180px] shrink-0 self-start object-contain sm:h-20"
