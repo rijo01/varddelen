@@ -1407,3 +1407,48 @@ export function sidhuvudetsLogotyp(
   const reg = https(registrets);
   return reg ? { url: reg, kalla: "register" } : null;
 }
+
+// ── Synlighetsfrågan (1.3, 8 okt 2026) ──────────────────────────────────────
+//
+// VISAS BOLAGET PÅ SAJTEN ALLS? Två sajter tar emot en publicering för sidor
+// som aldrig visar den: åkeriguiden visar overlayn bara för bolag i
+// kvalitetskohorten, hvb-hem bara för aktiva verksamheter. Mottagaren svarar
+// 200 i båda fallen, och en order publicerades framgångsrikt in i ingenting.
+//
+// FRÅGAN STÄLLS TILL SAJTEN, och sajten svarar med SIN EGEN regel — den som
+// sidan själv använder. CRM:et har ingen kopia av den: en regel som finns på två
+// ställen glider isär, och då säger orderformuläret något annat än sidan.
+//
+// POST <publish_url utan /publish>/synlighet, samma signatur, samma
+// tidsfönster. En sajt utan endpointen (404) har ingen sådan regel — där visas
+// varje bolag registret känner. Publiceringspaketet är OFÖRÄNDRAT (1.2); det
+// här är en ny fråga, inte en ny version av den gamla.
+
+export const SYNLIGHET_VERSION = 1.3;
+
+export const synlighetRequestSchema = z
+  .object({
+    action: z.literal("synlighet"),
+    sajt: z.string().min(1).max(60),
+    entity_type: z.enum(ENTITY_TYPES),
+    external_id: z.string().min(1).max(120),
+    contract_version: z.number().min(SYNLIGHET_VERSION),
+    sent_at: z.string().datetime({ offset: true }),
+  })
+  .strict();
+
+export type SynlighetRequest = z.infer<typeof synlighetRequestSchema>;
+
+export interface SynlighetResponse {
+  ok: boolean;
+  /** Visar sajtens sida overlayn för den här identiteten? */
+  visas: boolean;
+  /** Varför inte, med sajtens ord. null när den visas. */
+  orsak: string | null;
+  error?: string;
+}
+
+/** `https://x.se/api/overlay/publish` → `https://x.se/api/overlay/synlighet`. */
+export function synlighetUrl(publishUrl: string): string {
+  return publishUrl.replace(/\/publish\/?$/, "/synlighet");
+}
