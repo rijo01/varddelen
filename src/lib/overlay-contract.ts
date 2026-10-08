@@ -848,6 +848,150 @@ export function sanitizeInfoHtml(input: string | null | undefined): string | nul
   return trimmad.length > 0 ? trimmad : null;
 }
 
+// ── Infotext till HTML ─────────────────────────────────────────────────────
+
+/** Blocktaggar. Finns ingen av dem är infotexten ren text, ev. med fet/kursiv. */
+const BLOCKTAGG = /<\/?(p|div|br|ul|ol|li|h[1-6]|blockquote|table|tr)\b/i;
+
+/**
+ * Ett telefonnummer i löptext: inledande 0, +46 eller 0046, sedan siffror med
+ * högst ett mellanslag eller bindestreck emellan. Inte radbrytningar — två
+ * nummer på var sin rad ska inte bli ett. Kandidaten prövas sedan mot
+ * normaliseraTelefon(); ett orgnr (556…) eller ett datum börjar aldrig på 0.
+ */
+const TELEFON_I_TEXT =
+  /(?<![\w+])(?:\+46(?:[  -]|&nbsp;)?(?:\(0\)(?:[  -]|&nbsp;)?)?|0046(?:[  -]|&nbsp;)?|0)[1-9](?:(?:[  -]|&nbsp;)?\d){5,9}(?!\d)/g;
+
+/** Ren text → stycken: tom rad = nytt `<p>`, enkel radbrytning = `<br />`. */
+function textTillStycken(text: string): string {
+  return text
+    .trim()
+    .split(/\n[ \t ]*\n\s*/)
+    .map((stycke) =>
+      stycke
+        .split("\n")
+        .map((rad) => rad.trim())
+        .filter((rad) => rad.length > 0)
+        .join("<br />")
+    )
+    .filter((stycke) => stycke.length > 0)
+    .map((stycke) => `<p>${stycke}</p>`)
+    .join("");
+}
+
+/**
+ * Stycken utan nästling och utan lös text: `<p>` i `<p>` blir två stycken, text
+ * och inline-taggar direkt på toppnivå hamnar i ett `<p>`, ett `<br />` mellan
+ * två block är en tom rad och försvinner. Tar SANERAD html (välformade taggar).
+ */
+function plattaStycken(html: string): string {
+  let ut = "";
+  let iP = false;
+  let listdjup = 0;
+  for (const del of html.split(/(<[^>]+>)/)) {
+    if (del === "") continue;
+    const tagg = /^<(\/?)([a-z]+)/.exec(del);
+    if (!tagg) {
+      if (!iP && listdjup === 0) {
+        if (del.trim() === "") continue;
+        ut += "<p>";
+        iP = true;
+      }
+      ut += del;
+      continue;
+    }
+    const [, slut, namn] = tagg;
+    if (namn === "p") {
+      if (iP) ut += "</p>";
+      if (!slut) ut += "<p>";
+      iP = !slut;
+    } else if (namn === "ul") {
+      if (iP) {
+        ut += "</p>";
+        iP = false;
+      }
+      listdjup += slut ? -1 : 1;
+      ut += del;
+    } else if (namn === "li" || iP || listdjup > 0) {
+      ut += del;
+    } else if (namn !== "br" && !slut) {
+      ut += `<p>${del}`;
+      iP = true;
+    }
+  }
+  return iP ? `${ut}</p>` : ut;
+}
+
+/** Gör telefonnummer i textdelarna klickbara. Text inuti en befintlig länk rörs inte. */
+function lankaTelefonnummer(html: string, hoppaOver: (nummer: string) => boolean): string {
+  let iLank = 0;
+  return html
+    .split(/(<[^>]+>)/)
+    .map((del) => {
+      if (del.startsWith("<")) {
+        if (/^<a\b/i.test(del)) iLank++;
+        else if (/^<\/a>/i.test(del)) iLank = Math.max(0, iLank - 1);
+        return del;
+      }
+      if (iLank > 0) return del;
+      return del.replace(TELEFON_I_TEXT, (traff) => {
+        const nummer = normaliseraTelefon(traff.replace(/&nbsp;/g, " "));
+        if (!nummer || hoppaOver(traff)) return traff;
+        return `<a href="tel:+${nummer}" rel="nofollow noopener">${traff}</a>`;
+      });
+    })
+    .join("");
+}
+
+/**
+ * Infotexten som den ska ut till sajten. Körs av CRM:et på VARJE publicering,
+ * oavsett vilken väg texten kom in (Profil-panelen, orderformuläret,
+ * redigeringsordern, API) — det är paketet som ska vara rätt, inte en editor.
+ *
+ *   1. Ren text blir stycken: tom rad = nytt `<p>`, enkel radbrytning = `<br />`.
+ *      Utan det slår webbläsaren ihop raderna till en — HTML bryr sig inte om
+ *      `\n`. HTML ur editorn rörs inte, utom att webbläsarens `<div>`-rader
+ *      blir `<p>` (sanering hade annars strukit `<div>` och klistrat ihop dem).
+ *   2. Sanering till allowlisten, samma som sajtens.
+ *   3. Telefonnummer blir `<a href="tel:+46…">` — `a` finns i allowlisten.
+ *   4. Kontaktspärren körs på resultatet: ett spärrat nummer länkas inte och
+ *      skrubbas bort. Utan `filter` hoppas steget över.
+ *
+ * Idempotent: körd två gånger blir resultatet detsamma, så en text som redan
+ * är HTML från ett tidigare varv får inga dubbla stycken eller länkar.
+ *
+ * Sajten sanerar ÄNDÅ vid mottagandet. Det här ersätter inte den regeln.
+ */
+export function infotextTillHtml(
+  input: string | null | undefined,
+  filter?: KontaktsparrFilter | null
+): string | null {
+  if (!input) return null;
+  const text = input.replace(/\r\n?/g, "\n");
+
+  const html = BLOCKTAGG.test(text)
+    ? text.replace(/<div\b[^>]*>/gi, "<p>").replace(/<\/div\s*>/gi, "</p>")
+    : textTillStycken(text);
+
+  // Saneras två gånger: först så att utplattningen får välformade taggar, sedan
+  // så att en inline-tagg som klövs av ett nytt stycke stängs på rätt ställe.
+  let ut = sanitizeInfoHtml(plattaStycken(sanitizeInfoHtml(html) ?? ""));
+  if (!ut) return null;
+
+  ut = lankaTelefonnummer(ut, (nummer) => filter?.traffar(nummer) ?? false);
+  if (filter) ut = filter.skrubba(ut) ?? "";
+
+  // Tomma stycken: editorns `<p><br></p>` för en tom rad, eller ett stycke som
+  // bara bar ett spärrat nummer.
+  ut = ut
+    .replace(/<p>(?:\s|&nbsp;|<br \/>)*<\/p>/g, "")
+    .replace(/(<br \/>\s*)+<\/p>/g, "</p>")
+    .replace(/<p>(\s*<br \/>)+/g, "<p>")
+    .replace(/[ \u00a0]+(<br \/>|<\/p>)/g, "$1")
+    .trim();
+  return ut.length > 0 ? ut : null;
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // KONTAKTSPÄRR (1.2)
 // ════════════════════════════════════════════════════════════════════════════
