@@ -1,5 +1,5 @@
 /**
- * Overlay-kontraktet, version 1.3.
+ * Overlay-kontraktet, version 1.4.
  *
  * Den här filen och `overlay.sql` är HELA gränssnittet mellan CRM:et och en
  * sajt. CRM:et bygger en payload som validerar mot `overlayPublishRequest`,
@@ -36,7 +36,7 @@ import { z } from "zod";
  * kopia är exakt det som gör att de avvisar ett 1.1-paket — vilket är rätt
  * beteende, men det ska aldrig behöva inträffa.
  */
-export const CONTRACT_VERSION = 1.3;
+export const CONTRACT_VERSION = 1.4;
 
 /** Versionen som bara har v1.0-formen. Skickas till sajter som inte kan mer. */
 export const CONTRACT_VERSION_1_0 = 1;
@@ -71,6 +71,21 @@ export const CONTRACT_VERSION_1_3 = 1.3;
  * 1.2, och en mottagare avvisar ett högre tal än den själv kan.
  */
 export const CONTRACT_VERSION_1_2 = 1.2;
+
+/**
+ * 1.4 (14 oktober 2026): Fast Forwards tolv telefontyper. `telefon_typ` är
+ * TEXT — etiketten, "Kundtjänst" — och inte längre en av tre koder. En
+ * 1.3-mottagare har `z.enum(["kontakt","vaxel","mobil"])` och avvisar allt
+ * annat med 400, så AVSÄNDAREN skickar de tre koderna dit (Mobil → mobil,
+ * Växel → vaxel, resten → kontakt) och texten bara till en sajt på 1.4.
+ * Kategorilistan är en ny fråga, se `GET …/api/overlay/kategorier` längst ned.
+ */
+export const CONTRACT_VERSION_1_4 = 1.4;
+
+/** Kan sajten ta emot `telefon_typ` som text? Tillkom i 1.4. */
+export function stodjerV14(sajtensVersion: number): boolean {
+  return sajtensVersion >= 1.4;
+}
 
 /** Kan sajten ta emot en enskild firma utan orgnr (`foretag_ref`)? Tillkom i 1.3. */
 export function stodjerEnskildFirma(sajtensVersion: number): boolean {
@@ -376,9 +391,32 @@ export function avkodaLogo(logo: OverlayLogo): LogoResultat {
   return { ok: true, bytes, mime: faktisk, ext: LOGO_FILANDELSER[faktisk], matt };
 }
 
-/** Vad ett telefonnummer är för sorts nummer. */
+/** Vad ett telefonnummer är för sorts nummer — koderna i 1.1–1.3. */
 export const TELEFONTYPER = ["kontakt", "vaxel", "mobil"] as const;
 export type Telefontyp = (typeof TELEFONTYPER)[number];
+
+/**
+ * 1.4: typen som text. Fast Forwards tolv, i den ordning säljaren ser dem.
+ * Mottagaren tar emot vilken text som helst upp till 40 tecken och skriver ut
+ * den — listan är vad CRM:et skickar, inte en spärr.
+ */
+export const TELEFONTYPER_1_4 = [
+  "Kontakt", "Mobil", "Fast", "Kontor", "Lager", "Verkstad", "Reception",
+  "Ekonomi", "Ordermottagning", "Växel", "Support", "Kundtjänst",
+] as const;
+
+/**
+ * Etiketten att skriva ut för ett lagrat `telefon_typ`: en 1.4-text som den är,
+ * och 1.1–1.3-koderna som ord. Tomt → null.
+ */
+export function telefontypText(v: string | null | undefined): string | null {
+  const t = String(v ?? "").trim();
+  if (!t) return null;
+  if (t === "kontakt") return "Kontakt";
+  if (t === "vaxel") return "Växel";
+  if (t === "mobil") return "Mobil";
+  return t;
+}
 
 /**
  * Grunduppgifter om ett bolag, för sajter som inte har det i sitt register.
@@ -571,8 +609,12 @@ export const overlayProfilSchema = z
      */
     popularnamn: text(160).optional(),
 
-    /** Vad numret i telefon_override ÄR. Sajten kan märka ut det i gränssnittet. */
-    telefon_typ: z.enum(TELEFONTYPER).optional(),
+    /**
+     * Vad numret i telefon_override ÄR. Sajten kan märka ut det i gränssnittet.
+     * 1.1–1.3: en av TELEFONTYPER. 1.4: text, se TELEFONTYPER_1_4 och
+     * telefontypText().
+     */
+    telefon_typ: z.string().trim().min(1).max(40).optional(),
 
     /**
      * Sajtens egna kategorier, max fyra.
@@ -1682,3 +1724,53 @@ export interface SynlighetResponse {
 export function synlighetUrl(publishUrl: string): string {
   return publishUrl.replace(/\/publish\/?$/, "/synlighet");
 }
+
+// ── Kategorilistan (1.4, 14 okt 2026) ───────────────────────────────────────
+//
+// SAJTENS KATEGORIER, FRÅN SAJTEN. Orderformuläret låter säljaren välja upp
+// till fyra kategorier ur sajtens egen lista. Där listan ligger i en tabell
+// läser CRM:et den med datakällans anon-nyckel; en sajt vars lista bor i koden
+// (åkeriguidens transporttyper) svarar på den här frågan i stället.
+//
+// GET <publish_url utan /publish>/kategorier?sajt=<slug>&sent_at=<iso>
+// Signaturen (SIGNATURE_HEADER) är HMAC över QUERYSTRÄNGEN utan "?", exakt som
+// den skickas — en GET har ingen body. Samma tidsfönster som publiceringen.
+// 404 = sajten har ingen sådan lista, och formuläret blir fritext.
+
+export const KATEGORIER_VERSION = 1.4;
+
+/** `https://x.se/api/overlay/publish` → `https://x.se/api/overlay/kategorier`. */
+export function kategorierUrl(publishUrl: string): string {
+  return publishUrl.replace(/\/publish\/?$/, "/kategorier");
+}
+
+/** Frågesträngen som signeras och skickas. */
+export function kategoriFraga(sajt: string, sentAt: string): string {
+  return `sajt=${encodeURIComponent(sajt)}&sent_at=${encodeURIComponent(sentAt)}`;
+}
+
+/**
+ * Mottagarens prövning: signaturen över den råa frågesträngen, färskheten och
+ * att frågan gäller den här sajten. null = godkänd, annars felet (401/400).
+ */
+export async function provaKategoriFraga(
+  query: string,
+  signatur: string | null | undefined,
+  hemlighet: string,
+  sajt: string
+): Promise<{ status: 400 | 401; fel: string } | null> {
+  if (!(await verifyOverlaySignature(query, hemlighet, signatur))) return { status: 401, fel: "ogiltig signatur" };
+  const p = new URLSearchParams(query);
+  const sentAt = p.get("sent_at") ?? "";
+  if (!sentAtArFarsk(sentAt)) return { status: 400, fel: "sent_at saknas eller är för gammal" };
+  if (p.get("sajt") !== sajt) return { status: 400, fel: `frågan gäller inte ${sajt}` };
+  return null;
+}
+
+export const kategorierResponseSchema = z.object({
+  ok: z.boolean(),
+  /** Kategorierna som de skrivs i `kategorier` i ett overlay-paket. */
+  kategorier: z.array(z.string().min(1).max(120)).max(1000),
+  error: z.string().optional(),
+});
+export type KategorierResponse = z.infer<typeof kategorierResponseSchema>;

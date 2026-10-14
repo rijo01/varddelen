@@ -675,8 +675,20 @@ async function steg2() {
   );
   kolla(krock.kod === 409, "samma revision + annat innehåll → 409", `fick ${krock.kod} ${krock.error ?? ""}`);
 
+  // Revision 2 är en riktig ompublicering, och bär 1.4:s telefontyp som text.
+  // Före 1.4 var typen en av tre koder och "Kundtjänst" gav 400.
+  const text = await skicka(
+    byggPayload({
+      action: "publish",
+      revision: 2,
+      extra: { contract_version: 1.4, telefon_typ: "Kundtjänst" },
+    }),
+  );
+  kolla(text.kod === 200, "telefon_typ \"Kundtjänst\" (1.4) → 200", `fick ${text.kod} ${text.error ?? ""}`);
+  const efterText = (await rader()).live;
+  kolla(efterText?.telefon_typ === "Kundtjänst", "telefon_typ lagrades som text", `fick ${efterText?.telefon_typ}`);
+
   // Lägre revision → gammalt paket eller omspelning. 409.
-  await skicka(byggPayload({ action: "publish", revision: 2 }));
   const gammal = await skicka(byggPayload({ action: "publish", revision: 1 }));
   kolla(gammal.kod === 409, "lägre revision → 409 (omspelning stoppad)", `fick ${gammal.kod}`);
 }
@@ -860,10 +872,11 @@ async function steg6() {
   );
   kolla(luras.kod === 400, "HTML som påstår sig vara PNG → 400", `fick ${luras.kod} ${luras.error ?? ""}`);
 
-  const felTelefontyp = await skicka(
-    byggPayload({ action: "publish", revision: 10, extra: { telefon_typ: "faxen" } }),
+  // 1.4: typen är fri text, men högst 40 tecken (samma gräns som kolumnens).
+  const forLangTelefontyp = await skicka(
+    byggPayload({ action: "publish", revision: 10, extra: { telefon_typ: "x".repeat(41) } }),
   );
-  kolla(felTelefontyp.kod === 400, "ogiltig telefon_typ → 400", `fick ${felTelefontyp.kod}`);
+  kolla(forLangTelefontyp.kod === 400, "telefon_typ på 41 tecken → 400", `fick ${forLangTelefontyp.kod}`);
 
   const forManyKategorier = await skicka(
     byggPayload({

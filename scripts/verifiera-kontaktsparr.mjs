@@ -407,8 +407,9 @@ async function syntetiskt() {
   kolla(g1.kod === 401, `fel signatur → 401 (${g1.kod})`);
   const g2 = await skicka(sparr("sparra", R0 + 2, { nyckel: "0701740605" }));
   kolla(g2.kod === 400, `onormaliserad nyckel → 400 (${g2.kod})`);
-  const g3 = await skicka(sparr("sparra", R0 + 2, { contract_version: 1.3 }));
-  kolla(g3.kod === 409, `kontraktsversion 1.3 → 409 (${g3.kod})`);
+  // En version sajten aldrig stött. 1.3 duger inte längre: sajten är på 1.4.
+  const g3 = await skicka(sparr("sparra", R0 + 2, { contract_version: 2 }));
+  kolla(g3.kod === 409, `kontraktsversion 2 → 409 (${g3.kod})`);
   const g4 = await skicka(sparr("sparra", R0 + 2, { sajt: "nagon-annan" }));
   kolla(g4.kod === 400, `fel sajt → 400 (${g4.kod})`);
   const g5 = await skicka(sparr("sparra", R0 + 2, { sent_at: new Date(Date.now() - 3600_000).toISOString() }));
