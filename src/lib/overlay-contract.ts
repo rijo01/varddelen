@@ -1,5 +1,5 @@
 /**
- * Overlay-kontraktet, version 1.1.
+ * Overlay-kontraktet, version 1.3.
  *
  * Den här filen och `overlay.sql` är HELA gränssnittet mellan CRM:et och en
  * sajt. CRM:et bygger en payload som validerar mot `overlayPublishRequest`,
@@ -36,7 +36,7 @@ import { z } from "zod";
  * kopia är exakt det som gör att de avvisar ett 1.1-paket — vilket är rätt
  * beteende, men det ska aldrig behöva inträffa.
  */
-export const CONTRACT_VERSION = 1.2;
+export const CONTRACT_VERSION = 1.3;
 
 /** Versionen som bara har v1.0-formen. Skickas till sajter som inte kan mer. */
 export const CONTRACT_VERSION_1_0 = 1;
@@ -52,6 +52,29 @@ export const CONTRACT_VERSION_1_1 = 1.1;
 /** Stödjer en sajt på den här versionen 1.1-fälten? */
 export function stodjerV11(sajtensVersion: number): boolean {
   return sajtensVersion >= 1.1;
+}
+
+/**
+ * 1.3 (14 oktober 2026): enskilda firmor. Paketet kan bära `foretag_ref` —
+ * vem bolaget ÄR hos CRM:et — och en firma utan organisationsnummer
+ * publiceras på sitt arbetsställe (`cfar-<nr>`) eller CRM:ets reservnyckel
+ * (`ef-<hmac>`), aldrig på personnumret. Se `foretagRefSchema` och
+ * `provaIdentitet()`.
+ *
+ * Ett 1.3-paket skickas BARA för en sådan firma, och bara till en sajt som
+ * står på 1.3. Alla andra paket bär fortsatt 1.1 (se CONTRACT_VERSION_1_1).
+ */
+export const CONTRACT_VERSION_1_3 = 1.3;
+
+/**
+ * `kontaktsparr` (1.2) bär fortsatt 1.2. Spärren ska nå varje sajt som står på
+ * 1.2, och en mottagare avvisar ett högre tal än den själv kan.
+ */
+export const CONTRACT_VERSION_1_2 = 1.2;
+
+/** Kan sajten ta emot en enskild firma utan orgnr (`foretag_ref`)? Tillkom i 1.3. */
+export function stodjerEnskildFirma(sajtensVersion: number): boolean {
+  return sajtensVersion >= 1.3;
 }
 
 /** Kan sajten ta emot `action: "kontaktsparr"`? Tillkom i 1.2. */
@@ -376,6 +399,113 @@ export const basuppgifterSchema = z
   .strict();
 export type Basuppgifter = z.infer<typeof basuppgifterSchema>;
 
+// ── Identiteten, och personnumret (1.3) ─────────────────────────────────────
+
+/**
+ * Ett personnummer? Tio eller tolv siffror vars "månad" — tredje siffran i
+ * tiosiffrig form — är 0 eller 1. Ett organisationsnummer har alltid 2 eller
+ * högre där. Kontrollsiffran avgör inte: ett felskrivet personnummer är också
+ * ett personnummer. Samma regel som CRM:ets lib/personnummer.ts.
+ */
+export function arPersonnummer(ra: string | null | undefined): boolean {
+  const s = String(ra ?? "").replace(/\D/g, "");
+  if (s.length === 12) return /^(19|20)/.test(s) && (s[4] === "0" || s[4] === "1");
+  if (s.length !== 10) return false;
+  return s[2] === "0" || s[2] === "1";
+}
+
+/**
+ * Vem bolaget ÄR hos CRM:et (1.3). Frivilligt; skickas för en enskild firma.
+ *
+ *   identitet 'cfar'  firman nycklas på sitt arbetsställe. `external_id` är
+ *                     `cfar-<nr>` på en sajt som känner bolag på orgnr, och
+ *                     CFAR-numret självt på en arbetsställesajt.
+ *   identitet 'ef'    firman har inget arbetsställe i SCB:s AFR. `external_id`
+ *                     är CRM:ets reservnyckel `ef-<24 hex>`.
+ *   identitet 'orgnr' ett vanligt bolag.
+ *
+ * `orgnr_maskerat` är det ENDA sättet numret får synas på sidan:
+ * "19XXXXXX-XXXX". Mottagaren slår aldrig upp personnumret och får det aldrig.
+ */
+export const foretagRefSchema = z
+  .object({
+    identitet: z.enum(["orgnr", "cfar", "ef"]),
+    orgnr: z.string().regex(/^\d{10}$/, "tio siffror").nullable().default(null),
+    cfar: z.string().regex(/^\d{1,8}$/, "upp till åtta siffror").nullable().default(null),
+    ef: z.string().regex(/^ef-[0-9a-f]{24}$/, "ef- och 24 hex").nullable().default(null),
+    orgnr_maskerat: z.string().regex(/^(19|20)XXXXXX-XXXX$/, "19XXXXXX-XXXX").nullable().default(null),
+  })
+  .strict();
+export type ForetagRef = z.infer<typeof foretagRefSchema>;
+
+/**
+ * FAIL-CLOSED, I VARJE MOTTAGARE. Anropas efter schemavalideringen och före
+ * första uppslaget; ett svar ≠ null är ett 400 med just den texten.
+ *
+ *   - Ett personnummer som identitet avvisas — som `external_id` på en
+ *     bolagssajt, och som `foretag_ref.orgnr`. Felet citerar aldrig numret.
+ *   - `foretag_ref` och `external_id` ska säga samma sak.
+ *
+ * Personnumret i ett felsvar hade hamnat i CRM:ets publiceringslogg; därför
+ * står bara "ett personnummer" i texten.
+ */
+export function provaIdentitet(body: {
+  entity_type: string;
+  external_id: string;
+  foretag_ref?: ForetagRef;
+}): string | null {
+  const ref = body.foretag_ref;
+  if (arPersonnummer(body.external_id)) {
+    return (
+      "external_id är ett personnummer. En enskild firma publiceras på sitt arbetsställe " +
+      "(foretag_ref.identitet 'cfar') eller CRM:ets reservnyckel ('ef'), aldrig på numret (kontrakt 1.3)."
+    );
+  }
+  if (!ref) return null;
+  if (ref.orgnr && arPersonnummer(ref.orgnr)) {
+    return "foretag_ref.orgnr är ett personnummer. Skicka identitet 'cfar' eller 'ef' (kontrakt 1.3).";
+  }
+  if (ref.identitet === "orgnr" && body.external_id !== ref.orgnr) {
+    return "foretag_ref säger orgnr men external_id är ett annat nummer.";
+  }
+  if (ref.identitet === "cfar") {
+    if (!ref.cfar) return "foretag_ref.identitet 'cfar' kräver cfar.";
+    if (body.external_id !== `cfar-${ref.cfar}` && body.external_id !== ref.cfar) {
+      return "foretag_ref.cfar och external_id pekar på olika arbetsställen.";
+    }
+  }
+  if (ref.identitet === "ef" && (!ref.ef || body.external_id !== ref.ef)) {
+    return "foretag_ref.identitet 'ef' kräver ef lika med external_id.";
+  }
+  return null;
+}
+
+/**
+ * EN OKÄND IDENTITET ÄR 404, ALDRIG 200 (1.3). Utan `skapa_om_saknas` ska
+ * mottagaren slå upp identiteten i sitt register FÖRE allt annat som kan
+ * skriva — och före förhandsvisningens token, så att en sond kan pröva regeln
+ * utan att något skrivs. 200 på en identitet sajten inte känner är 12 990-felet:
+ * raden läggs, CRM:et ser "publicerad", och ingen sida visar den.
+ *
+ * Texten är gemensam, så att CRM:et och kontraktsprovet känner igen den.
+ */
+export const IDENTITET_SAKNAS = "identitet saknas i registret";
+
+export function identitetSaknas(externalId: string): string {
+  return `${IDENTITET_SAKNAS}: ${externalId}`;
+}
+
+/** "cfar-40159162" → "40159162", "ef-…" → null, allt annat → null. */
+export function cfarUrExternalId(externalId: string): string | null {
+  const m = /^cfar-(\d{1,8})$/.exec(externalId);
+  return m ? m[1] : null;
+}
+
+/** Är external_id ett handtag för en enskild firma (cfar-… eller ef-…)? */
+export function arEnskildFirmaId(externalId: string): boolean {
+  return /^cfar-\d{1,8}$/.test(externalId) || /^ef-[0-9a-f]{24}$/.test(externalId);
+}
+
 // ── Payload ─────────────────────────────────────────────────────────────────
 
 /**
@@ -469,6 +599,11 @@ export const overlayProfilSchema = z
 
     /** Får sajten skapa bolaget om det saknas i dess register? */
     skapa_om_saknas: z.boolean().optional(),
+
+    // ── Tillägg i 1.3 ────────────────────────────────────────────────────────
+
+    /** Vem bolaget är hos CRM:et. Se foretagRefSchema och provaIdentitet(). */
+    foretag_ref: foretagRefSchema.optional(),
   })
   .strict();
 export type OverlayProfil = z.infer<typeof overlayProfilSchema>;

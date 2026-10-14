@@ -10,6 +10,7 @@ import {
   idagISO,
   orgnrVarianter,
   overlayRevalidatePaths,
+  identitetFinns,
 } from "@/lib/overlay";
 import { foretagSlug } from "@/lib/queries";
 import { hanteraKontaktsparr } from "./kontaktsparr";
@@ -27,6 +28,8 @@ import {
   sanitizeInfoHtml,
   sentAtArFarsk,
   verifieraPreviewToken,
+  provaIdentitet,
+  identitetSaknas,
   verifyOverlaySignature,
   type EntityType,
   type OverlayPublishRequest,
@@ -163,10 +166,34 @@ export async function POST(req: Request) {
       error: `Sajten hanterar entity_type ${STODDA_ENTITY_TYPES.join(" och ")}, fick ${body.entity_type}`,
     });
   }
+  // Kontrakt 1.3, FAIL-CLOSED: ett personnummer som identitet avvisas, och
+  // foretag_ref och external_id ska säga samma sak. Felet citerar aldrig numret.
+  const identitetsfel = provaIdentitet(body);
+  if (identitetsfel) {
+    return svar(400, { ok: false, error: identitetsfel });
+  }
+
   // sent_at ligger i bodyn och skyddas av signaturen. Det stoppar GAMLA PAKET;
   // revisionen nedan stoppar OMSPELNING. De skyddar olika saker.
   if (!sentAtArFarsk(body.sent_at)) {
     return svar(401, { ok: false, error: "sent_at ligger utanför tillåtet tidsfönster" });
+  }
+
+  /**
+   * EN OKÄND IDENTITET ÄR 404, ALDRIG 200 (kontrakt 1.3). Förut skrevs overlayn
+   * utan uppslag, och en identitet utan sida gav 200 — 12 990-felet. Prövas
+   * FÖRE logotypen och förhandsvisningens token, så att CRM:ets kontraktsprov
+   * kan pröva regeln utan att något skrivs.
+   */
+  let finns: boolean;
+  try {
+    finns = await identitetFinns(anon, body.entity_type, body.external_id);
+  } catch (e) {
+    console.error("[overlay]", (e as Error).message);
+    return svar(500, { ok: false, error: "Kunde inte läsa registret" });
+  }
+  if (!finns) {
+    return svar(404, { ok: false, error: identitetSaknas(body.external_id) });
   }
 
   const forUtkast = body.action === "preview";

@@ -132,6 +132,32 @@ export function identiteterFor(f: {
  * Båda formerna frågas alltså, alltid. Avläst mot riktiga rader 2026-09-16:
  * kolumnen bär bindestrecksformen.
  */
+/**
+ * Finns identiteten — med en sida att visa overlayn på? (kontrakt 1.3)
+ *
+ * Samma uppslag och samma filter som sidan själv: en identitet utan sida är
+ * ingen identitet här. Utan kontrollen skrevs overlayn på vilket external_id
+ * som helst och svarade 200 — CRM:et såg "publicerad", kunden ingenting.
+ * Ett arbetsställe måste vara ett tal; `cfar-…` och `ef-…` (kontrakt 1.3)
+ * finns aldrig i klustret.
+ */
+export async function identitetFinns(
+  klient: SupabaseClient,
+  entityType: string,
+  externalId: string,
+): Promise<boolean> {
+  if (entityType === "arbetsstalle" && !/^\d{1,9}$/.test(externalId)) return false;
+  let q = klient.from(KATALOG_VY).select("cfarnr");
+  q = entityType === "arbetsstalle"
+    ? q.eq("cfarnr", Number(externalId))
+    : q.in("orgnr", orgnrVarianter(externalId));
+  const { data, error } = await q
+    .in("ng1", VARD_BRANSCHER)
+    .limit(1);
+  if (error) throw new Error(`identitetFinns: ${error.message}`);
+  return (data ?? []).length > 0;
+}
+
 export function orgnrVarianter(externalId: string): string[] {
   const siffror = externalId.replace(/\D/g, "");
   if (siffror.length !== 10) return [externalId];

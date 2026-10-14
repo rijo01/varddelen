@@ -119,8 +119,13 @@ export function shortWebb(webb: string | null | undefined): string | null {
  *   - Saknas orgnr utan att vara enskild firma → null (visa inget)
  */
 export function orgnrDisplay(
-  f: Pick<Foretag, "orgnr" | "arEnskildFirma">,
+  f: Pick<Foretag, "orgnr" | "arEnskildFirma"> & { orgnrMaskerat?: string | null },
 ): { kind: "orgnr"; value: string } | { kind: "hidden"; value: string } | null {
+  // Kontrakt 1.3 (14 okt 2026): samma form på alla sju sajter — seklet och
+  // resten X. Vyn lämnar aldrig ut numret; orgnr_maskerat bär bara seklet.
+  if (f.arEnskildFirma && f.orgnrMaskerat) {
+    return { kind: "hidden", value: `Enskild firma · ${f.orgnrMaskerat}` };
+  }
   if (f.arEnskildFirma) {
     return {
       kind: "hidden",
