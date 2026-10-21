@@ -61,133 +61,78 @@ export default function KontaktPage() {
       <JsonLd data={orgJsonLd} />
       <Breadcrumb items={breadcrumbItems} />
 
-      {/* ======= HERO ======= */}
-      <header className="rd-fade-up relative overflow-hidden rounded-3xl border border-[var(--rule)] bg-white rd-shadow-md">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 70% 60% at 50% 0%, rgba(225,29,39,0.10), transparent 65%),"
-              + "linear-gradient(180deg, #FFF5F5 0%, #ffffff 70%)",
-          }}
-        />
-        <div className="relative space-y-4 p-6 sm:p-9">
-          <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--brand-2)]">
-            <Phone aria-hidden className="size-3.5" />
-            Kundservice
-          </div>
-          <h1 className="text-balance text-3xl font-semibold leading-[1.05] tracking-tight text-[var(--text-strong)] sm:text-[2.75rem]">
-            Kontakta{" "}
-            <span className="rd-display rd-text-brand text-[1.15em]">oss</span>
-          </h1>
-          <p className="max-w-2xl text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
-            Har du frågor om sajten, en uppgift som behöver rättas eller vill du
-            ansluta din verksamhet? Hör av dig till vår kundservice — vi svarar
-            så fort vi kan på vardagar.
-          </p>
-        </div>
+      <header className="max-w-3xl space-y-3">
+        <h1 className="text-[2rem] font-bold leading-tight tracking-tight sm:text-[2.5rem]">
+          Kontakta Vårddelen
+        </h1>
+        <p className="text-[18px] leading-relaxed text-[var(--text-body)]">
+          Frågor om sajten, en uppgift som behöver rättas, eller vill du
+          komplettera din verksamhets profil? Hör av dig till vår kundtjänst.
+        </p>
       </header>
 
-      {/* ======= KONTAKTKORT ======= */}
-      <section className="space-y-5">
+      {/* Numret stod tidigare i ett rött fält överst på varje sida. Här står
+          det en gång, med en rad som gör klart att det inte är en vårdlinje. */}
+      <p
+        role="note"
+        className="max-w-3xl rounded-lg border-2 border-[var(--brand)] bg-[var(--tint-1)] px-5 py-4 text-[17px] leading-relaxed text-[var(--text-strong)]"
+      >
+        <strong className="font-semibold">Kundtjänst för företag – inte vårdrådgivning.</strong>{" "}
+        Akut? Ring{" "}
+        <a href="tel:112" className="font-semibold underline">112</a>. Rådgivning:{" "}
+        <a href="tel:1177" className="font-semibold underline">1177</a>.
+      </p>
+
+      <dl className="grid max-w-3xl gap-6 sm:grid-cols-3">
         <div className="space-y-1">
-          <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--brand-2)]">
-            Tre sätt att nå oss
-          </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-[var(--text-strong)] sm:text-3xl">
-            Välj det som passar dig
-          </h2>
-        </div>
-
-        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Telefon */}
-          <li>
-            <a
-              href={`tel:${PHONE_TEL}`}
-              className="rd-card rd-card-hover group flex h-full flex-col gap-3 p-5"
-            >
-              <span className="inline-flex size-10 items-center justify-center rounded-full bg-[var(--tint-2)] text-[var(--brand-2)]">
-                <Phone aria-hidden className="size-5" />
-              </span>
-              <div className="space-y-1.5">
-                <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--text-dim)]">
-                  Telefon
-                </p>
-                <p className="text-lg font-semibold tracking-tight text-[var(--text-strong)] group-hover:text-[var(--brand-ink)]">
-                  {PHONE_DISPLAY}
-                </p>
-                <p className="text-sm text-[var(--text-muted)]">
-                  Vardagar 09:00–17:00
-                </p>
-              </div>
+          <dt className="flex items-center gap-2 text-[15px] font-semibold text-[var(--text-dim)]">
+            <Phone aria-hidden className="size-4" />
+            Telefon, kundtjänst
+          </dt>
+          <dd>
+            <a href={`tel:${PHONE_TEL}`} className="text-[19px] font-semibold text-[var(--text-strong)] underline-offset-4 hover:text-[var(--brand-ink)] hover:underline">
+              {PHONE_DISPLAY}
             </a>
-          </li>
-
-          {/* E-post */}
-          <li>
-            <a
-              href={`mailto:${EMAIL}`}
-              className="rd-card rd-card-hover group flex h-full flex-col gap-3 p-5"
-            >
-              <span className="inline-flex size-10 items-center justify-center rounded-full bg-[var(--tint-2)] text-[var(--brand-2)]">
-                <Mail aria-hidden className="size-5" />
-              </span>
-              <div className="space-y-1.5">
-                <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--text-dim)]">
-                  E-post
-                </p>
-                <p className="break-all text-lg font-semibold tracking-tight text-[var(--text-strong)] group-hover:text-[var(--brand-ink)]">
-                  {EMAIL}
-                </p>
-                <p className="text-sm text-[var(--text-muted)]">
-                  Svar inom 1–2 arbetsdagar
-                </p>
-              </div>
-            </a>
-          </li>
-
-          {/* Postadress */}
-          <li>
-            <div className="rd-card flex h-full flex-col gap-3 p-5">
-              <span className="inline-flex size-10 items-center justify-center rounded-full bg-[var(--tint-2)] text-[var(--brand-2)]">
-                <MapPin aria-hidden className="size-5" />
-              </span>
-              <div className="space-y-1.5">
-                <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--text-dim)]">
-                  Postadress
-                </p>
-                <address className="not-italic text-[15px] leading-relaxed text-[var(--text-strong)]">
-                  {POSTAL_LINES.map((line) => (
-                    <span key={line} className="block">
-                      {line}
-                    </span>
-                  ))}
-                </address>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </section>
-
-      {/* ======= ORG-INFO ======= */}
-      <section className="rd-fade-up grid grid-cols-1 gap-5 rounded-3xl border border-[var(--brand)]/25 bg-[var(--tint-2)] p-6 sm:grid-cols-[1fr_auto] sm:items-center sm:p-8">
-        <div className="space-y-2">
-          <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--brand-ink)]">
-            Organisationsinformation
-          </p>
-          <h3 className="text-lg font-semibold text-[var(--text-strong)] sm:text-xl">
-            Vårddelen drivs av QS Group AB
-          </h3>
-          <p className="max-w-2xl text-sm leading-relaxed text-[var(--text-body)]">
-            Organisationsnummer{" "}
-            <span className="font-mono tabular-nums text-[var(--text-strong)]">
-              {ORG_NUMBER}
-            </span>
-            . Vi följer GDPR och visar endast publika företagsuppgifter — person-
-            och organisationsnummer på listade verksamheter visas alltid maskat.
-          </p>
+            <p className="text-[15px] text-[var(--text-muted)]">Vardagar 09:00–17:00</p>
+          </dd>
         </div>
+        <div className="space-y-1">
+          <dt className="flex items-center gap-2 text-[15px] font-semibold text-[var(--text-dim)]">
+            <Mail aria-hidden className="size-4" />
+            E-post
+          </dt>
+          <dd>
+            <a href={`mailto:${EMAIL}`} className="break-all text-[17px] font-semibold text-[var(--text-strong)] underline-offset-4 hover:text-[var(--brand-ink)] hover:underline">
+              {EMAIL}
+            </a>
+            <p className="text-[15px] text-[var(--text-muted)]">Svar inom 1–2 arbetsdagar</p>
+          </dd>
+        </div>
+        <div className="space-y-1">
+          <dt className="flex items-center gap-2 text-[15px] font-semibold text-[var(--text-dim)]">
+            <MapPin aria-hidden className="size-4" />
+            Postadress
+          </dt>
+          <dd>
+            <address className="not-italic text-[16px] leading-relaxed text-[var(--text-strong)]">
+              {POSTAL_LINES.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
+            </address>
+          </dd>
+        </div>
+      </dl>
+
+      <section className="max-w-3xl space-y-2 border-t border-[var(--rule)] pt-8">
+        <h2 className="text-[1.25rem] font-semibold">Om Vårddelen</h2>
+        <p className="text-[16px] leading-relaxed text-[var(--text-muted)]">
+          Vårddelen drivs av QS Group AB, organisationsnummer{" "}
+          <span className="text-[var(--text-strong)]">{ORG_NUMBER}</span>. Vi visar
+          bara publika företagsuppgifter, och organisationsnummer som är
+          personnummer (enskilda firmor) visas aldrig.
+        </p>
       </section>
     </div>
   );

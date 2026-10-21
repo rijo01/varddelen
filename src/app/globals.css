@@ -14,7 +14,6 @@
   --color-brand-ink: var(--brand-ink);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-instrument-serif);
   --font-heading: var(--font-geist-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -55,81 +54,76 @@
 }
 
 :root {
-  /* === Vårddelen — Red caring editorial ===
-     Vit bakgrund, varma rödtoner, signaturgradient ljus-röd → djup-röd.
-     Healthcare-känsla via hjärta-symbolik, rött för action/CTA. */
+  /* === Vårddelen — stram söktjänst ===
+     Vit yta, en röd för handling och märkning, neutrala gråtoner för text.
+     All text klarar WCAG AA mot vit: --text-dim är golvet (6,4:1). */
 
   /* Atmosfär */
   --background: #ffffff;
-  --foreground: #1A1A2E;
+  --foreground: #16161F;
   --surface: #ffffff;
-  --surface-soft: #F5F5F7;        /* ljusgrå sektion-bakgrund */
-  --surface-warm: #FFF5F5;        /* extra mild rödton för featured */
-  --tint-1: #FFF5F5;
-  --tint-2: #FFE5E7;
-  --tint-3: #FCC8CC;              /* chip-bakgrund (svag röd) */
+  --surface-soft: #F6F6F8;        /* sekundär yta: filterfält, sidfot */
+  --surface-warm: #FFF6F6;        /* betald placering — bara bakgrund, aldrig ensam signal */
+  --tint-1: #FFF6F6;
+  --tint-2: #FDE8EA;
+  --tint-3: #F9D3D7;
 
-  /* Texttoner */
-  --text-strong: #1A1A2E;
-  --text-body: #2A2A3E;
-  --text-muted: #5A5A6E;
-  --text-dim: #8A8A9E;
-  --text-faint: #C0C0CE;
+  /* Texttoner — alla ≥4,5:1 mot vit */
+  --text-strong: #16161F;
+  --text-body: #26262F;
+  --text-muted: #484855;          /* 9,0:1 */
+  --text-dim: #5E5E6B;            /* 6,4:1 — lägsta tillåtna för text */
+  --text-faint: #B4B4C0;          /* ENBART dekor och avdelare, aldrig text */
 
-  /* Brand (rött tema) */
-  --brand: #E11D27;               /* primär röd — CTA/accent */
-  --brand-2: #C8102E;             /* mörkröd — topbar, hover */
-  --brand-ink: #8B0F1A;           /* länk-röd för text/läsbarhet */
-  --brand-deep: #5C0810;          /* djupröd — pressed/strong */
+  /* Brand */
+  --brand: #C8102E;               /* primär röd — knappar, vit text 5,9:1 */
+  --brand-2: #A70D26;             /* hover/pressed */
+  --brand-ink: #9B0E22;           /* länkröd på vit, 8,5:1 */
+  --brand-deep: #6E0A18;
 
-  /* Borders */
-  --rule: #E8E8EC;
-  --rule-soft: #F0F0F4;
-  --rule-strong: #D6D6DC;
+  /* Linjer */
+  --rule: #E3E3E8;
+  --rule-soft: #EEEEF2;
+  --rule-strong: #C9C9D2;
 
   /* shadcn-kompatibla kanaler */
   --card: #ffffff;
-  --card-foreground: #1A1A2E;
+  --card-foreground: #16161F;
   --popover: #ffffff;
-  --popover-foreground: #1A1A2E;
-  --primary: #E11D27;
+  --popover-foreground: #16161F;
+  --primary: #C8102E;
   --primary-foreground: #ffffff;
-  --secondary: #F5F5F7;
-  --secondary-foreground: #1A1A2E;
-  --muted: #F5F5F7;
-  --muted-foreground: #5A5A6E;
-  --accent: #FCC8CC;
-  --accent-foreground: #8B0F1A;
+  --secondary: #F6F6F8;
+  --secondary-foreground: #16161F;
+  --muted: #F6F6F8;
+  --muted-foreground: #484855;
+  --accent: #FDE8EA;
+  --accent-foreground: #9B0E22;
   --destructive: #B91C1C;
-  --border: #E8E8EC;
-  --input: #D6D6DC;
-  --ring: rgba(225, 29, 39, 0.4);
-  --chart-1: #E11D27;
-  --chart-2: #C8102E;
-  --chart-3: #8B0F1A;
+  --border: #E3E3E8;
+  --input: #C9C9D2;
+  --ring: rgba(200, 16, 46, 0.55);
+  --chart-1: #C8102E;
+  --chart-2: #A70D26;
+  --chart-3: #9B0E22;
   --chart-4: #F87171;
   --chart-5: #DC2626;
   --radius: 0.75rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #1A1A2E;
-  --sidebar-primary: #E11D27;
+  --sidebar-foreground: #16161F;
+  --sidebar-primary: #C8102E;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #FCC8CC;
-  --sidebar-accent-foreground: #8B0F1A;
-  --sidebar-border: #E8E8EC;
-  --sidebar-ring: rgba(225, 29, 39, 0.4);
+  --sidebar-accent: #FDE8EA;
+  --sidebar-accent-foreground: #9B0E22;
+  --sidebar-border: #E3E3E8;
+  --sidebar-ring: rgba(200, 16, 46, 0.55);
 
-  /* Skuggor — flerlagrade för premium-djup */
-  --shadow-sm: 0 1px 2px rgba(17,24,28,0.04);
-  --shadow-md: 0 1px 3px rgba(17,24,28,0.05), 0 1px 2px rgba(17,24,28,0.03);
-  --shadow-lg: 0 1px 2px rgba(17,24,28,0.04), 0 10px 24px -10px rgba(17,24,28,0.10);
-  --shadow-xl: 0 1px 2px rgba(17,24,28,0.04), 0 24px 48px -16px rgba(17,24,28,0.14);
-  --shadow-glow: 0 18px 40px -16px rgba(225, 29, 39, 0.32);
+  --shadow-pop: 0 2px 4px rgba(17,24,28,0.04), 0 16px 40px -12px rgba(17,24,28,0.18);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/40;
+    @apply border-border outline-ring/50;
   }
   html {
     font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
@@ -142,132 +136,57 @@
   body {
     background-color: var(--background);
     color: var(--text-body);
-    font-feature-settings: "ss01" 1, "cv01" 1, "cv11" 1;
+    /* 17 px brödtext: sajtens besökare är ofta äldre eller sjuka. */
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    font-variant-numeric: tabular-nums;
   }
   h1, h2, h3, h4, h5 {
     color: var(--text-strong);
-    @apply tracking-tight;
-    letter-spacing: -0.022em;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  a {
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+  :focus-visible {
+    outline: 3px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: 6px;
   }
   ::selection {
-    background-color: #FCC8CC;
+    background-color: var(--tint-3);
     color: var(--text-strong);
   }
-  /* Smooth scroll men respektera reduced motion */
-  html { scroll-behavior: smooth; }
-  @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
+  ::placeholder {
+    color: var(--text-dim);
+    opacity: 1;
+  }
+  input, select, textarea {
+    caret-color: var(--brand);
   }
 }
 
-@keyframes rd-fade-up {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes rd-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
 @keyframes rd-shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
-@keyframes rd-blob-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(3%, -2%) scale(1.05); }
-  66% { transform: translate(-2%, 3%) scale(0.97); }
-}
 
 @layer utilities {
-  /* Display-text — Instrument Serif italic, för signaturord i rubriker */
-  .rd-display {
-    font-family: var(--font-instrument-serif), Georgia, "Times New Roman", serif;
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.01em;
-  }
-
-  /* Signaturgradient — ljus röd → djup röd */
-  .rd-brand-gradient {
-    background-image: linear-gradient(135deg, #E11D27 0%, #C8102E 100%);
-  }
-  .rd-brand-gradient-warm {
-    background-image: linear-gradient(135deg, #F87171 0%, #E11D27 60%, #8B0F1A 100%);
-  }
-  .rd-brand-gradient-soft {
-    background-image:
-      radial-gradient(ellipse 65% 50% at 50% 0%, rgba(225, 29, 39, 0.10), transparent 65%),
-      radial-gradient(ellipse 45% 35% at 85% 25%, rgba(200, 16, 46, 0.08), transparent 70%),
-      radial-gradient(ellipse 35% 30% at 10% 30%, rgba(248, 113, 113, 0.10), transparent 70%),
-      linear-gradient(180deg, #ffffff 0%, #ffffff 70%);
-  }
-  .rd-text-brand {
-    /* Använd solid röd istället för gradient — bättre kontrast på vit */
-    color: #E11D27;
-    background: none;
-    -webkit-background-clip: initial;
-    background-clip: initial;
-  }
-
-  /* Premium-skuggor */
-  .rd-shadow-sm { box-shadow: var(--shadow-sm); }
-  .rd-shadow-md { box-shadow: var(--shadow-md); }
-  .rd-shadow-lg { box-shadow: var(--shadow-lg); }
-  .rd-shadow-xl { box-shadow: var(--shadow-xl); }
-  .rd-shadow-glow { box-shadow: var(--shadow-glow); }
-
-  /* Card-kärna — vit, mjuk skugga, fin border */
+  /* Yta med en enda höjdmarkering: linje, ingen skugga. */
   .rd-card {
     background: var(--surface);
     border: 1px solid var(--rule);
-    border-radius: 1rem;
-    box-shadow: var(--shadow-md);
-  }
-  .rd-card-hover {
-    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1),
-                border-color 160ms ease;
-  }
-  .rd-card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-    border-color: #dcdcdc;
+    border-radius: 0.75rem;
   }
 
-  /* Subtila staggered fade-in:s */
-  .rd-fade-up {
-    animation: rd-fade-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* Listrad — bara bakgrundston vid hover, ingen rörelse. */
+  .rd-row {
+    transition: background-color 150ms ease;
   }
-  .rd-fade-in {
-    animation: rd-fade-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  .rd-fade-up-delay-1 { animation-delay: 0.06s; }
-  .rd-fade-up-delay-2 { animation-delay: 0.12s; }
-  .rd-fade-up-delay-3 { animation-delay: 0.18s; }
-  .rd-fade-up-delay-4 { animation-delay: 0.24s; }
-  .rd-fade-up-delay-5 { animation-delay: 0.30s; }
-
-  /* Företagskort i lista — hover ljus rosa-tint, ingen aktiv ram */
-  .rd-card-row {
-    background-color: #ffffff;
-    transition: background-color 160ms ease;
-  }
-  .rd-card-row:hover {
-    background-color: #FFF5F5;
-  }
-
-  /* Utvald (poang > 0) — subtil rosa-tint + accent-streck till vänster */
-  .rd-card-featured {
-    background-color: #FFF5F5;
-    padding-left: calc(1rem + 4px);
-  }
-  @media (min-width: 640px) {
-    .rd-card-featured {
-      padding-left: calc(1.25rem + 4px);
-    }
-  }
-  .rd-card-featured:hover {
-    background-color: #FFE5E7;
+  .rd-row:hover {
+    background-color: var(--surface-soft);
   }
 
   /* Rich-text rendering (saniterad infotext från databasen) */
@@ -279,8 +198,6 @@
   .rd-rich-text a {
     color: var(--brand-ink);
     text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 2px;
   }
   .rd-rich-text a:hover {
     color: var(--brand-deep);
@@ -290,12 +207,10 @@
   }
   .rd-rich-text p:first-child { margin-top: 0; }
   .rd-rich-text p:last-child { margin-bottom: 0; }
-  .rd-rich-text br {
-    line-height: 1;
-  }
   .rd-rich-text ul, .rd-rich-text ol {
     margin: 0.75em 0;
     padding-left: 1.5em;
+    list-style: disc;
   }
   .rd-rich-text li {
     margin: 0.25em 0;
@@ -309,102 +224,25 @@
   .rd-rich-text h3 { font-size: 1em; }
   .rd-rich-text h4 { font-size: 0.95em; }
 
-  /* Listrad — vänster orange bar glider in */
-  .rd-row {
-    position: relative;
-    transition: background-color 160ms ease;
-  }
-  .rd-row::before {
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 3px;
-    background-image: linear-gradient(180deg, #E11D27, #C8102E);
-    opacity: 0;
-    transform: scaleY(0.4);
-    transform-origin: center;
-    transition: opacity 160ms ease, transform 160ms ease;
-  }
-  .rd-row:hover::before,
-  .rd-row:focus-visible::before {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-  .rd-row:hover,
-  .rd-row:focus-visible {
-    background-color: #FFF5F5;
-  }
-
-  /* Sökboxen — vit, ljus skugga, röd focus-ring */
+  /* Sökfältet — tydlig ram, röd fokusring */
   .rd-search-box {
-    box-shadow:
-      0 1px 2px rgba(17, 24, 28, 0.04),
-      0 10px 32px -16px rgba(225, 29, 39, 0.18);
-    transition: box-shadow 220ms ease, border-color 160ms ease;
+    transition: box-shadow 150ms ease, border-color 150ms ease;
   }
   .rd-search-box:focus-within {
-    border-color: rgba(225, 29, 39, 0.6) !important;
-    box-shadow:
-      0 0 0 4px rgba(225, 29, 39, 0.12),
-      0 14px 40px -12px rgba(225, 29, 39, 0.30);
-  }
-
-  /* CTA-knappskugga */
-  .rd-cta-shadow {
-    box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.45) inset,
-      0 4px 14px -4px rgba(225, 29, 39, 0.55);
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.15);
   }
 
   /* Skeleton — mjuk grå shimmer */
   .rd-skeleton {
-    background: linear-gradient(
-      90deg,
-      #eeeef1 0%,
-      #f6f6f8 50%,
-      #eeeef1 100%
-    );
+    background: linear-gradient(90deg, #ececf0 0%, #f5f5f7 50%, #ececf0 100%);
     background-size: 200% 100%;
     animation: rd-shimmer 1.6s linear infinite;
-  }
-
-  /* Drifting hero-blob */
-  .rd-blob {
-    animation: rd-blob-drift 18s ease-in-out infinite;
-  }
-
-  /* "Premium grid" — subtilt punktmönster */
-  .rd-dot-grid {
-    background-image: radial-gradient(rgba(17,24,28,0.07) 1px, transparent 1px);
-    background-size: 22px 22px;
-    background-position: 0 0;
-  }
-
-  /* Full-bleed — låter en sektion bryta ut ur föräldraelementets max-width
-     och täcka hela viewporten. Används av startsidans hero/grå-sektion. */
-  .rd-full-bleed {
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
-    width: 100vw;
-  }
-
-  /* Initial-ring för företagsprofil */
-  .rd-monogram {
-    background-image: linear-gradient(135deg, #F87171 0%, #E11D27 65%, #8B0F1A 100%);
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.4) inset,
-      0 -8px 24px rgba(255,255,255,0.2) inset,
-      0 14px 32px -10px rgba(225, 29, 39, 0.55);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rd-fade-up,
-  .rd-fade-in,
-  .rd-skeleton,
-  .rd-blob {
+  .rd-skeleton {
     animation: none !important;
-    opacity: 1;
-    transform: none;
   }
 }

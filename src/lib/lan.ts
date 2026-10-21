@@ -87,3 +87,12 @@ export function kommunCodesForLan(lanCode: string): string[] {
   const normalized = lanCode.replace(/^0+/, "") || "0";
   return ALL_KOMMUNER.filter((k) => k.lan === normalized).map((k) => k.code);
 }
+
+/**
+ * Länets officiella namn: "Stockholms län", men "Skåne län", "Uppsala län".
+ * Att bara lägga till "s län" gav "Örebros län" och "Skånes län".
+ */
+const UTAN_GENITIV_S = new Set(["Uppsala", "Kalmar", "Blekinge", "Skåne", "Örebro"]);
+export function lanNamn(lan: Pick<Lan, "name">): string {
+  return UTAN_GENITIV_S.has(lan.name) ? `${lan.name} län` : `${lan.name}s län`;
+}

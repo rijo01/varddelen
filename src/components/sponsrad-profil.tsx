@@ -1,11 +1,5 @@
-import {
-  BadgeCheck,
-  Globe,
-  Mail,
-  MapPin,
-  Phone,
-  User,
-} from "lucide-react";
+import { Globe, Mail, MapPin, Phone, User } from "lucide-react";
+import Link from "next/link";
 import { logoMatt, telefontypText } from "@/lib/overlay-contract";
 import type { OverlayProfilRow } from "@/lib/overlay-contract";
 import { normalizeWebb, shortWebb } from "@/lib/foretag-format";
@@ -58,10 +52,18 @@ export default function SponsradProfil({
   namn,
   /** Sätts för ?preview= — då är detta ett utkast, inte något som ligger live. */
   utkast = false,
+  /**
+   * Företagssidan visar redan telefon, e-post, webbplats och kontaktperson
+   * överst, sökorden i en gemensam lista och logotypen i sidhuvudet. Kompakt
+   * läge visar då bara det som inte står någon annanstans: kundens text,
+   * verksamhetsområden och adresser.
+   */
+  kompakt = false,
 }: {
   overlay: OverlayProfilRow;
   namn: string;
   utkast?: boolean;
+  kompakt?: boolean;
 }) {
   const rubriknamn = overlay.popularnamn?.trim() || namn;
   const sokord = (overlay.keywords ?? []).filter((k) => k.trim().length > 0);
@@ -75,8 +77,9 @@ export default function SponsradProfil({
   const besok = adressrad(overlay.adress_override_besok) ?? adressrad(overlay.adress_override);
   const post = adressrad(overlay.adress_override_post);
 
-  const harInnehall =
-    overlay.logo_url ||
+  const harInnehall = kompakt
+    ? overlay.info_html || kategorier.length > 0 || besok || post
+    : overlay.logo_url ||
     overlay.info_html ||
     sokord.length > 0 ||
     kategorier.length > 0 ||
@@ -91,27 +94,30 @@ export default function SponsradProfil({
   if (!harInnehall) return null;
 
   return (
-    <section className="rd-card overflow-hidden border-[var(--brand)]/30">
+    <section aria-labelledby="betald-profil-rubrik" className="rd-card overflow-hidden">
       {utkast && (
-        <p className="rd-brand-gradient px-5 py-2 text-xs font-medium tracking-tight text-white">
+        <p className="bg-[var(--brand)] px-5 py-2 text-[15px] font-medium text-white">
           Förhandsvisning — så här kommer profilen att se ut. Ingen ser den här
           sidan förrän ordern godkänns.
         </p>
       )}
 
-      <div className="p-6 sm:p-7">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--brand)]/30 bg-[var(--surface-warm)] px-2.5 py-1 text-[11px] font-semibold text-[var(--brand-ink)]">
-              <BadgeCheck className="size-3.5" aria-hidden />
-              Företagets egen profil
-            </span>
-            <h2 className="mt-3 text-lg font-semibold text-[var(--text-strong)]">
+      <div className="space-y-5 p-5 sm:p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 space-y-1">
+            <p className="text-[14px] text-[var(--text-dim)]">
+              <span className="font-semibold text-[var(--brand-ink)]">Betald profil</span> · texten
+              är skriven av verksamheten, inte av Vårddelen.{" "}
+              <Link href="#om-ordningen" className="underline">
+                Läs mer
+              </Link>
+            </p>
+            <h2 id="betald-profil-rubrik" className="text-[1.375rem] font-semibold text-[var(--text-strong)]">
               Om {rubriknamn}
             </h2>
-            {overlay.kontaktperson && (
-              <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)]">
-                <User className="size-3.5 shrink-0 text-[var(--text-dim)]" aria-hidden />
+            {!kompakt && overlay.kontaktperson && (
+              <p className="inline-flex items-center gap-1.5 text-[16px] text-[var(--text-muted)]">
+                <User className="size-4 shrink-0 text-[var(--text-dim)]" aria-hidden />
                 {overlay.kontaktperson}
               </p>
             )}
@@ -120,7 +126,7 @@ export default function SponsradProfil({
           {/* Plain <img>, inte next/image: logotypen ligger i sajtens egen
               storage-bucket, och en ny bucket-host ska inte kräva en ändring i
               next.config.ts innan en betald logotyp kan visas. */}
-          {overlay.logo_url && (
+          {!kompakt && overlay.logo_url && (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={overlay.logo_url}
@@ -129,28 +135,26 @@ export default function SponsradProfil({
               height={logoMatt(overlay.logo_url)?.hojd}
               loading="lazy"
               decoding="async"
-              className="h-16 w-auto max-w-[180px] shrink-0 self-start object-contain sm:h-20"
+              className="h-16 w-auto max-w-[180px] shrink-0 object-contain"
             />
           )}
         </div>
 
         {overlay.info_html && (
           <div
-            className="rd-rich-text mt-4 text-[15px] leading-relaxed text-[var(--text-body)]"
+            className="rd-rich-text max-w-[68ch] text-[17px] leading-relaxed text-[var(--text-body)]"
             dangerouslySetInnerHTML={{ __html: overlay.info_html }}
           />
         )}
 
         {kategorier.length > 0 && (
-          <div className="mt-6">
-            <h3 className="mb-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-dim)]">
-              Verksamhet
-            </h3>
-            <ul className="flex flex-wrap gap-1.5">
+          <div>
+            <h3 className="mb-2 text-[16px] font-semibold text-[var(--text-strong)]">Verksamhet</h3>
+            <ul className="flex flex-wrap gap-2">
               {kategorier.map((k) => (
                 <li
                   key={k}
-                  className="inline-flex items-center rounded-full border border-[var(--brand)]/30 bg-[var(--surface-warm)] px-3 py-1 text-[13px] font-medium text-[var(--brand-ink)]"
+                  className="inline-flex min-h-9 items-center rounded-md border border-[var(--rule-strong)] px-3 text-[15px] text-[var(--text-body)]"
                 >
                   {k}
                 </li>
@@ -159,16 +163,14 @@ export default function SponsradProfil({
           </div>
         )}
 
-        {sokord.length > 0 && (
-          <div className="mt-6">
-            <h3 className="mb-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-dim)]">
-              Tjänster &amp; sökord
-            </h3>
-            <ul className="flex flex-wrap gap-1.5">
+        {!kompakt && sokord.length > 0 && (
+          <div>
+            <h3 className="mb-2 text-[16px] font-semibold text-[var(--text-strong)]">Tjänster och sökord</h3>
+            <ul className="flex flex-wrap gap-2">
               {sokord.map((s) => (
                 <li
                   key={s}
-                  className="inline-flex items-center rounded-full border border-[var(--rule)] bg-white px-2.5 py-1 text-[13px] font-medium text-[var(--text-body)]"
+                  className="inline-flex min-h-9 items-center rounded-md border border-[var(--rule-strong)] px-3 text-[15px] text-[var(--text-body)]"
                 >
                   {s}
                 </li>
@@ -178,25 +180,21 @@ export default function SponsradProfil({
         )}
 
         {(besok || post) && (
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             {besok && (
               <div>
-                <h3 className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-dim)]">
-                  Besöksadress
-                </h3>
-                <p className="inline-flex items-start gap-1.5 text-sm text-[var(--text-body)]">
-                  <MapPin className="mt-0.5 size-3.5 shrink-0 text-[var(--text-dim)]" aria-hidden />
+                <h3 className="mb-1 text-[16px] font-semibold text-[var(--text-strong)]">Besöksadress</h3>
+                <p className="flex items-start gap-1.5 text-[16px] text-[var(--text-body)]">
+                  <MapPin className="mt-1 size-4 shrink-0 text-[var(--text-dim)]" aria-hidden />
                   {besok}
                 </p>
               </div>
             )}
             {post && (
               <div>
-                <h3 className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-dim)]">
-                  Postadress
-                </h3>
-                <p className="inline-flex items-start gap-1.5 text-sm text-[var(--text-body)]">
-                  <MapPin className="mt-0.5 size-3.5 shrink-0 text-[var(--text-dim)]" aria-hidden />
+                <h3 className="mb-1 text-[16px] font-semibold text-[var(--text-strong)]">Postadress</h3>
+                <p className="flex items-start gap-1.5 text-[16px] text-[var(--text-body)]">
+                  <MapPin className="mt-1 size-4 shrink-0 text-[var(--text-dim)]" aria-hidden />
                   {post}
                 </p>
               </div>
@@ -204,27 +202,24 @@ export default function SponsradProfil({
           </div>
         )}
 
-        {(telefon || epost || hemsida) && (
-          <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-[var(--rule-soft)] pt-4 text-sm">
+        {!kompakt && (telefon || epost || hemsida) && (
+          <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-[var(--rule)] pt-4 text-[16px]">
             {telefon && (
               <a
                 href={`tel:${telefon.replace(/\s+/g, "")}`}
-                className="inline-flex items-center gap-1.5 font-medium text-[var(--brand-ink)] hover:underline"
+                className="inline-flex items-center gap-1.5 font-medium text-[var(--brand-ink)] underline"
               >
                 <Phone className="size-4 shrink-0" aria-hidden />
                 {telefon}
                 {telefonEtikett(overlay.telefon_typ) && (
-                  <span className="text-xs font-normal text-[var(--text-dim)]">
+                  <span className="text-[14px] font-normal text-[var(--text-dim)]">
                     {telefonEtikett(overlay.telefon_typ)}
                   </span>
                 )}
               </a>
             )}
             {epost && (
-              <a
-                href={`mailto:${epost}`}
-                className="inline-flex items-center gap-1.5 font-medium text-[var(--brand-ink)] hover:underline"
-              >
+              <a href={`mailto:${epost}`} className="inline-flex items-center gap-1.5 font-medium text-[var(--brand-ink)] underline">
                 <Mail className="size-4 shrink-0" aria-hidden />
                 {epost}
               </a>
@@ -234,7 +229,7 @@ export default function SponsradProfil({
                 href={hemsida}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 font-medium text-[var(--brand-ink)] hover:underline"
+                className="inline-flex items-center gap-1.5 font-medium text-[var(--brand-ink)] underline"
               >
                 <Globe className="size-4 shrink-0" aria-hidden />
                 {shortWebb(hemsida) ?? hemsida}

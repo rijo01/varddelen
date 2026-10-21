@@ -1,19 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowLeft, ArrowRight, Search } from "lucide-react";
-import { kommunByCode, kommunBySlug } from "@/lib/kommuner";
-import { lanBySlug } from "@/lib/lan";
-import {
-  branschPageSlug,
-  searchForetag,
-} from "@/lib/queries";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ALL_KOMMUNER, kommunByCode, kommunBySlug } from "@/lib/kommuner";
+import { kommunCodesForLan, lanBySlug, lanNamn } from "@/lib/lan";
+import { branschPageSlug, searchForetag } from "@/lib/queries";
 import { getBranschName } from "@/lib/branscher";
 import { getKategoriBySlug } from "@/lib/vard-kategorier";
+import { VARD_BRANSCHER } from "@/lib/vard-branscher";
+import { branschNamn, branschTotal, kommunBranschTotal } from "@/lib/counts";
+import { BRANSCH_LABEL } from "@/lib/stats";
+import { SOK_TERMER, expanderaSokord, termFor } from "@/lib/sok-termer";
 import { JsonLd, buildBreadcrumb } from "@/components/json-ld";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { SearchBar } from "@/components/search-bar";
 import { CompanyCard, CompanyCardList } from "@/components/company-card";
+import { AkutNotis, OrdningsNotis } from "@/components/vard-info";
 import { loadAktivaOverlays, overlayFor } from "@/lib/overlay";
 import { ordnaBoostade } from "@/lib/overlay-rankning";
 import { FilterPanel, buildHref, type FilterState } from "@/components/filter-panel";
@@ -22,6 +25,7 @@ import { SITE_URL } from "@/lib/site";
 export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 25;
+const fmt = (n: number) => n.toLocaleString("sv-SE");
 
 type Search = Promise<{
   q?: string;
@@ -35,6 +39,38 @@ type Search = Promise<{
   aeantMax?: string;
   page?: string;
 }>;
+
+function ortSlug(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/å/g, "a")
+    .replace(/ä/g, "a")
+    .replace(/ö/g, "o")
+    .replace(/é/g, "e")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * "tandläkare göteborg" → { q: "tandläkare", kommun: Göteborg }.
+ *
+ * Fritext med ortnamnet sist gav alltid noll träffar: hela strängen gick till
+ * fulltextsöket, och ortnamnet står inte i företagens namn. Vi läser av en
+ * kommun ur de sista ett eller två orden (ett "i" före orten tas bort).
+ */
+function delaUppOrt(q: string): { q: string; kommunSlug: string } | null {
+  const ord = q.trim().split(/\s+/);
+  if (ord.length < 2) return null;
+  for (const n of [2, 1]) {
+    if (ord.length <= n) continue;
+    const kommun = kommunBySlug(ortSlug(ord.slice(-n).join(" ")));
+    if (!kommun) continue;
+    let rest = ord.slice(0, -n);
+    if (rest.length > 1 && rest[rest.length - 1]!.toLowerCase() === "i") rest = rest.slice(0, -1);
+    return { q: rest.join(" "), kommunSlug: kommun.slug };
+  }
+  return null;
+}
 
 export async function generateMetadata({
   searchParams,
@@ -62,6 +98,20 @@ export default async function SokPage({
 }) {
   const sp = await searchParams;
   const query = (sp.q ?? "").trim();
+
+  // Ort i fritexten → egen parameter, så att sökfältets "Var?" visar orten.
+  if (query && !sp.kommun && !sp.lan && !sp.postort) {
+    const delad = delaUppOrt(query);
+    if (delad) {
+      const params = new URLSearchParams();
+      params.set("q", delad.q);
+      params.set("kommun", delad.kommunSlug);
+      if (sp.aeantMin) params.set("aeantMin", sp.aeantMin);
+      if (sp.aeantMax) params.set("aeantMax", sp.aeantMax);
+      redirect(`/sok?${params.toString()}`);
+    }
+  }
+
   const kommun = sp.kommun ? kommunBySlug(sp.kommun) : undefined;
   const lan = sp.lan ? lanBySlug(sp.lan) : undefined;
   const postort = sp.postort?.trim() || undefined;
@@ -98,14 +148,14 @@ export default async function SokPage({
 
   // Visa resultaten även när det inte finns query, så länge en kategori valts.
   const showResults = Boolean(query) || Boolean(kategori);
+  const branschLabel = ng1 ? (BRANSCH_LABEL[ng1] ?? branschNamn(ng1) ?? `SNI ${ng1}`) : null;
 
   return (
     <div className="space-y-6">
       <JsonLd data={breadcrumbJsonLd} />
       <Breadcrumb items={breadcrumbItems} />
 
-      {/* Hjälp-sök överst */}
-      <div className="flex justify-center">
+      <div className="max-w-4xl">
         <Suspense fallback={null}>
           <SearchBar variant="dual" preserveFilters />
         </Suspense>
@@ -114,11 +164,10 @@ export default async function SokPage({
       {!showResults ? (
         <EmptyState />
       ) : (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[16rem_1fr] lg:gap-8">
-          <FilterPanel state={filterState} pathname="/sok" />
+        <div className="space-y-6">
           <Suspense
             key={`${query}|${sp.kategori ?? ""}|${sp.kommun ?? ""}|${sp.lan ?? ""}|${sp.postort ?? ""}|${ng1 ?? ""}|${aeantMin ?? ""}|${aeantMax ?? ""}|${sp.page ?? "1"}`}
-            fallback={<ResultsSkeleton query={query || kategori?.name || ""} />}
+            fallback={<ResultsSkeleton />}
           >
             <ResultsAsync
               query={query}
@@ -131,12 +180,38 @@ export default async function SokPage({
               aeantMax={aeantMax}
               pageStr={sp.page}
               filterState={filterState}
+              filter={<FilterPanel state={filterState} pathname="/sok" branschLabel={branschLabel} />}
             />
           </Suspense>
+          <AkutNotis />
         </div>
       )}
     </div>
   );
+}
+
+/**
+ * Exakt antal i registret för en uppsättning branscher i en ort, ur
+ * räknesnapshoten. null när det inte går att säga exakt: postort och
+ * storleksfilter finns inte i snapshoten, och då gissar vi inte.
+ */
+function antalIRegistret(
+  ng1s: readonly number[],
+  geo: { kommunCode?: string; lanCode?: string; postort?: string },
+  harStorleksfilter: boolean,
+): number | null {
+  if (ng1s.length === 0 || harStorleksfilter || geo.postort) return null;
+  const kommuner = geo.kommunCode
+    ? [geo.kommunCode]
+    : geo.lanCode
+      ? kommunCodesForLan(geo.lanCode)
+      : null;
+  let sum = 0;
+  for (const n of ng1s) {
+    if (!kommuner) sum += branschTotal(n);
+    else for (const k of kommuner) sum += kommunBranschTotal(k, n);
+  }
+  return sum;
 }
 
 async function ResultsAsync({
@@ -150,6 +225,7 @@ async function ResultsAsync({
   aeantMax,
   pageStr,
   filterState,
+  filter,
 }: {
   query: string;
   kategoriSlug: string | null;
@@ -161,15 +237,21 @@ async function ResultsAsync({
   aeantMax?: number;
   pageStr?: string;
   filterState: FilterState;
+  /** Filtren renderas under rubriken, så att träffantalet syns först i mobilen. */
+  filter: React.ReactNode;
 }) {
   const page = Math.max(1, Number(pageStr) || 1);
   const kategori = kategoriSlug ? getKategoriBySlug(kategoriSlug) : null;
+  // Synonymerna: "fysioterapeut" söker också sjukgymnast/sjukgymnastik osv.
+  // Rubriken visar fortfarande det besökaren skrev. Se lib/sok-termer.ts.
+  const term = query ? termFor(query) : null;
+  const sokord = query ? expanderaSokord(query) : "";
 
   // Söksidan är force-dynamic och läser alltså overlay vid VARJE request. Det
   // är avsiktligt: en publicering ska synas i söket direkt, och det finns ingen
   // cache här att revalidera.
   const [{ rows: oboostade, hasMore, matchedBransch }, overlays] = await Promise.all([
-    searchForetag(query, {
+    searchForetag(sokord, {
       kommun: kommun?.code,
       lan: lan?.code,
       postort,
@@ -184,95 +266,85 @@ async function ResultsAsync({
   ]);
   const rows = ordnaBoostade(oboostade, overlays);
 
-  // Header-text för geo-filter: kommun > postort > lan (matchar applyGeoFilter mutex).
-  const geoLabel = kommun
+  const geoText = kommun
     ? ` i ${kommun.name}`
     : postort
       ? ` i ${postort}`
       : lan
-        ? ` i ${lan.name}s län`
+        ? ` i ${lanNamn(lan)}`
         : " i hela Sverige";
 
   const branschName = ng1 ? await getBranschName(ng1) : null;
   const offset = (page - 1) * PAGE_SIZE;
-  // När vi browsar en kategori — visa kategorinamnet som rubrik istället för "".
-  const headerQuery = query || kategori?.name || "";
+  const rubrik = term?.label ?? (query || kategori?.name || "");
+
+  // Antal i registret när det går att säga exakt: en kategori, eller en
+  // bransch som sökordet träffade. Fritext har inget totalantal.
+  const traffadeBranscher = matchedBransch
+    ? VARD_BRANSCHER.filter((n) => branschNamn(n) === matchedBransch)
+    : [];
+  const ng1sForAntal = !query && kategori ? kategori.ng1 : !ng1 ? traffadeBranscher : [];
+  const antal = antalIRegistret(
+    ng1sForAntal,
+    { kommunCode: kommun?.code, lanCode: lan?.code, postort },
+    aeantMin != null || aeantMax != null,
+  );
 
   return (
-    <div className="min-w-0 space-y-5">
-      <header className="rd-fade-up space-y-1">
-        <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--brand-2)]">
-          {kategori && !query ? "Kategori" : "Sökresultat"}
-        </p>
-        <h1 className="text-2xl font-semibold tracking-tight text-[var(--text-strong)] sm:text-[1.75rem]">
-          {query ? <>&ldquo;{headerQuery}&rdquo;</> : headerQuery}
+    <div className="min-w-0 space-y-4">
+      <header className="space-y-1.5">
+        <h1 className="text-[1.75rem] font-bold leading-tight tracking-tight sm:text-[2rem]">
+          {rubrik}
+          <span className="font-normal text-[var(--text-muted)]">{geoText}</span>
         </h1>
-        <p className="text-sm text-[var(--text-muted)]">
-          {rows.length === 0
-            ? "Inga vårdföretag matchade."
-            : kategori && !query
-              ? (
-                <>
-                  Visar {rows.length} vårdföretag inom{" "}
-                  <span className="font-medium text-[var(--text-strong)]">
-                    {kategori.name}
-                  </span>
-                  {geoLabel}. Sorterat
-                  efter poäng och antal anställda.
-                </>
-              )
-              : matchedBransch && !ng1
-                ? (
-                  <>
-                    Visar företag inom{" "}
-                    <span className="font-medium text-[var(--text-strong)]">
-                      {matchedBransch}
-                    </span>
-                    {geoLabel}. Sorterat efter
-                    antal anställda.
-                  </>
-                )
-                : (
-                  <>
-                    Visar {rows.length} träff{rows.length === 1 ? "" : "ar"} (sida{" "}
-                    {page}). Sorterat efter antal anställda.
-                  </>
-                )}
+        <p className="text-[17px] text-[var(--text-body)]" aria-live="polite">
+          {rows.length === 0 ? (
+            "Inga verksamheter matchade."
+          ) : antal != null && antal > 0 ? (
+            <>
+              <strong className="font-semibold">{fmt(antal)}</strong>{" "}
+              {antal === 1 ? "verksamhet" : "verksamheter"} i registret
+              {matchedBransch && query ? ` inom ${matchedBransch.toLowerCase()}` : ""}. Visar{" "}
+              {fmt(offset + 1)}–{fmt(offset + rows.length)}.
+            </>
+          ) : (
+            page === 1 && !hasMore ? (
+              <>
+                <strong className="font-semibold">{fmt(rows.length)}</strong>{" "}
+                {rows.length === 1 ? "träff" : "träffar"}.
+              </>
+            ) : (
+              <>
+                Visar {fmt(offset + 1)}–{fmt(offset + rows.length)}
+                {hasMore ? ", fler finns på nästa sida" : ""}.
+              </>
+            )
+          )}
         </p>
+        {term && term.synonymer.length > 0 && (
+          <p className="text-[15px] text-[var(--text-dim)]">
+            Söker även på {term.synonymer.join(", ")}.
+          </p>
+        )}
       </header>
 
+      {filter}
+      {rows.length > 0 && <OrdningsNotis />}
+
       {rows.length === 0 ? (
-        <div className="rd-card border-dashed bg-white p-10 text-center">
-          <p className="text-base font-semibold text-[var(--text-strong)]">
-            Inga träffar
-          </p>
-          <p className="mt-1 text-sm text-[var(--text-muted)]">
-            Prova ett bredare sökord eller rensa filter.
-          </p>
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs">
-            <span className="text-[var(--text-muted)]">Förslag:</span>
-            {["tandläkare", "behandlingshem", "apotek", "psykolog"].map((t) => (
-              <Link
-                key={t}
-                href={`/sok?q=${t}`}
-                className="rounded-full border border-[var(--brand)]/30 bg-white px-3 py-1 text-[var(--brand-ink)] transition hover:bg-[var(--tint-2)]"
-              >
-                {t}
-              </Link>
-            ))}
-          </div>
-        </div>
+        <IngaTraffar query={query} kommunSlug={kommun?.slug} geoText={geoText} filterState={filterState} />
       ) : (
         <CompanyCardList>
-          {rows.map((f, i) => {
+          {rows.map((f) => {
             const k = f.kommun ? kommunByCode(f.kommun) : null;
+            const rowBransch = f.ng1 ? (BRANSCH_LABEL[f.ng1] ?? branschNamn(f.ng1)) : null;
             return (
               <li key={f.cfarnr}>
                 <CompanyCard
                   foretag={f}
                   overlay={overlayFor(f, overlays)}
-                  rank={offset + i + 1}
-                  branschName={matchedBransch ?? branschName}
+                  rubrikNiva={2}
+                  branschName={rowBransch ?? matchedBransch ?? branschName}
                   kommunName={k?.name}
                 />
               </li>
@@ -282,11 +354,11 @@ async function ResultsAsync({
       )}
 
       {(page > 1 || hasMore) && (
-        <nav className="flex items-center justify-between border-t border-[var(--rule)] pt-5 text-sm">
+        <nav aria-label="Sidor" className="flex items-center justify-between gap-3 pt-2 text-[16px]">
           {page > 1 ? (
             <Link
               href={buildHref("/sok", filterState, { page: page > 2 ? String(page - 1) : null })}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--rule)] bg-white px-4 py-2 font-medium text-[var(--text-body)] transition hover:border-[var(--brand-2)]/40 hover:bg-[var(--tint-2)] hover:text-[var(--brand-ink)]"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-[var(--rule-strong)] px-4 font-medium text-[var(--text-strong)] hover:border-[var(--text-dim)]"
             >
               <ArrowLeft aria-hidden className="size-4" />
               Föregående
@@ -298,7 +370,7 @@ async function ResultsAsync({
           {hasMore ? (
             <Link
               href={buildHref("/sok", filterState, { page: String(page + 1) })}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--rule)] bg-white px-4 py-2 font-medium text-[var(--text-body)] transition hover:border-[var(--brand-2)]/40 hover:bg-[var(--tint-2)] hover:text-[var(--brand-ink)]"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-[var(--rule-strong)] px-4 font-medium text-[var(--text-strong)] hover:border-[var(--text-dim)]"
             >
               Nästa
               <ArrowRight aria-hidden className="size-4" />
@@ -310,13 +382,12 @@ async function ResultsAsync({
       )}
 
       {rows.length > 0 && kommun && ng1 && branschName && (
-        <p className="text-sm text-[var(--text-muted)]">
-          Vill du se alla?{" "}
+        <p className="text-[16px] text-[var(--text-muted)]">
           <Link
             href={`/kommun/${kommun.slug}/${branschPageSlug(branschName, ng1)}`}
-            className="text-[var(--brand-ink)] hover:underline"
+            className="text-[var(--brand-ink)] underline"
           >
-            {branschName} i {kommun.name} →
+            Alla {branschName.toLowerCase()} i {kommun.name}
           </Link>
         </p>
       )}
@@ -324,31 +395,81 @@ async function ResultsAsync({
   );
 }
 
-function ResultsSkeleton({ query }: { query: string }) {
+/** Noll träffar: säg varför det kan vara så, och ge vägar vidare. */
+function IngaTraffar({
+  query,
+  kommunSlug,
+  geoText,
+  filterState,
+}: {
+  query: string;
+  kommunSlug?: string;
+  geoText: string;
+  filterState: FilterState;
+}) {
+  const harFilter = Boolean(filterState.aeantMin || filterState.aeantMax || filterState.bransch);
   return (
-    <div className="min-w-0 space-y-5">
-      <header className="space-y-2">
-        <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--brand-2)]">
-          Sökresultat
-        </p>
-        <h1 className="text-2xl font-semibold tracking-tight text-[var(--text-strong)] sm:text-[1.75rem]">
-          &ldquo;{query}&rdquo;
-        </h1>
-        <p className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
-          <span className="inline-block size-3 animate-spin rounded-full border-2 border-[var(--brand-2)] border-t-transparent" />
-          Söker i registret…
-        </p>
-      </header>
-      <ol className="rd-card divide-y divide-[var(--rule-soft)]">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <li key={i} className="flex items-center gap-4 px-5 py-5">
-            <div className="rd-skeleton size-12 rounded-2xl" />
+    <div className="space-y-4 rounded-lg bg-[var(--surface-soft)] p-5 text-[17px]">
+      <p className="text-[var(--text-body)]">
+        Vi hittade inga verksamheter{query ? <> för &ldquo;{query}&rdquo;</> : null}
+        {geoText}. Registret använder ibland andra ord än man själv gör.
+      </p>
+      <ul className="space-y-2">
+        {harFilter && (
+          <li>
+            <Link
+              href={buildHref("/sok", filterState, { aeantMin: null, aeantMax: null, bransch: null, page: null })}
+              className="text-[var(--brand-ink)] underline"
+            >
+              Ta bort filtren
+            </Link>
+          </li>
+        )}
+        {kommunSlug && query && (
+          <li>
+            <Link href={`/sok?q=${encodeURIComponent(query)}`} className="text-[var(--brand-ink)] underline">
+              Sök &ldquo;{query}&rdquo; i hela Sverige
+            </Link>
+          </li>
+        )}
+        {kommunSlug && (
+          <li>
+            <Link href={`/kommun/${kommunSlug}`} className="text-[var(--brand-ink)] underline">
+              Se alla vård- och omsorgsverksamheter på orten
+            </Link>
+          </li>
+        )}
+      </ul>
+      <div className="flex flex-wrap gap-2">
+        {SOK_TERMER.slice(0, 6).map((t) => (
+          <Link
+            key={t.q}
+            href={kommunSlug ? `/sok?q=${encodeURIComponent(t.q)}&kommun=${kommunSlug}` : `/sok?q=${encodeURIComponent(t.q)}`}
+            className="inline-flex min-h-10 items-center rounded-md border border-[var(--rule-strong)] bg-white px-3 text-[15px] text-[var(--text-body)] hover:border-[var(--text-dim)]"
+          >
+            {t.label}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ResultsSkeleton() {
+  return (
+    <div className="min-w-0 space-y-4" aria-busy="true">
+      <div className="space-y-2">
+        <div className="rd-skeleton h-8 w-[45%] rounded" />
+        <p className="text-[17px] text-[var(--text-muted)]">Söker i registret…</p>
+      </div>
+      <ol className="rd-card divide-y divide-[var(--rule)]">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <li key={i} className="flex items-center justify-between gap-4 px-5 py-5">
             <div className="flex-1 space-y-2">
-              <div className="rd-skeleton h-4 w-[55%] rounded" />
-              <div className="rd-skeleton h-3 w-[35%] rounded" />
-              <div className="rd-skeleton h-3 w-[25%] rounded" />
+              <div className="rd-skeleton h-5 w-[50%] rounded" />
+              <div className="rd-skeleton h-4 w-[35%] rounded" />
             </div>
-            <div className="rd-skeleton h-9 w-20 rounded-full" />
+            <div className="rd-skeleton h-11 w-36 rounded-lg" />
           </li>
         ))}
       </ol>
@@ -358,21 +479,31 @@ function ResultsSkeleton({ query }: { query: string }) {
 
 function EmptyState() {
   return (
-    <div className="rd-fade-up mx-auto max-w-2xl space-y-6 py-12 text-center">
-      <div className="mx-auto inline-flex size-14 items-center justify-center rounded-2xl rd-brand-gradient text-white rd-shadow-glow">
-        <Search aria-hidden className="size-6" />
+    <div className="max-w-3xl space-y-6 py-4">
+      <h1 className="text-[1.75rem] font-bold tracking-tight">Sök vård och omsorg</h1>
+      <p className="text-[17px] text-[var(--text-muted)]">
+        Skriv vilken typ av vård du söker och var. Du kan också skriva namnet på en
+        verksamhet.
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {SOK_TERMER.map((t) => (
+          <Link
+            key={t.q}
+            href={`/sok?q=${encodeURIComponent(t.q)}`}
+            className="inline-flex min-h-11 items-center rounded-md border border-[var(--rule-strong)] px-3.5 text-[16px] text-[var(--text-body)] hover:border-[var(--text-dim)]"
+          >
+            {t.label}
+          </Link>
+        ))}
       </div>
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-[var(--text-strong)] sm:text-3xl">
-          Sök bland{" "}
-          <span className="rd-display rd-text-brand text-[1.15em]">
-            vård & omsorg
-          </span>
-        </h1>
-        <p className="text-[var(--text-muted)]">
-          Skriv en vårdkategori (t.ex. &ldquo;tandläkare&rdquo;), ett företagsnamn eller en ort.
-        </p>
-      </div>
+      <AkutNotis />
+      <p className="text-[16px] text-[var(--text-muted)]">
+        Eller bläddra bland{" "}
+        <Link href="/kommuner" className="text-[var(--brand-ink)] underline">
+          Sveriges {ALL_KOMMUNER.length} kommuner
+        </Link>
+        .
+      </p>
     </div>
   );
 }

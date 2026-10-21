@@ -1,21 +1,28 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { ArrowRight, Building2, MapPin, Layers } from "lucide-react";
 import { SearchBar } from "@/components/search-bar";
 import { JsonLd } from "@/components/json-ld";
-import { TOTAL_FORETAG, TOTAL_KOMMUNER, TOTAL_BRANSCHER } from "@/lib/stats";
+import { AkutNotis } from "@/components/vard-info";
+import { TOTAL_FORETAG, TOP_KOMMUNER } from "@/lib/stats";
 import { VARD_KATEGORIER } from "@/lib/vard-kategorier";
+import { SOK_TERMER } from "@/lib/sok-termer";
 import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 86400;
 
-const POPULAR_SEARCHES = [
-  { label: "HVB-hem", href: "/sok?kategori=hvb" },
+/**
+ * Snabbvalen: det som söks mest av privatpersoner, plus de omsorgsformer
+ * som anhöriga och handläggare letar efter. Hemtjänst saknas tills dess
+ * SNI-koder ligger i nischfiltret — i dag ger den bara ett tjugotal träffar.
+ */
+const SNABBVAL: Array<{ label: string; href: string }> = [
+  ...["tandläkare", "fysioterapeut", "psykolog", "vårdcentral", "kiropraktor"].map((q) => {
+    const t = SOK_TERMER.find((x) => x.q === q)!;
+    return { label: t.label.split(" / ")[0]!, href: `/sok?q=${encodeURIComponent(t.q)}` };
+  }),
   { label: "Äldreboende", href: "/sok?kategori=aldreomsorg" },
   { label: "LSS-boende", href: "/sok?kategori=lss" },
-  { label: "Hemtjänst", href: "/sok?q=hemtj%C3%A4nst" },
-  { label: "Behandlingshem", href: "/sok?q=behandlingshem" },
-  { label: "Familjehem", href: "/sok?q=familjehem" },
+  { label: "HVB-hem", href: "/sok?kategori=hvb" },
 ];
 
 const fmt = (n: number) => n.toLocaleString("sv-SE");
@@ -34,170 +41,120 @@ export default function HomePage() {
   };
 
   return (
-    <div className="rd-full-bleed space-y-0 overflow-x-hidden">
+    <div className="space-y-14 pb-4">
       <JsonLd data={webSiteJsonLd} />
 
-      {/* =========== HJÄLTE =========== */}
-      <section
-        aria-labelledby="hero-title"
-        className="relative overflow-hidden px-4 pt-12 pb-16 sm:pt-20 sm:pb-24"
-      >
-        {/* Subtilt rosatonat ljus uppifrån */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10"
-          style={{
-            background:
-              "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(225,29,39,0.08), transparent 65%),"
-              + "linear-gradient(180deg, #ffffff 0%, #ffffff 100%)",
-          }}
-        />
-
-        <div className="mx-auto flex max-w-4xl flex-col items-center gap-8 text-center">
+      {/* =========== SÖK =========== */}
+      <section aria-labelledby="hero-title" className="max-w-4xl space-y-6 pt-4 sm:pt-10">
+        <div className="space-y-3">
           <h1
             id="hero-title"
-            className="rd-fade-up text-balance text-[2.25rem] font-bold leading-[1.05] tracking-tight text-[var(--text-strong)] sm:text-5xl md:text-6xl"
+            className="text-[2rem] font-bold leading-[1.1] tracking-tight sm:text-[2.75rem]"
           >
-            Hitta rätt verksamhet inom
-            <br className="hidden sm:block" />{" "}
-            <span className="text-[var(--brand)]">vård och omsorg</span>
+            Hitta vård och omsorg nära dig
           </h1>
-
-          <p className="rd-fade-up rd-fade-up-delay-1 mx-auto max-w-2xl text-balance text-base text-[var(--text-muted)] sm:text-lg">
-            Sök bland tusentals verksamheter inom HVB, LSS, äldreomsorg,
-            hemtjänst och personlig assistans i hela Sverige.
+          <p className="max-w-2xl text-[18px] text-[var(--text-muted)]">
+            {fmt(TOTAL_FORETAG)} vård- och omsorgsverksamheter i
+            Sveriges 290 kommuner — med adress och telefonnummer, direkt ur
+            offentliga register. Inga betyg, inga påhittade omdömen.
           </p>
+        </div>
 
-          {/* Dual-sökruta */}
-          <div className="rd-fade-up rd-fade-up-delay-2 w-full">
-            <div className="flex justify-center">
-              <Suspense fallback={null}>
-                <SearchBar variant="dual" />
-              </Suspense>
-            </div>
-          </div>
+        <Suspense fallback={<div className="h-[244px] sm:h-[82px]" />}>
+          <SearchBar variant="dual" />
+        </Suspense>
 
-          {/* Populära sökningar */}
-          <div className="rd-fade-up rd-fade-up-delay-3 flex flex-wrap items-center justify-center gap-2 text-sm">
-            <span className="text-[var(--text-dim)]">Populärt:</span>
-            {POPULAR_SEARCHES.map((term) => (
-              <Link
-                key={term.label}
-                href={term.href}
-                className="rounded-full border border-[var(--rule)] bg-white px-3 py-1 text-[var(--text-body)] transition hover:border-[var(--brand)]/50 hover:bg-[var(--tint-1)] hover:text-[var(--brand-ink)]"
-              >
-                {term.label}
-              </Link>
+        <div className="space-y-2">
+          <p className="text-[15px] font-semibold text-[var(--text-strong)]">Vanliga sökningar</p>
+          <ul className="flex flex-wrap gap-2">
+            {SNABBVAL.map((v) => (
+              <li key={v.label}>
+                <Link
+                  href={v.href}
+                  className="inline-flex min-h-11 items-center rounded-md border border-[var(--rule-strong)] px-3.5 text-[16px] text-[var(--text-body)] transition-colors hover:border-[var(--brand)] hover:text-[var(--brand-ink)]"
+                >
+                  {v.label}
+                </Link>
+              </li>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* =========== STATISTIK-RUTOR =========== */}
-      <section className="px-4 pb-12 sm:pb-16">
-        <div className="mx-auto max-w-5xl">
-          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <StatTile
-              value={fmt(TOTAL_FORETAG)}
-              label="Vårdföretag i katalogen"
-              icon={<Building2 aria-hidden className="size-5" />}
-            />
-            <StatTile
-              value={fmt(TOTAL_KOMMUNER)}
-              label="Kommuner med vård & omsorg"
-              icon={<MapPin aria-hidden className="size-5" />}
-            />
-            <StatTile
-              value={fmt(TOTAL_BRANSCHER)}
-              label="Vårdkategorier (SNI-koder)"
-              icon={<Layers aria-hidden className="size-5" />}
-            />
           </ul>
         </div>
       </section>
 
-      {/* =========== KATEGORI-SEKTION =========== */}
-      <section
-        aria-labelledby="kategori-title"
-        className="bg-[var(--surface-soft)] px-4 py-16 sm:py-20"
-      >
-        <div className="mx-auto max-w-6xl space-y-10">
-          <div className="space-y-3 text-center">
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--brand)]">
-              Kategorier
-            </p>
-            <h2
-              id="kategori-title"
-              className="text-balance text-3xl font-bold tracking-tight text-[var(--text-strong)] sm:text-4xl"
-            >
-              Sök verksamhet efter typ
-            </h2>
-            <p className="mx-auto max-w-xl text-[var(--text-muted)]">
-              {VARD_KATEGORIER.length} kategorier baserade på SCB:s SNI-koder —
-              klicka för att se alla verksamheter inom området.
-            </p>
-          </div>
+      {/* =========== KATEGORIER =========== */}
+      <section aria-labelledby="kategori-title" className="space-y-4">
+        <h2 id="kategori-title" className="text-[1.5rem] font-semibold tracking-tight">
+          Bläddra efter typ av vård
+        </h2>
+        <ul className="grid border-t border-[var(--rule)] sm:grid-cols-2 sm:gap-x-10 lg:grid-cols-3">
+          {VARD_KATEGORIER.map((kat) => (
+            <li key={kat.slug} className="border-b border-[var(--rule)]">
+              <Link
+                href={`/sok?kategori=${kat.slug}`}
+                className="group flex min-h-[72px] items-center justify-between gap-4 py-3"
+              >
+                <span className="min-w-0">
+                  <span className="block text-[17px] font-semibold text-[var(--text-strong)] group-hover:text-[var(--brand-ink)] group-hover:underline">
+                    {kat.name}
+                  </span>
+                  <span className="block text-[15px] text-[var(--text-muted)]">{kat.description}</span>
+                </span>
+                <span className="shrink-0 text-[15px] text-[var(--text-dim)]">{fmt(kat.count)}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {VARD_KATEGORIER.map((kat) => {
-              const Icon = kat.icon;
-              return (
-                <li key={kat.slug}>
-                  <Link
-                    href={`/sok?kategori=${kat.slug}`}
-                    className="group relative flex h-full items-start gap-4 rounded-2xl border border-[var(--rule)] bg-white p-6 transition hover:border-[var(--brand)]/40 hover:shadow-[0_8px_24px_-12px_rgba(225,29,39,0.18)]"
-                  >
-                    <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-xl bg-[var(--tint-1)] text-[var(--brand)] ring-1 ring-[var(--brand)]/15 transition group-hover:bg-[var(--brand)] group-hover:text-white group-hover:ring-[var(--brand)]/40">
-                      <Icon className="size-6" />
-                    </span>
-                    <div className="min-w-0 flex-1 space-y-1">
-                      <h3 className="text-[17px] font-semibold tracking-tight text-[var(--text-strong)] group-hover:text-[var(--brand-ink)]">
-                        {kat.name}
-                      </h3>
-                      <p className="text-sm leading-snug text-[var(--text-muted)]">
-                        {kat.description}
-                      </p>
-                      <p className="pt-1.5 font-mono text-xs tabular-nums text-[var(--text-dim)]">
-                        {fmt(kat.count)} verksamheter
-                      </p>
-                    </div>
-                    <ArrowRight
-                      aria-hidden
-                      className="mt-1 size-4 shrink-0 text-[var(--text-faint)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--brand)]"
-                    />
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+      {/* =========== KOMMUNER =========== */}
+      <section aria-labelledby="kommun-title" className="space-y-4">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 id="kommun-title" className="text-[1.5rem] font-semibold tracking-tight">
+            Flest verksamheter
+          </h2>
+          <Link href="/kommuner" className="text-[16px] font-medium text-[var(--brand-ink)] underline-offset-4 hover:underline">
+            Alla 290 kommuner
+          </Link>
         </div>
+        <ul className="grid grid-cols-2 gap-x-6 sm:grid-cols-3 lg:grid-cols-4">
+          {TOP_KOMMUNER.slice(0, 16).map((k) => (
+            <li key={k.kommun.code} className="border-b border-[var(--rule)]">
+              <Link
+                href={k.href}
+                className="flex min-h-12 items-center justify-between gap-2 text-[16px] text-[var(--text-body)] hover:text-[var(--brand-ink)] hover:underline"
+              >
+                {k.kommun.name}
+                <span className="text-[14px] text-[var(--text-dim)]">{fmt(k.count)}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* =========== OM TJÄNSTEN =========== */}
+      <section aria-labelledby="om-title" className="grid gap-8 border-t border-[var(--rule)] pt-10 lg:grid-cols-3">
+        <h2 id="om-title" className="sr-only">
+          Om Vårddelen
+        </h2>
+        <div className="space-y-2">
+          <h3 className="text-[17px] font-semibold">Uppgifter från register</h3>
+          <p className="text-[16px] text-[var(--text-muted)]">
+            Namn, adress, telefon och bransch kommer från offentliga register och
+            SCB. Verksamheter kan själva komplettera sin profil.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-[17px] font-semibold">Tydligt vad som är betalt</h3>
+          <p className="text-[16px] text-[var(--text-muted)]">
+            Betalda placeringar märks alltid &ldquo;Betald placering&rdquo;. Det
+            är synlighet, inte en bedömning av vården.{" "}
+            <Link href="#om-ordningen" className="text-[var(--brand-ink)] underline">
+              Så sorteras listorna
+            </Link>
+          </p>
+        </div>
+        <AkutNotis className="self-start" />
       </section>
     </div>
-  );
-}
-
-function StatTile({
-  value,
-  label,
-  icon,
-}: {
-  value: string;
-  label: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <li className="flex items-center gap-4 rounded-2xl border border-[var(--rule)] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
-      <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-xl bg-[var(--tint-1)] text-[var(--brand)] ring-1 ring-[var(--brand)]/15">
-        {icon}
-      </span>
-      <div className="min-w-0">
-        <p className="font-mono text-2xl font-bold tabular-nums tracking-tight text-[var(--text-strong)] sm:text-3xl">
-          {value}
-        </p>
-        <p className="mt-0.5 text-[13px] leading-snug text-[var(--text-muted)]">
-          {label}
-        </p>
-      </div>
-    </li>
   );
 }

@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, Layers, MapPin } from "lucide-react";
-import { kommunBySlug } from "@/lib/kommuner";
+import { ALL_KOMMUNER, kommunBySlug } from "@/lib/kommuner";
+import { lanByCode, lanNamn } from "@/lib/lan";
 import {
   branschPageSlug,
   countForetagInKommun,
   listForetagInKommun,
 } from "@/lib/queries";
-import { branschFordelning } from "@/lib/counts";
+import { branschFordelning, branschNamn, kommunTotal } from "@/lib/counts";
 import { getBranschNamesBulk } from "@/lib/branscher";
 import { JsonLd, buildBreadcrumb } from "@/components/json-ld";
 import { Breadcrumb } from "@/components/breadcrumb";
-import { kommunForetagCount } from "@/lib/stats";
+import { BRANSCH_LABEL, etikettIText, kommunForetagCount } from "@/lib/stats";
+import { AkutNotis, OrdningsNotis } from "@/components/vard-info";
 import { CompanyCard, CompanyCardList } from "@/components/company-card";
 import { loadAktivaOverlays, overlayFor } from "@/lib/overlay";
 import { ordnaBoostade } from "@/lib/overlay-rankning";
@@ -75,6 +76,32 @@ export default async function KommunPage({ params }: { params: Params }) {
   const foretagSample = ordnaBoostade(oboostadeForetag, overlays);
 
   const branschNames = await getBranschNamesBulk(fordelning.map((f) => f.ng1));
+  const lan = lanByCode(kommun.lan);
+
+  // Kategorierna med sajtens egna etiketter: SCB:s namn är inte unika (fem
+  // "Hälso & sjukvård" i rad). Sluggen byggs alltid ur t_bransch-namnet.
+  const kategorier = fordelning
+    .map((f) => {
+      const dbName = branschNames.get(String(f.ng1)) ?? branschNamn(f.ng1);
+      if (!dbName) return null;
+      return {
+        ng1: f.ng1,
+        count: f.count,
+        label: BRANSCH_LABEL[f.ng1] ?? dbName,
+        href: `/kommun/${kommun.slug}/${branschPageSlug(dbName, f.ng1)}`,
+      };
+    })
+    .filter((x): x is NonNullable<typeof x> => x !== null);
+
+  // Övriga kommuner i samma län, störst först — en riktig väg vidare för den
+  // som inte hittar rätt på orten, inte en lista med samma mall.
+  const grannar = ALL_KOMMUNER.filter((k) => k.lan === kommun.lan && k.code !== kommun.code)
+    .map((k) => ({ kommun: k, count: kommunTotal(k.code) }))
+    .filter((k) => k.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 12);
+
+  const topp3 = kategorier.slice(0, 3);
 
   const breadcrumbItems = [
     { name: "Vårddelen", href: "/" },
@@ -91,171 +118,112 @@ export default async function KommunPage({ params }: { params: Params }) {
       <JsonLd data={breadcrumbJsonLd} />
       <Breadcrumb items={breadcrumbItems} />
 
-      {/* ======= HERO ======= */}
-      <header className="rd-fade-up relative overflow-hidden rounded-3xl border border-[var(--rule)] bg-white rd-shadow-md">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 60% at 0% 0%, rgba(225,29,39,0.10), transparent 65%),"
-              + "linear-gradient(180deg, #FFF5F5 0%, #ffffff 70%)",
-          }}
-        />
-        <div
-          aria-hidden
-          className="rd-dot-grid pointer-events-none absolute inset-0 opacity-30 [mask-image:linear-gradient(180deg,#000,transparent_70%)]"
-        />
-        <div className="relative grid gap-6 p-6 sm:grid-cols-[1fr_auto] sm:items-end sm:p-9">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--brand-2)]">
-              <MapPin aria-hidden className="size-3.5" />
-              Kommun · Län {kommun.lan}
-            </div>
-            <h1 className="text-balance text-3xl font-semibold leading-[1.05] tracking-tight text-[var(--text-strong)] sm:text-[2.75rem]">
-              Vård & omsorg i{" "}
-              <span className="rd-display rd-text-brand text-[1.15em]">
-                {kommun.name}
-              </span>
-            </h1>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--text-muted)] sm:text-base">
-              <span>
-                <span className="font-mono font-semibold tabular-nums text-[var(--text-strong)]">
-                  {fmt(liveTotal)}
-                </span>{" "}
-                vårdföretag registrerade
-              </span>
-              <span aria-hidden className="text-[var(--text-faint)]">·</span>
-              <span className="font-mono text-[var(--text-dim)]">
-                SCB {kommun.scbCode}
-              </span>
-            </div>
-          </div>
-          <Link
-            href={`/sok?kommun=${kommun.slug}`}
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full rd-brand-gradient rd-cta-shadow px-5 text-sm font-semibold text-white transition hover:brightness-105 active:scale-[0.99]"
-          >
-            Sök i {kommun.name}
-            <ArrowRight aria-hidden className="size-4" />
-          </Link>
-        </div>
+      <header className="max-w-3xl space-y-3">
+        <h1 className="text-[2rem] font-bold leading-tight tracking-tight sm:text-[2.5rem]">
+          Vård och omsorg i {kommun.name}
+        </h1>
+        <p className="text-[18px] leading-relaxed text-[var(--text-body)]">
+          {kommun.name} kommun{lan ? ` i ${lanNamn(lan)}` : ""} har{" "}
+          <strong className="font-semibold">{fmt(liveTotal)}</strong> vård- och
+          omsorgsverksamheter i registret.
+          {topp3.length > 0 && (
+            <>
+              {" "}Flest finns inom{" "}
+              {topp3.map((k, i) => (
+                <span key={k.ng1}>
+                  {i > 0 && (i === topp3.length - 1 ? " och " : ", ")}
+                  {etikettIText(k.label)} ({fmt(k.count)})
+                </span>
+              ))}
+              .
+            </>
+          )}
+        </p>
+        <Link
+          href={`/sok?kommun=${kommun.slug}`}
+          className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--brand)] px-5 text-[16px] font-semibold text-white transition-colors hover:bg-[var(--brand-2)]"
+        >
+          Sök vård i {kommun.name}
+        </Link>
       </header>
 
-      {/* ======= LARGEST EMPLOYERS + BRANSCHFÖRDELNING ======= */}
-      <section className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_22rem]">
-        <div className="rd-fade-up rd-fade-up-delay-1 space-y-4">
-          <div className="flex items-end justify-between gap-3">
-            <div className="space-y-0.5">
-              <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--brand-2)]">
-                Arbetsgivare
-              </p>
-              <h2 className="text-xl font-semibold text-[var(--text-strong)] sm:text-2xl">
-                Största i {kommun.name}
-              </h2>
-            </div>
-            <Link
-              href={`/sok?kommun=${kommun.slug}`}
-              className="hidden text-sm text-[var(--text-muted)] hover:text-[var(--brand-ink)] sm:inline"
-            >
-              Se alla →
+      <div className="grid gap-12 lg:grid-cols-[1fr_20rem]">
+        <section aria-labelledby="storsta-rubrik" className="min-w-0 space-y-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+            <h2 id="storsta-rubrik" className="text-[1.5rem] font-semibold">
+              Största verksamheterna
+            </h2>
+            <Link href={`/sok?kommun=${kommun.slug}`} className="text-[16px] font-medium text-[var(--brand-ink)] underline-offset-4 hover:underline">
+              Se alla
             </Link>
           </div>
+          <OrdningsNotis />
           {foretagSample.length === 0 ? (
-            <p className="text-sm text-[var(--text-muted)]">
-              Ingen vårddata tillgänglig.
-            </p>
+            <p className="text-[16px] text-[var(--text-muted)]">Inga verksamheter i registret.</p>
           ) : (
             <CompanyCardList>
-              {foretagSample.map((f, i) => (
+              {foretagSample.map((f) => (
                 <li key={f.cfarnr}>
                   <CompanyCard
                     foretag={f}
                     overlay={overlayFor(f, overlays)}
-                    rank={i + 1}
+                    branschName={f.ng1 ? (BRANSCH_LABEL[f.ng1] ?? branschNamn(f.ng1)) : null}
                     kommunName={kommun.name}
                   />
                 </li>
               ))}
             </CompanyCardList>
           )}
-        </div>
+        </section>
 
-        <aside className="rd-fade-up rd-fade-up-delay-2 space-y-4">
-          <div className="flex items-end justify-between gap-3">
-            <div className="space-y-0.5">
-              <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--brand-2)]">
-                Branscher
-              </p>
-              <h2 className="text-xl font-semibold text-[var(--text-strong)] sm:text-2xl">
-                Vårdkategorier
-              </h2>
-            </div>
-            <span className="text-xs text-[var(--text-dim)]">
-              Topp {fordelning.length}
-            </span>
-          </div>
-          {fordelning.length === 0 ? (
-            <p className="text-sm text-[var(--text-muted)]">
-              Ingen branschdata tillgänglig.
-            </p>
-          ) : (
-            <ol className="rd-card divide-y divide-[var(--rule-soft)]">
-              {fordelning.map((f) => {
-                const name = branschNames.get(String(f.ng1)) ?? `SNI ${f.ng1}`;
-                const href = `/kommun/${kommun.slug}/${branschPageSlug(name, f.ng1)}`;
-                return (
-                  <li key={f.ng1}>
+        <aside className="space-y-10">
+          <section aria-labelledby="typ-rubrik" className="space-y-3">
+            <h2 id="typ-rubrik" className="text-[1.25rem] font-semibold">
+              Typ av vård i {kommun.name}
+            </h2>
+            {kategorier.length === 0 ? (
+              <p className="text-[16px] text-[var(--text-muted)]">Ingen kategoridata.</p>
+            ) : (
+              <ul className="border-t border-[var(--rule)]">
+                {kategorier.map((k) => (
+                  <li key={k.ng1} className="border-b border-[var(--rule)]">
                     <Link
-                      href={href}
-                      className="rd-row flex items-center justify-between gap-2 px-4 py-2.5 text-sm"
-                      title={`${name} i ${kommun.name}`}
+                      href={k.href}
+                      className="flex min-h-11 items-center justify-between gap-3 py-2 text-[16px] text-[var(--text-body)] hover:text-[var(--brand-ink)] hover:underline"
                     >
-                      <span className="flex min-w-0 items-center gap-2 text-[var(--text-body)]">
-                        <Layers
-                          aria-hidden
-                          className="size-3.5 shrink-0 text-[var(--brand-2)]"
-                        />
-                        <span className="truncate">{name}</span>
-                      </span>
-                      <span className="shrink-0 font-mono text-xs tabular-nums text-[var(--text-muted)]">
-                        {fmt(f.count)}
-                      </span>
+                      <span className="min-w-0">{k.label}</span>
+                      <span className="shrink-0 text-[15px] text-[var(--text-dim)]">{fmt(k.count)}</span>
                     </Link>
                   </li>
-                );
-              })}
-            </ol>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {grannar.length > 0 && (
+            <section aria-labelledby="grannar-rubrik" className="space-y-3">
+              <h2 id="grannar-rubrik" className="text-[1.25rem] font-semibold">
+                {lan ? `Fler kommuner i ${lanNamn(lan)}` : "Fler kommuner"}
+              </h2>
+              <ul className="border-t border-[var(--rule)]">
+                {grannar.map((g) => (
+                  <li key={g.kommun.code} className="border-b border-[var(--rule)]">
+                    <Link
+                      href={`/kommun/${g.kommun.slug}`}
+                      className="flex min-h-11 items-center justify-between gap-3 py-2 text-[16px] text-[var(--text-body)] hover:text-[var(--brand-ink)] hover:underline"
+                    >
+                      {g.kommun.name}
+                      <span className="text-[15px] text-[var(--text-dim)]">{fmt(g.count)}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
         </aside>
-      </section>
+      </div>
 
-      {/* ======= SEO-TEXT + CTA ======= */}
-      <section className="rd-fade-up rd-fade-up-delay-3 grid grid-cols-1 gap-5 rounded-3xl border border-[var(--brand)]/25 bg-[var(--tint-2)] p-6 sm:grid-cols-[1fr_auto] sm:items-center sm:p-8">
-        <div className="space-y-2">
-          <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--brand-ink)]">
-            Om sidan
-          </p>
-          <h3 className="text-lg font-semibold text-[var(--text-strong)] sm:text-xl">
-            Lokal vård- & omsorgskatalog för {kommun.name} kommun
-          </h3>
-          <p className="max-w-2xl text-sm leading-relaxed text-[var(--text-body)]">
-            Här hittar du{" "}
-            <span className="font-semibold tabular-nums text-[var(--text-strong)]">
-              {fmt(liveTotal)}
-            </span>{" "}
-            registrerade vårdföretag i {kommun.name}. Klicka på en kategori
-            för att se alla vårdföretag inom den nischen, eller använd
-            sökfunktionen för att hitta ett specifikt vårdföretag.
-          </p>
-        </div>
-        <Link
-          href={`/sok?kommun=${kommun.slug}`}
-          className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full rd-brand-gradient rd-cta-shadow px-5 text-sm font-semibold text-white transition hover:brightness-105 active:scale-[0.99]"
-        >
-          Sök i {kommun.name}
-          <ArrowRight aria-hidden className="size-4" />
-        </Link>
-      </section>
+      <AkutNotis />
     </div>
   );
 }

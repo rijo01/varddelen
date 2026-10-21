@@ -74,7 +74,7 @@ const _TOP_KOMMUNER: KommunStat[] = toppKommuner(25)
  * hubbsidan sedan 308:ar bort, eftersom hubbens kanoniska slug kommer ur
  * t_bransch.
  */
-const BRANSCH_LABEL: Readonly<Record<number, string>> = {
+export const BRANSCH_LABEL: Readonly<Record<number, string>> = {
   86909: "Hälso- & sjukvård",
   86905: "Hälso- & sjukvård (slutenvård)",
   86212: "Specialistläkare",
@@ -129,4 +129,12 @@ export const TOP_BRANSCHER: ReadonlyArray<BranschStat> = _TOP_BRANSCHER;
 export function kommunForetagCount(code: string): number | undefined {
   const n = kommunTotal(code);
   return n > 0 ? n : undefined;
+}
+
+/**
+ * En etikett mitt i en mening: bara första bokstaven blir gemen, så att
+ * förkortningar står kvar — "behandlingshem (LSS)", inte "behandlingshem (lss)".
+ */
+export function etikettIText(label: string): string {
+  return label.charAt(0).toLowerCase() + label.slice(1);
 }

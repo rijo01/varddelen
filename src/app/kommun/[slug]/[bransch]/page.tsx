@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { ArrowLeft, ArrowRight, Layers } from "lucide-react";
-import { kommunBySlug } from "@/lib/kommuner";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ALL_KOMMUNER, kommunBySlug } from "@/lib/kommuner";
+import { lanByCode, lanNamn } from "@/lib/lan";
+import { branschFordelning, branschNamn, branschTotal, kommunBranschTotal, kommunTotal } from "@/lib/counts";
+import { BRANSCH_LABEL, etikettIText } from "@/lib/stats";
+import { AkutNotis, OrdningsNotis } from "@/components/vard-info";
 import { getBranschName } from "@/lib/branscher";
 import {
   branschPageSlug,
@@ -61,7 +65,7 @@ export async function generateMetadata({
 const PAGE_SIZE = 25;
 
 const SIZE_BUCKETS: Array<{ label: string; min?: number; max?: number }> = [
-  { label: "Alla storlekar" },
+  { label: "Alla" },
   { label: "1–9", min: 1, max: 9 },
   { label: "10–49", min: 10, max: 49 },
   { label: "50–249", min: 50, max: 249 },
@@ -163,182 +167,199 @@ export default async function BranschPage({
     return qs ? `${basePath}?${qs}` : basePath;
   }
 
+  // ===== Sidans egna fakta, ur räknesnapshoten =====
+  // Allt nedan är tal för just den här orten och branschen — det som skiljer
+  // sidan från samma mall i en annan kommun. Inga genererade påståenden.
+  const etikett = BRANSCH_LABEL[ng1] ?? branschName;
+  const antalHar = kommunBranschTotal(kommun.code, ng1);
+  const antalKommun = kommunTotal(kommun.code);
+  const antalLandet = branschTotal(ng1);
+  const lan = lanByCode(kommun.lan);
+  const andel = antalKommun > 0 ? Math.round((antalHar / antalKommun) * 100) : null;
+
+  const grannar = ALL_KOMMUNER.filter((k) => k.lan === kommun.lan && k.code !== kommun.code)
+    .map((k) => ({ kommun: k, count: kommunBranschTotal(k.code, ng1) }))
+    .filter((k) => k.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+
+  const andraTyper = branschFordelning(kommun.code, 12)
+    .filter((f) => f.ng1 !== ng1)
+    .map((f) => {
+      const dbName = branschNamn(f.ng1);
+      if (!dbName) return null;
+      return {
+        ng1: f.ng1,
+        count: f.count,
+        label: BRANSCH_LABEL[f.ng1] ?? dbName,
+        href: `/kommun/${kommun.slug}/${branschPageSlug(dbName, f.ng1)}`,
+      };
+    })
+    .filter((x): x is NonNullable<typeof x> => x !== null)
+    .slice(0, 8);
+
+  const hubbHref = (slug: string) =>
+    branschNameOrNull ? `/kommun/${slug}/${branschPageSlug(branschNameOrNull, ng1)}` : `/kommun/${slug}`;
+
   return (
     <div className="space-y-10">
       <JsonLd data={breadcrumbJsonLd} />
       <Breadcrumb items={breadcrumbItems} />
 
-      {/* ======= HERO ======= */}
-      <header className="rd-fade-up relative overflow-hidden rounded-3xl border border-[var(--rule)] bg-white rd-shadow-md">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 70% 60% at 50% 0%, rgba(225,29,39,0.08), transparent 65%),"
-              + "linear-gradient(180deg, #FFF5F5 0%, #ffffff 70%)",
-          }}
-        />
-        <div className="relative space-y-4 p-6 sm:p-9">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--rule)] bg-[var(--surface-soft)] px-2.5 py-1 font-mono text-[11px] text-[var(--text-muted)]">
-              SNI {ng1}
-            </span>
-            <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--brand-2)]">
-              Bransch · {kommun.name}
-            </span>
-          </div>
-          <h1 className="text-balance text-3xl font-semibold leading-[1.05] tracking-tight text-[var(--text-strong)] sm:text-[2.5rem]">
-            <span className="rd-display rd-text-brand text-[1.1em]">
-              {branschName}
-            </span>{" "}
-            i{" "}
-            <Link
-              href={`/kommun/${kommun.slug}`}
-              className="text-[var(--text-strong)] underline-offset-[6px] hover:underline"
-            >
-              {kommun.name}
-            </Link>
-          </h1>
-          <p className="max-w-2xl text-sm leading-relaxed text-[var(--text-muted)] sm:text-base">
-            Vårdföretag inom {branschName.toLowerCase()} i {kommun.name} kommun,
-            sorterat efter storlek (antal anställda).
+      <header className="max-w-3xl space-y-3">
+        <h1 className="text-[2rem] font-bold leading-tight tracking-tight sm:text-[2.5rem]">
+          {etikett} i {kommun.name}
+        </h1>
+        {antalHar > 0 && (
+          <p className="text-[18px] leading-relaxed text-[var(--text-body)]">
+            Registret har <strong className="font-semibold">{fmt(antalHar)}</strong>{" "}
+            {antalHar === 1 ? "verksamhet" : "verksamheter"} inom {etikettIText(etikett)} i{" "}
+            {kommun.name} kommun
+            {andel != null && antalKommun > 0 && (
+              <> — {andel < 1 ? "under 1" : andel} % av kommunens {fmt(antalKommun)} vård- och omsorgsverksamheter</>
+            )}
+            . I hela landet finns {fmt(antalLandet)}.
           </p>
-        </div>
+        )}
       </header>
 
-      {/* ======= STORLEKSFILTER ======= */}
-      <nav
-        aria-label="Filtrera på storlek"
-        className="flex flex-wrap items-center gap-2"
-      >
-        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--text-dim)]">
-          Storlek:
-        </span>
-        {SIZE_BUCKETS.map((b) => {
-          const isActive =
-            (aeantMin ?? null) === (b.min ?? null) &&
-            (aeantMax ?? null) === (b.max ?? null);
-          return (
-            <Link
-              key={b.label}
-              href={withParams({
-                aeantMin: b.min ? String(b.min) : null,
-                aeantMax: b.max ? String(b.max) : null,
-                page: null,
-              })}
-              className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium transition ${
-                isActive
-                  ? "border-[var(--brand-2)]/50 bg-[var(--tint-3)] text-[var(--brand-ink)]"
-                  : "border-[var(--rule)] bg-white text-[var(--text-body)] hover:border-[var(--brand-2)]/40 hover:bg-[var(--tint-2)]"
-              }`}
-            >
-              {b.label}
-            </Link>
-          );
-        })}
+      <nav aria-label="Filtrera på antal anställda" className="flex flex-col gap-2 border-y border-[var(--rule)] py-4 sm:flex-row sm:items-center sm:gap-4">
+        <p className="w-36 shrink-0 text-[15px] font-semibold text-[var(--text-strong)]">Antal anställda</p>
+        <div className="flex flex-wrap gap-2">
+          {SIZE_BUCKETS.map((b) => {
+            const isActive =
+              (aeantMin ?? null) === (b.min ?? null) &&
+              (aeantMax ?? null) === (b.max ?? null);
+            return (
+              <Link
+                key={b.label}
+                href={withParams({
+                  aeantMin: b.min ? String(b.min) : null,
+                  aeantMax: b.max ? String(b.max) : null,
+                  page: null,
+                })}
+                aria-current={isActive ? "true" : undefined}
+                className={`inline-flex min-h-10 items-center rounded-md border px-3 text-[15px] transition-colors ${
+                  isActive
+                    ? "border-[var(--brand)] bg-[var(--tint-2)] font-semibold text-[var(--brand-ink)]"
+                    : "border-[var(--rule-strong)] text-[var(--text-body)] hover:border-[var(--text-dim)]"
+                }`}
+              >
+                {b.label}
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
-      {/* ======= LIST ======= */}
-      {rows.length === 0 ? (
-        <div className="rd-card border-dashed bg-white p-8 text-center">
-          <p className="text-base font-medium text-[var(--text-strong)]">
-            Inga vårdföretag hittades
-          </p>
-          <p className="mt-1 text-sm text-[var(--text-muted)]">
-            Inga registrerade vårdföretag inom {branschName.toLowerCase()} i{" "}
-            {kommun.name} matchar valt storleksfilter.
-          </p>
-          <Link
-            href={`/kommun/${kommun.slug}`}
-            className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--brand-ink)] hover:underline"
-          >
-            <ArrowLeft aria-hidden className="size-4" />
-            Tillbaka till {kommun.name}
-          </Link>
-        </div>
-      ) : (
-        <CompanyCardList>
-          {rows.map((f, i) => (
-            <li key={f.cfarnr}>
-              <CompanyCard
-                foretag={f}
-                overlay={overlayFor(f, overlays)}
-                rank={(page - 1) * PAGE_SIZE + i + 1}
-                branschName={branschName}
-                kommunName={kommun.name}
-              />
-            </li>
-          ))}
-        </CompanyCardList>
-      )}
-
-      {(page > 1 || hasMore) && (
-        <nav className="flex items-center justify-between border-t border-[var(--rule)] pt-5 text-sm">
-          {page > 1 ? (
+      <section aria-label={`${etikett} i ${kommun.name}`} className="space-y-3">
+        {rows.length > 0 && <OrdningsNotis />}
+        {rows.length === 0 ? (
+          <div className="space-y-3 rounded-lg bg-[var(--surface-soft)] p-5 text-[17px]">
+            <p>
+              Inga verksamheter inom {etikettIText(etikett)} i {kommun.name} matchar valt
+              filter.
+            </p>
             <Link
-              href={withParams({ page: page > 2 ? String(page - 1) : null })}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--rule)] bg-white px-4 py-2 font-medium text-[var(--text-body)] transition hover:border-[var(--brand-2)]/40 hover:bg-[var(--tint-2)] hover:text-[var(--brand-ink)]"
+              href={`/kommun/${kommun.slug}`}
+              className="inline-flex items-center gap-1.5 text-[var(--brand-ink)] underline"
             >
               <ArrowLeft aria-hidden className="size-4" />
-              Föregående
+              All vård och omsorg i {kommun.name}
             </Link>
-          ) : (
-            <span />
-          )}
-          <span className="text-[var(--text-muted)]">Sida {page}</span>
-          {hasMore ? (
-            <Link
-              href={withParams({ page: String(page + 1) })}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--rule)] bg-white px-4 py-2 font-medium text-[var(--text-body)] transition hover:border-[var(--brand-2)]/40 hover:bg-[var(--tint-2)] hover:text-[var(--brand-ink)]"
-            >
-              Nästa
-              <ArrowRight aria-hidden className="size-4" />
-            </Link>
-          ) : (
-            <span />
-          )}
-        </nav>
-      )}
+          </div>
+        ) : (
+          <CompanyCardList>
+            {rows.map((f) => (
+              <li key={f.cfarnr}>
+                <CompanyCard
+                  foretag={f}
+                  overlay={overlayFor(f, overlays)}
+                  rubrikNiva={2}
+                  branschName={etikett}
+                  kommunName={kommun.name}
+                />
+              </li>
+            ))}
+          </CompanyCardList>
+        )}
 
-      {/* ======= CROSS-LINKS ======= */}
-      <section className="rd-fade-up rd-fade-up-delay-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <Link
-          href={`/kommun/${kommun.slug}`}
-          className="rd-card rd-card-hover group flex items-center justify-between gap-3 p-5"
-        >
-          <div className="min-w-0">
-            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--text-dim)]">
-              Pillar
-            </p>
-            <p className="mt-1 text-base font-semibold text-[var(--text-strong)]">
-              All vård & omsorg i {kommun.name}
-            </p>
-          </div>
-          <ArrowRight
-            aria-hidden
-            className="size-4 shrink-0 text-[var(--text-faint)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--brand-2)]"
-          />
-        </Link>
-        <Link
-          href={`/sok?q=${encodeURIComponent(branschName)}`}
-          className="rd-card rd-card-hover group flex items-center justify-between gap-3 p-5"
-        >
-          <div className="min-w-0">
-            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--text-dim)]">
-              Hela Sverige
-            </p>
-            <p className="mt-1 flex items-center gap-1.5 text-base font-semibold text-[var(--text-strong)]">
-              <Layers aria-hidden className="size-4 text-[var(--brand-2)]" />
-              {branschName} i hela landet
-            </p>
-          </div>
-          <ArrowRight
-            aria-hidden
-            className="size-4 shrink-0 text-[var(--text-faint)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--brand-2)]"
-          />
-        </Link>
+        {(page > 1 || hasMore) && (
+          <nav aria-label="Sidor" className="flex items-center justify-between gap-3 pt-2 text-[16px]">
+            {page > 1 ? (
+              <Link
+                href={withParams({ page: page > 2 ? String(page - 1) : null })}
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-[var(--rule-strong)] px-4 font-medium text-[var(--text-strong)] hover:border-[var(--text-dim)]"
+              >
+                <ArrowLeft aria-hidden className="size-4" />
+                Föregående
+              </Link>
+            ) : (
+              <span />
+            )}
+            <span className="text-[var(--text-muted)]">Sida {page}</span>
+            {hasMore ? (
+              <Link
+                href={withParams({ page: String(page + 1) })}
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-[var(--rule-strong)] px-4 font-medium text-[var(--text-strong)] hover:border-[var(--text-dim)]"
+              >
+                Nästa
+                <ArrowRight aria-hidden className="size-4" />
+              </Link>
+            ) : (
+              <span />
+            )}
+          </nav>
+        )}
       </section>
+
+      <div className="grid gap-10 border-t border-[var(--rule)] pt-8 md:grid-cols-2">
+        {grannar.length > 0 && (
+          <section aria-labelledby="grannar-rubrik" className="space-y-3">
+            <h2 id="grannar-rubrik" className="text-[1.25rem] font-semibold">
+              {etikett} i {lan ? lanNamn(lan) : "närheten"}
+            </h2>
+            <ul className="border-t border-[var(--rule)]">
+              {grannar.map((g) => (
+                <li key={g.kommun.code} className="border-b border-[var(--rule)]">
+                  <Link
+                    href={hubbHref(g.kommun.slug)}
+                    className="flex min-h-11 items-center justify-between gap-3 py-2 text-[16px] text-[var(--text-body)] hover:text-[var(--brand-ink)] hover:underline"
+                  >
+                    {g.kommun.name}
+                    <span className="text-[15px] text-[var(--text-dim)]">{fmt(g.count)}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {andraTyper.length > 0 && (
+          <section aria-labelledby="andra-rubrik" className="space-y-3">
+            <h2 id="andra-rubrik" className="text-[1.25rem] font-semibold">
+              Annan vård i {kommun.name}
+            </h2>
+            <ul className="border-t border-[var(--rule)]">
+              {andraTyper.map((k) => (
+                <li key={k.ng1} className="border-b border-[var(--rule)]">
+                  <Link
+                    href={k.href}
+                    className="flex min-h-11 items-center justify-between gap-3 py-2 text-[16px] text-[var(--text-body)] hover:text-[var(--brand-ink)] hover:underline"
+                  >
+                    {k.label}
+                    <span className="text-[15px] text-[var(--text-dim)]">{fmt(k.count)}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <Link href={`/kommun/${kommun.slug}`} className="inline-block text-[16px] text-[var(--brand-ink)] underline">
+              All vård och omsorg i {kommun.name}
+            </Link>
+          </section>
+        )}
+      </div>
+
+      <AkutNotis />
     </div>
   );
 }

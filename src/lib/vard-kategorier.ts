@@ -24,6 +24,7 @@
 import type { LucideIcon } from "lucide-react";
 import { Home, Heart, Accessibility, Stethoscope, Smile, Pill } from "lucide-react";
 import { branschTotal } from "./counts";
+import { KATEGORI_FORSLAG } from "./sok-termer";
 
 export type VardKategori = {
   slug: string;
@@ -100,6 +101,15 @@ for (const k of KATEGORI_DEFS) {
     }
     _seen.add(ng1);
   }
+}
+
+// Sökfältets förslagslista är en kopia utan tal (se sok-termer.ts). Den får
+// inte glida isär från definitionerna här.
+if (
+  KATEGORI_FORSLAG.length !== KATEGORI_DEFS.length ||
+  KATEGORI_FORSLAG.some((k, i) => k.slug !== KATEGORI_DEFS[i]!.slug || k.name !== KATEGORI_DEFS[i]!.name)
+) {
+  throw new Error("KATEGORI_FORSLAG i sok-termer.ts stämmer inte med KATEGORI_DEFS");
 }
 
 export const VARD_KATEGORIER: ReadonlyArray<VardKategori> = KATEGORI_DEFS.map(

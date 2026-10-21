@@ -10,17 +10,38 @@ import {
   useState,
   useTransition,
 } from "react";
-import { Search, MapPin, Building2, Layers, ArrowRight } from "lucide-react";
+import { Search, MapPin, Building2, Layers, Stethoscope } from "lucide-react";
 import { ALL_KOMMUNER, kommunBySlug } from "@/lib/kommuner";
-import { ALL_LAN, lanBySlug } from "@/lib/lan";
+import { ALL_LAN, lanBySlug, lanNamn } from "@/lib/lan";
 import { ALL_POSTORTER } from "@/lib/postorter";
+import { KATEGORI_FORSLAG, SOK_TERMER } from "@/lib/sok-termer";
 
+/**
+ * Ett förslag under "Vilken vård söker du?".
+ *   term     — fyller i fältet och flyttar fokus till "Var?"
+ *   kategori — öppnar kategorin, med orten om en är vald
+ *   foretag  — öppnar verksamhetens sida
+ */
 type Suggestion = {
-  type: "foretag" | "kommun" | "bransch";
+  type: "foretag" | "kommun" | "bransch" | "term" | "kategori";
   label: string;
   sub: string;
   href: string;
+  /** För term: ordet som skrivs i fältet. För kategori: sluggen. */
+  value?: string;
 };
+
+/** Lokala förslag — ingen nätverksrunda, visas direkt vid fokus. */
+function lokalaForslag(needle: string): Suggestion[] {
+  const n = needle.trim().toLowerCase();
+  const terms = SOK_TERMER.filter(
+    (t) => !n || t.label.toLowerCase().includes(n) || t.synonymer.some((s) => s.startsWith(n)),
+  ).map<Suggestion>((t) => ({ type: "term", label: t.label, sub: "Typ av vård", href: "", value: t.q }));
+  const kats = KATEGORI_FORSLAG.filter((k) => !n || k.name.toLowerCase().includes(n)).map<Suggestion>(
+    (k) => ({ type: "kategori", label: k.name, sub: "Kategori", href: "", value: k.slug }),
+  );
+  return n ? [...terms, ...kats].slice(0, 6) : [...terms.slice(0, 6), ...kats];
+}
 
 type OrtSuggestion =
   | { type: "lan"; slug: string; label: string; sub: string }
@@ -41,8 +62,30 @@ function slugify(s: string): string {
 
 function iconFor(type: Suggestion["type"]) {
   if (type === "kommun") return MapPin;
-  if (type === "bransch") return Layers;
+  if (type === "bransch" || type === "kategori") return Layers;
+  if (type === "term") return Stethoscope;
   return Building2;
+}
+
+/**
+ * Ortfältet som URL-parametrar. Lookup-kedja: län (brett, default för
+ * ambiguösa namn som "Stockholm") → kommun → postort (rå text, backend kör
+ * .ilike — stavfel blir 0 träffar).
+ */
+function ortParams(rawOrt: string): URLSearchParams {
+  const params = new URLSearchParams();
+  const ortRaw = rawOrt.trim();
+  if (!ortRaw) return params;
+  const slug = slugify(ortRaw);
+  const lan = lanBySlug(slug);
+  if (lan) {
+    params.set("lan", lan.slug);
+    return params;
+  }
+  const kommun = kommunBySlug(slug);
+  if (kommun) params.set("kommun", kommun.slug);
+  else params.set("postort", ortRaw);
+  return params;
 }
 
 export function SearchBar({
@@ -90,6 +133,8 @@ export function SearchBar({
   const [showOrtSuggestions, setShowOrtSuggestions] = useState(false);
   const [ortActiveIndex, setOrtActiveIndex] = useState(-1);
   const wrapRef = useRef<HTMLDivElement | null>(null);
+  const ortInputRef = useRef<HTMLInputElement | null>(null);
+  const qInputRef = useRef<HTMLInputElement | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   // Stäng dropdowns vid click utanför hela sök-formuläret
@@ -109,10 +154,11 @@ export function SearchBar({
   useEffect(() => {
     const needle = q.trim();
     if (needle.length < 2) {
-      setSuggestions([]);
+      setSuggestions(lokalaForslag(needle));
       setLoadingSuggest(false);
       return;
     }
+    setSuggestions(lokalaForslag(needle));
     setLoadingSuggest(true);
     abortRef.current?.abort();
     const ctrl = new AbortController();
@@ -125,7 +171,10 @@ export function SearchBar({
         );
         if (!res.ok) throw new Error("suggest failed");
         const data: { suggestions: Suggestion[] } = await res.json();
-        setSuggestions(data.suggestions ?? []);
+        // Orten har ett eget fält, och vårdtyperna kommer ur den lokala
+        // listan — från API:t tas bara verksamheterna.
+        const foretag = (data.suggestions ?? []).filter((x) => x.type === "foretag");
+        setSuggestions([...lokalaForslag(needle), ...foretag]);
         setActiveIndex(-1);
       } catch {
         // tyst
@@ -156,7 +205,7 @@ export function SearchBar({
       .map((l) => ({
         type: "lan" as const,
         slug: l.slug,
-        label: `${l.name}s län`,
+        label: lanNamn(l),
         sub: "Län",
       }));
 
@@ -187,29 +236,8 @@ export function SearchBar({
   const goToSearch = useCallback(
     (rawQ: string, rawOrt: string) => {
       const query = rawQ.trim();
-      const ortRaw = rawOrt.trim();
-      const params = new URLSearchParams();
-
-      const finalQ = query;
-      if (ortRaw) {
-        const slug = slugify(ortRaw);
-        // Lookup-kedja: län (brett, default för ambiguösa namn som "Stockholm")
-        //             → kommun (kan väljas explicit via URL/autocomplete-pick)
-        //             → postort (raw text, backend kör .ilike — typos blir 0 träffar)
-        const lan = lanBySlug(slug);
-        if (lan) {
-          params.set("lan", lan.slug);
-        } else {
-          const kommun = kommunBySlug(slug);
-          if (kommun) {
-            params.set("kommun", kommun.slug);
-          } else {
-            params.set("postort", ortRaw);
-          }
-        }
-      }
-
-      if (finalQ) params.set("q", finalQ);
+      const params = ortParams(rawOrt);
+      if (query) params.set("q", query);
 
       if (preserveFilters) {
         const bransch = searchParams.get("bransch");
@@ -226,9 +254,22 @@ export function SearchBar({
   const goToSuggestion = useCallback(
     (s: Suggestion) => {
       setShowSuggestions(false);
+      if (s.type === "term" && s.value) {
+        setQ(s.value);
+        // Med ort ifylld är sökningen komplett; annars är "Var?" nästa fråga.
+        if (ort.trim()) goToSearch(s.value, ort);
+        else ortInputRef.current?.focus();
+        return;
+      }
+      if (s.type === "kategori" && s.value) {
+        const params = ortParams(ort);
+        params.set("kategori", s.value);
+        startTransition(() => router.push(`/sok?${params.toString()}`));
+        return;
+      }
       startTransition(() => router.push(s.href));
     },
-    [router],
+    [router, ort, goToSearch],
   );
 
   const pickOrt = useCallback(
@@ -266,6 +307,12 @@ export function SearchBar({
     e.preventDefault();
     if (activeIndex >= 0 && suggestions[activeIndex]) {
       goToSuggestion(suggestions[activeIndex]);
+      return;
+    }
+    // Tomt formulär: led tillbaka till första frågan i stället för att inget händer.
+    if (!q.trim() && !ort.trim()) {
+      qInputRef.current?.focus();
+      setShowSuggestions(true);
       return;
     }
     goToSearch(q, ort);
@@ -315,10 +362,12 @@ export function SearchBar({
     }
   }
 
-  const dropdownVisible =
-    showSuggestions &&
-    q.trim().length >= 2 &&
-    (suggestions.length > 0 || loadingSuggest);
+  const dropdownVisible = showSuggestions && (suggestions.length > 0 || loadingSuggest);
+
+  const optionClass = (active: boolean) =>
+    `flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+      active ? "bg-[var(--tint-2)]" : "hover:bg-[var(--surface-soft)]"
+    }`;
 
   const dropdown = useMemo(() => {
     if (!dropdownVisible) return null;
@@ -326,100 +375,44 @@ export function SearchBar({
       <div
         id={listId}
         role="listbox"
-        className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-[var(--rule)] bg-white shadow-[0_24px_60px_-20px_rgba(17,24,28,0.20)] rd-fade-in"
+        aria-label="Förslag"
+        className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-[var(--rule-strong)] bg-white shadow-[var(--shadow-pop)]"
       >
-        {loadingSuggest && suggestions.length === 0 ? (
-          <div className="space-y-2 p-3">
-            <div className="rd-skeleton h-4 w-3/5 rounded" />
-            <div className="rd-skeleton h-4 w-4/5 rounded" />
-            <div className="rd-skeleton h-4 w-2/3 rounded" />
-          </div>
-        ) : (
-          <ul className="max-h-[60vh] overflow-y-auto py-1.5">
-            {suggestions.map((s, i) => {
-              const Icon = iconFor(s.type);
-              const active = i === activeIndex;
-              return (
-                <li key={`${s.type}-${s.href}-${i}`}>
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={active}
-                    onMouseEnter={() => setActiveIndex(i)}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      goToSuggestion(s);
-                    }}
-                    className={`group flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors ${
-                      active
-                        ? "bg-[var(--tint-2)]"
-                        : "hover:bg-[var(--surface-soft)]"
-                    }`}
-                  >
-                    <span
-                      className={`inline-flex size-9 shrink-0 items-center justify-center rounded-xl border ${
-                        s.type === "foretag"
-                          ? "border-[var(--rule)] bg-white text-[var(--text-muted)]"
-                          : "border-[var(--brand)]/30 bg-[var(--tint-3)] text-[var(--brand-ink)]"
-                      }`}
-                    >
-                      <Icon className="size-[15px]" aria-hidden />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-[var(--text-strong)]">
-                        {s.label}
-                      </span>
-                      <span className="block truncate text-xs text-[var(--text-muted)]">
-                        {s.sub}
-                      </span>
-                    </span>
-                    <ArrowRight
-                      aria-hidden
-                      className={`size-3.5 shrink-0 transition-transform ${
-                        active
-                          ? "text-[var(--brand-2)] translate-x-0.5"
-                          : "text-[var(--text-faint)]"
-                      }`}
-                    />
-                  </button>
-                </li>
-              );
-            })}
-            <li className="border-t border-[var(--rule-soft)]">
-              <button
-                type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  goToSearch(q, ort);
-                }}
-                className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[var(--surface-soft)]"
-              >
-                <span className="text-[var(--text-muted)]">
-                  Sök efter{" "}
-                  <span className="font-medium text-[var(--text-strong)]">
-                    &ldquo;{q.trim()}&rdquo;
+        <ul className="max-h-[60vh] overflow-y-auto py-1">
+          {suggestions.map((s, i) => {
+            const Icon = iconFor(s.type);
+            const active = i === activeIndex;
+            return (
+              <li key={`${s.type}-${s.value ?? s.href}-${i}`}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={active}
+                  onMouseEnter={() => setActiveIndex(i)}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    goToSuggestion(s);
+                  }}
+                  className={optionClass(active)}
+                >
+                  <Icon aria-hidden className="size-[18px] shrink-0 text-[var(--text-dim)]" />
+                  <span className="min-w-0 flex-1 truncate text-[16px] text-[var(--text-strong)]">
+                    {s.label}
                   </span>
-                </span>
-                <span className="text-[var(--brand-ink)]">
-                  Visa alla träffar →
-                </span>
-              </button>
-            </li>
-          </ul>
-        )}
+                  <span className="shrink-0 text-[14px] text-[var(--text-dim)]">
+                    {s.type === "foretag" ? s.sub : s.type === "kategori" ? "Kategori" : ""}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+          {loadingSuggest && (
+            <li className="px-4 py-2.5 text-[15px] text-[var(--text-dim)]">Söker verksamheter…</li>
+          )}
+        </ul>
       </div>
     );
-  }, [
-    dropdownVisible,
-    loadingSuggest,
-    suggestions,
-    activeIndex,
-    listId,
-    q,
-    ort,
-    goToSearch,
-    goToSuggestion,
-  ]);
+  }, [dropdownVisible, loadingSuggest, suggestions, activeIndex, listId, goToSuggestion]);
 
   const ortDropdownVisible =
     showOrtSuggestions && ort.trim().length >= 1 && ortSuggestions.length > 0;
@@ -429,9 +422,10 @@ export function SearchBar({
     return (
       <div
         role="listbox"
-        className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-[var(--rule)] bg-white shadow-[0_24px_60px_-20px_rgba(17,24,28,0.20)] rd-fade-in"
+        aria-label="Orter"
+        className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-[var(--rule-strong)] bg-white shadow-[var(--shadow-pop)]"
       >
-        <ul className="max-h-[60vh] overflow-y-auto py-1.5">
+        <ul className="max-h-[60vh] overflow-y-auto py-1">
           {ortSuggestions.map((s, i) => {
             const active = i === ortActiveIndex;
             const key = s.type === "postort" ? `postort-${s.value}-${i}` : `${s.type}-${s.slug}-${i}`;
@@ -446,31 +440,13 @@ export function SearchBar({
                     e.preventDefault();
                     pickOrt(s);
                   }}
-                  className={`group flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors ${
-                    active
-                      ? "bg-[var(--tint-2)]"
-                      : "hover:bg-[var(--surface-soft)]"
-                  }`}
+                  className={optionClass(active)}
                 >
-                  <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-[var(--brand)]/30 bg-[var(--tint-3)] text-[var(--brand-ink)]">
-                    <MapPin className="size-[15px]" aria-hidden />
+                  <MapPin aria-hidden className="size-[18px] shrink-0 text-[var(--text-dim)]" />
+                  <span className="min-w-0 flex-1 truncate text-[16px] text-[var(--text-strong)]">
+                    {s.label}
                   </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium text-[var(--text-strong)]">
-                      {s.label}
-                    </span>
-                    <span className="block truncate text-xs text-[var(--text-muted)]">
-                      {s.sub}
-                    </span>
-                  </span>
-                  <ArrowRight
-                    aria-hidden
-                    className={`size-3.5 shrink-0 transition-transform ${
-                      active
-                        ? "text-[var(--brand-2)] translate-x-0.5"
-                        : "text-[var(--text-faint)]"
-                    }`}
-                  />
+                  <span className="shrink-0 text-[14px] text-[var(--text-dim)]">{s.sub}</span>
                 </button>
               </li>
             );
@@ -480,85 +456,94 @@ export function SearchBar({
     );
   }, [ortDropdownVisible, ortSuggestions, ortActiveIndex, pickOrt]);
 
-  // === COMPACT — header-pill med vårdföretag+ort horisontellt (mobile: stackad) ===
-  if (variant === "compact") {
+  const kanSoka = q.trim().length >= 2 || ort.trim().length >= 2;
+  const stor = variant === "dual";
+
+  const qInput = (
+    <input
+      id={`${listId}-q`}
+      ref={qInputRef}
+      type="search"
+      name="q"
+      value={q}
+      onChange={(e) => {
+        setQ(e.target.value);
+        setShowSuggestions(true);
+      }}
+      onFocus={() => {
+        setShowSuggestions(true);
+        setShowOrtSuggestions(false);
+      }}
+      onKeyDown={onKeyDown}
+      placeholder={stor ? "T.ex. tandläkare, psykolog, hemtjänst" : "Vilken vård?"}
+      autoComplete="off"
+      spellCheck={false}
+      enterKeyHint="next"
+      role="combobox"
+      aria-autocomplete="list"
+      aria-controls={dropdownVisible ? listId : undefined}
+      aria-expanded={dropdownVisible}
+      className={`w-full bg-transparent pl-10 pr-3 text-[var(--text-strong)] focus:outline-none ${
+        stor ? "h-12 text-[17px]" : "h-10 text-[16px]"
+      }`}
+    />
+  );
+
+  const ortInput = (
+    <input
+      id={`${listId}-ort`}
+      ref={ortInputRef}
+      type="text"
+      name="ort"
+      value={ort}
+      onChange={(e) => {
+        setOrt(e.target.value);
+        setShowOrtSuggestions(true);
+      }}
+      onFocus={() => {
+        setShowOrtSuggestions(true);
+        setShowSuggestions(false);
+      }}
+      onKeyDown={onOrtKeyDown}
+      placeholder={stor ? "Kommun, ort eller län" : "Var?"}
+      autoComplete="off"
+      spellCheck={false}
+      enterKeyHint="search"
+      role="combobox"
+      aria-autocomplete="list"
+      aria-expanded={ortDropdownVisible}
+      className={`w-full bg-transparent pl-10 pr-3 text-[var(--text-strong)] focus:outline-none ${
+        stor ? "h-12 text-[17px]" : "h-10 text-[16px]"
+      }`}
+    />
+  );
+
+  // === COMPACT — sidhuvudet på stora skärmar: två fält på en rad, utan etiketter ===
+  if (!stor) {
     return (
       <div ref={wrapRef} className="relative w-full max-w-xl">
         <form
           onSubmit={onSubmit}
           role="search"
-          aria-label="Sök vårdföretag och ort"
-          className="rd-search-box flex w-full flex-col items-stretch rounded-2xl border border-[var(--rule)] bg-white p-1 sm:flex-row sm:items-center sm:rounded-full"
+          aria-label="Sök vård"
+          className="rd-search-box flex w-full items-center rounded-lg border border-[var(--rule-strong)] bg-white"
         >
-          {/* Q-fält */}
-          <label className="group relative flex flex-1 items-center">
-            <span className="sr-only">Vårdföretag, kategori eller person</span>
-            <Search
-              aria-hidden
-              className="absolute left-3 size-4 text-[var(--text-dim)] transition-colors group-focus-within:text-[var(--brand-2)]"
-            />
-            <input
-              type="search"
-              name="q"
-              value={q}
-              onChange={(e) => {
-                setQ(e.target.value);
-                setShowSuggestions(true);
-              }}
-              onFocus={() => {
-                setShowSuggestions(true);
-                setShowOrtSuggestions(false);
-              }}
-              onKeyDown={onKeyDown}
-              placeholder="Vårdföretag eller kategori"
-              autoComplete="off"
-              spellCheck={false}
-              enterKeyHint="next"
-              aria-controls={dropdownVisible ? listId : undefined}
-              aria-expanded={dropdownVisible}
-              className="h-10 w-full rounded-2xl bg-transparent pl-9 pr-3 text-sm text-[var(--text-strong)] placeholder:text-[var(--text-dim)] focus:outline-none sm:rounded-full"
-            />
-          </label>
-
-          {/* Divider — vertikal pipe på sm+, horisontell linje på mobile */}
-          <div aria-hidden className="mx-1 hidden h-5 w-px bg-[var(--rule)] sm:block" />
-          <div aria-hidden className="my-0.5 h-px w-full bg-[var(--rule-soft)] sm:hidden" />
-
-          {/* Ort-fält */}
-          <label className="group relative flex flex-1 items-center">
-            <span className="sr-only">Ort, kommun eller län</span>
-            <MapPin
-              aria-hidden
-              className="absolute left-3 size-4 text-[var(--text-dim)] transition-colors group-focus-within:text-[var(--brand-2)]"
-            />
-            <input
-              type="text"
-              name="ort"
-              value={ort}
-              onChange={(e) => {
-                setOrt(e.target.value);
-                setShowOrtSuggestions(true);
-              }}
-              onFocus={() => {
-                setShowOrtSuggestions(true);
-                setShowSuggestions(false);
-              }}
-              onKeyDown={onOrtKeyDown}
-              placeholder="Ort, kommun eller län"
-              autoComplete="off"
-              spellCheck={false}
-              enterKeyHint="search"
-              aria-expanded={ortDropdownVisible}
-              className="h-10 w-full rounded-2xl bg-transparent pl-9 pr-3 text-sm text-[var(--text-strong)] placeholder:text-[var(--text-dim)] focus:outline-none sm:rounded-full"
-            />
+          <div className="relative flex-1">
+            <label htmlFor={`${listId}-q`} className="sr-only">Vilken vård söker du?</label>
+            <Search aria-hidden className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--text-dim)]" />
+            {qInput}
+          </div>
+          <div aria-hidden className="h-6 w-px bg-[var(--rule)]" />
+          <div className="relative flex-1">
+            <label htmlFor={`${listId}-ort`} className="sr-only">Var?</label>
+            <MapPin aria-hidden className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--text-dim)]" />
+            {ortInput}
             {ortDropdown}
-          </label>
-
-          {/* Submit */}
+          </div>
           <button
             type="submit"
-            disabled={pending || (q.trim().length < 2 && ort.trim().length < 2)}
-            className="mt-1 inline-flex h-9 shrink-0 items-center justify-center rounded-full rd-brand-gradient rd-cta-shadow px-4 text-xs font-semibold text-white transition hover:brightness-105 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none sm:ml-1 sm:mt-0 sm:h-8 sm:px-3.5"
+            disabled={pending || !kanSoka}
+            className="m-1 inline-flex h-8 shrink-0 items-center rounded-md bg-[var(--brand)] px-4 text-[15px] font-semibold text-white transition-colors hover:bg-[var(--brand-2)] disabled:cursor-not-allowed disabled:bg-[var(--text-dim)]"
           >
             {pending ? "Söker…" : "Sök"}
           </button>
@@ -568,88 +553,44 @@ export function SearchBar({
     );
   }
 
-  // === DUAL — hero: två stora fält (vårdföretag + ort) ===
+  // === DUAL — stort sökfält med synliga etiketter: "Vilken vård?" + "Var?" ===
   return (
-    <div ref={wrapRef} className="relative w-full max-w-3xl">
+    <div ref={wrapRef} className="relative w-full">
       <form
         onSubmit={onSubmit}
         role="search"
-        aria-label="Sök vårdföretag och ort"
-        className="rd-search-box flex w-full flex-col items-stretch gap-0 overflow-visible rounded-3xl border border-[var(--rule-strong)] bg-white p-2 sm:flex-row sm:rounded-full"
+        aria-label="Sök vård"
+        className="grid w-full gap-3 sm:grid-cols-[1.3fr_1fr_auto] sm:items-end"
       >
-        <label className="group relative flex flex-1 items-center">
-          <span className="sr-only">Vårdföretag, kategori eller person</span>
-          <Search
-            aria-hidden
-            className="absolute left-5 size-5 text-[var(--text-dim)] transition-colors group-focus-within:text-[var(--brand-2)]"
-          />
-          <input
-            type="search"
-            name="q"
-            value={q}
-            onChange={(e) => {
-              setQ(e.target.value);
-              setShowSuggestions(true);
-            }}
-            onFocus={() => {
-              setShowSuggestions(true);
-              setShowOrtSuggestions(false);
-            }}
-            onKeyDown={onKeyDown}
-            placeholder="Vårdföretag eller kategori"
-            autoComplete="off"
-            spellCheck={false}
-            enterKeyHint="next"
-            aria-controls={dropdownVisible ? listId : undefined}
-            aria-expanded={dropdownVisible}
-            className="h-13 w-full rounded-2xl bg-transparent pl-13 pr-3 text-base text-[var(--text-strong)] placeholder:text-[var(--text-dim)] focus:outline-none sm:h-14"
-          />
-        </label>
-
-        <div
-          aria-hidden
-          className="mx-2 hidden h-9 w-px bg-[var(--rule)] sm:block"
-        />
-
-        <label className="group relative flex flex-1 items-center border-t border-[var(--rule-soft)] sm:border-t-0">
-          <span className="sr-only">Ort, kommun eller län</span>
-          <MapPin
-            aria-hidden
-            className="absolute left-5 size-5 text-[var(--text-dim)] transition-colors group-focus-within:text-[var(--brand-2)]"
-          />
-          <input
-            type="text"
-            name="ort"
-            value={ort}
-            onChange={(e) => {
-              setOrt(e.target.value);
-              setShowOrtSuggestions(true);
-            }}
-            onFocus={() => {
-              setShowOrtSuggestions(true);
-              setShowSuggestions(false);
-            }}
-            onKeyDown={onOrtKeyDown}
-            placeholder="Ort, kommun eller län"
-            autoComplete="off"
-            spellCheck={false}
-            enterKeyHint="search"
-            aria-expanded={ortDropdownVisible}
-            className="h-13 w-full rounded-2xl bg-transparent pl-13 pr-3 text-base text-[var(--text-strong)] placeholder:text-[var(--text-dim)] focus:outline-none sm:h-14"
-          />
+        <div className="relative">
+          <label htmlFor={`${listId}-q`} className="mb-1.5 block text-[16px] font-semibold text-[var(--text-strong)]">
+            Vilken vård söker du?
+          </label>
+          <div className="rd-search-box relative rounded-lg border-2 border-[var(--rule-strong)] bg-white">
+            <Search aria-hidden className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-[var(--text-dim)]" />
+            {qInput}
+          </div>
+          {dropdown}
+        </div>
+        <div className="relative">
+          <label htmlFor={`${listId}-ort`} className="mb-1.5 block text-[16px] font-semibold text-[var(--text-strong)]">
+            Var?
+          </label>
+          <div className="rd-search-box relative rounded-lg border-2 border-[var(--rule-strong)] bg-white">
+            <MapPin aria-hidden className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-[var(--text-dim)]" />
+            {ortInput}
+          </div>
           {ortDropdown}
-        </label>
-
+        </div>
         <button
           type="submit"
-          disabled={pending || (q.trim().length < 2 && ort.trim().length < 2)}
-          className="mt-2 inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-2xl rd-brand-gradient rd-cta-shadow px-6 text-sm font-semibold text-white transition hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none sm:ml-1 sm:mt-0 sm:h-12 sm:rounded-full sm:px-7"
+          disabled={pending}
+          className="inline-flex h-[52px] items-center justify-center gap-2 rounded-lg bg-[var(--brand)] px-7 text-[17px] font-semibold text-white transition-colors hover:bg-[var(--brand-2)] active:bg-[var(--brand-deep)] disabled:cursor-wait"
         >
-          <Search aria-hidden className="size-4 sm:hidden" />
+          <Search aria-hidden className="size-5" />
           {pending ? "Söker…" : "Sök"}
         </button>
       </form>
-      {dropdown}
     </div>
   );
 }

@@ -3,20 +3,7 @@ import type { Metadata } from "next";
 import { visatTelefon as visatTelefonFor } from "@/lib/visat-telefon";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import {
-  ArrowRight,
-  Building2,
-  ExternalLink,
-  Globe,
-  Hash,
-  Mail,
-  MapPin,
-  Phone,
-  ShieldCheck,
-  Sparkles,
-  User,
-  Users,
-} from "lucide-react";
+import { ArrowRight, ExternalLink, Globe, Mail, MapPin, Phone, User } from "lucide-react";
 import { kommunByCode } from "@/lib/kommuner";
 import {
   branschPageSlug,
@@ -33,16 +20,17 @@ import { Breadcrumb } from "@/components/breadcrumb";
 import { CompanyCard, CompanyCardList } from "@/components/company-card";
 import {
   displayName,
-  employerSize,
+  formatTelefon,
   googleMapsUrl,
-  initialFor,
-  isFeatured,
   legalFormFor,
-  monogramGradient,
   normalizeWebb,
   orgnrDisplay,
+  profilMarkning,
   shortWebb,
+  telHref,
 } from "@/lib/foretag-format";
+import { AkutNotis, ProfilEtikett } from "@/components/vard-info";
+import { BRANSCH_LABEL, etikettIText } from "@/lib/stats";
 import { isPersonalOrgnr } from "@/lib/jurform";
 import { sanitizeInfotext, safeLogotypUrl } from "@/lib/sanitize-html";
 import { SITE_URL } from "@/lib/site";
@@ -141,10 +129,8 @@ export default async function ForetagSida({
   const branschName = f.ng1 ? await getBranschName(f.ng1) : null;
   const name = displayName(f);
   const legalForm = legalFormFor(f);
-  const size = employerSize(f.aeant);
   const mapsUrl = googleMapsUrl(f);
   const webb = normalizeWebb(f.webb);
-  const featuredIRegistret = isFeatured(f);
   const orgnrInfo = orgnrDisplay(f);
   const sanitizedInfotext = sanitizeInfotext(f.infotext);
   const personalOrgnr = isPersonalOrgnr(f.jurform);
@@ -178,9 +164,21 @@ export default async function ForetagSida({
 
   const related = ordnaBoostade(oboostadeRelated, overlays);
 
-  // "Utvald" gäller båda betallagren: registrets poang och overlay-köpets
-  // featured. En kund som köpt framhävning ska se framhävd ut.
-  const featured = featuredIRegistret || Boolean(overlay?.featured);
+  // Märkningen: "Betald placering" bara för ett aktuellt köp (overlay.featured),
+  // "Komplett profil" för registrets poang. Se profilMarkning().
+  const markning = profilMarkning(f, overlay);
+
+  // Kontaktuppgifterna som visas överst — kundens egna före registrets, med
+  // samma regel för telefonen som listraderna (visatTelefon).
+  const webbVisad = normalizeWebb(overlay?.hemsida) ?? webb;
+  const epostVisad = overlay?.epost_override?.trim() || f.epostadress || null;
+  const kontaktperson = overlay?.kontaktperson?.trim() || f.kontaktperson || null;
+  const branschEtikett = f.ng1 ? (BRANSCH_LABEL[f.ng1] ?? branschName) : branschName;
+  const hubbHref =
+    kommun && branschName && f.ng1
+      ? `/kommun/${kommun.slug}/${branschPageSlug(branschName, f.ng1)}`
+      : null;
+  const egenText = Boolean(overlay?.info_html);
 
   /**
    * Vilket telefonnummer sidan visar i huvudet.
@@ -271,410 +269,211 @@ export default async function ForetagSida({
   });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <JsonLd data={breadcrumbJsonLd} />
       <JsonLd data={localBusinessJsonLd} />
       <JsonLd data={faqJsonLd} />
       <Breadcrumb items={breadcrumbItems} />
 
-      {/* ========= HEADER ========= */}
-      <header
-        className={`rd-fade-up overflow-hidden rounded-3xl border bg-white rd-shadow-md ${
-          featured ? "border-[var(--brand-2)]/35" : "border-[var(--rule)]"
-        }`}
-      >
-        <div className="relative p-6 sm:p-8">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 -z-0"
-            style={{
-              background: featured
-                ? "radial-gradient(ellipse 70% 50% at 0% 0%, rgba(225,29,39,0.16), transparent 65%),"
-                  + "radial-gradient(ellipse 50% 40% at 100% 0%, rgba(200,16,46,0.08), transparent 70%),"
-                  + "linear-gradient(180deg, #FFE5E7 0%, #ffffff 60%)"
-                : "radial-gradient(ellipse 70% 50% at 0% 0%, rgba(225,29,39,0.10), transparent 65%),"
-                  + "linear-gradient(180deg, #FFF5F5 0%, #ffffff 60%)",
-            }}
+      {/* ========= NAMN ========= */}
+      <header className="flex items-start gap-4">
+        {logoUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={logoUrl}
+            alt={`${name} logotyp`}
+            className="size-16 shrink-0 rounded-lg border border-[var(--rule)] bg-white object-contain p-1.5 sm:size-20"
           />
-          <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start">
-            {logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={logoUrl}
-                alt={`${name} logotyp`}
-                loading="lazy"
-                className="size-20 shrink-0 rounded-2xl border border-[var(--rule)] bg-white object-contain p-2 shadow-[0_4px_12px_-4px_rgba(17,24,28,0.08)] sm:size-24"
-              />
+        )}
+        <div className="min-w-0 space-y-2">
+          <h1 className="text-[1.875rem] font-bold leading-tight tracking-tight sm:text-[2.25rem]">
+            {name}
+          </h1>
+          <p className="text-[17px] text-[var(--text-muted)]">
+            {branschEtikett && hubbHref ? (
+              <Link href={hubbHref} className="font-medium text-[var(--brand-ink)] underline-offset-4 hover:underline">
+                {branschEtikett}
+              </Link>
             ) : (
-              <div
-                aria-hidden
-                className="inline-flex size-20 shrink-0 items-center justify-center rounded-3xl text-3xl font-bold text-white shadow-[0_8px_24px_-8px_rgba(225,29,39,0.55)] ring-1 ring-white/40 sm:size-24 sm:text-[2.25rem]"
-                style={{ backgroundImage: monogramGradient(f.cfarnr) }}
-              >
-                {initialFor(name)}
-              </div>
+              branschEtikett
             )}
-
-            <div className="min-w-0 flex-1 space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                {featured && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full rd-brand-gradient px-2.5 py-1 text-[11px] font-semibold text-white shadow-[0_4px_10px_-4px_rgba(225,29,39,0.5)]">
-                    <Sparkles className="size-3.5" aria-hidden />
-                    Utvald
-                  </span>
-                )}
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-600/30 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-800">
-                  <ShieldCheck className="size-3.5" aria-hidden />
-                  Officiell registerdata
-                </span>
-                {legalForm && (
-                  <span className="inline-flex items-center rounded-full border border-[var(--rule)] bg-white px-2.5 py-1 text-[11px] font-medium text-[var(--text-muted)]">
-                    {legalForm}
-                  </span>
-                )}
-              </div>
-              <h1 className="text-balance text-3xl font-semibold leading-[1.05] tracking-tight text-[var(--text-strong)] sm:text-[2.25rem]">
-                {name}
-              </h1>
-              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[15px] text-[var(--text-muted)]">
-                {branschName && f.ng1 && kommun ? (
-                  <Link
-                    href={`/kommun/${kommun.slug}/${branschPageSlug(branschName, f.ng1)}`}
-                    className="font-medium text-[var(--brand-ink)] hover:underline"
-                  >
-                    {branschName}
-                  </Link>
-                ) : branschName ? (
-                  <span className="font-medium text-[var(--text-body)]">
-                    {branschName}
-                  </span>
-                ) : null}
-                {branschName && kommun && (
-                  <span aria-hidden className="text-[var(--text-faint)]">·</span>
-                )}
-                {kommun && (
-                  <Link
-                    href={`/kommun/${kommun.slug}`}
-                    className="hover:text-[var(--brand-ink)] hover:underline"
-                  >
-                    {kommun.name} kommun
-                  </Link>
-                )}
-              </div>
-              {size && (
-                <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--tint-3)] px-2.5 py-1 text-xs font-semibold text-[var(--brand-ink)]">
-                    <Users className="size-3.5" aria-hidden />
-                    {size.label}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Action-rad */}
-          <div className="relative mt-6 flex flex-wrap items-center gap-2 border-t border-[var(--rule-soft)] pt-5 sm:gap-2.5">
-            {visatTelefon && (
-              <ActionButton
-                href={`tel:${visatTelefon}`}
-                icon={<Phone className="size-4" aria-hidden />}
-                label="Ring"
-                hint={visatTelefon}
-                variant="primary"
-              />
+            {branschEtikett && kommun && <span aria-hidden> · </span>}
+            {kommun && (
+              <Link href={`/kommun/${kommun.slug}`} className="underline-offset-4 hover:text-[var(--brand-ink)] hover:underline">
+                {kommun.name}
+              </Link>
             )}
-            {f.epostadress && (
-              <ActionButton
-                href={`mailto:${f.epostadress}`}
-                icon={<Mail className="size-4" aria-hidden />}
-                label="E-post"
-                variant="secondary"
-              />
-            )}
-            {webb && (
-              <ActionButton
-                href={webb}
-                external
-                icon={<Globe className="size-4" aria-hidden />}
-                label="Hemsida"
-                hint={shortWebb(webb) ?? undefined}
-                variant="secondary"
-              />
-            )}
-            {mapsUrl && (
-              <ActionButton
-                href={mapsUrl}
-                external
-                icon={<MapPin className="size-4" aria-hidden />}
-                label="Visa på karta"
-                variant="ghost"
-              />
-            )}
-          </div>
+          </p>
+          {markning && (
+            <p>
+              <ProfilEtikett markning={markning} />
+            </p>
+          )}
         </div>
       </header>
 
-      {/* ========= BETALD PROFIL (overlay) =========
-          Ligger direkt under huvudet och ÖVER registerbeskrivningen: det kunden
-          själv skrivit om sin verksamhet är mer värt för besökaren än en
-          registerrad. Renderas bara när det finns en aktiv och giltig
-          overlay-rad — eller, i förhandsvisning, ett utkast. */}
-      {overlay && (
-        <SponsradProfil overlay={overlay} namn={name} utkast={Boolean(previewToken)} />
-      )}
+      {/* ========= KONTAKT — det besökaren kom för ========= */}
+      <section aria-labelledby="kontakt-rubrik" className="rd-card p-5 sm:p-6">
+        <h2 id="kontakt-rubrik" className="sr-only">
+          Kontaktuppgifter
+        </h2>
+        <div className="grid gap-6 md:grid-cols-[auto_1fr] md:gap-10">
+          <div className="space-y-2">
+            {visatTelefon ? (
+              <a
+                href={telHref(visatTelefon)}
+                className="inline-flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-lg bg-[var(--brand)] px-6 text-[19px] font-semibold text-white transition-colors hover:bg-[var(--brand-2)] sm:w-auto"
+              >
+                <Phone aria-hidden className="size-5" />
+                {formatTelefon(visatTelefon)}
+              </a>
+            ) : (
+              <p className="text-[16px] text-[var(--text-muted)]">Inget telefonnummer registrerat.</p>
+            )}
+          </div>
 
-      {/* ========= BESKRIVNING + BRANSCH-CHIPS ========= */}
-      <section className="grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <div className="rd-fade-up rd-fade-up-delay-1 rd-card p-6 sm:p-7">
-          <h2 className="mb-3 text-lg font-semibold text-[var(--text-strong)]">
-            Om {name}
-          </h2>
-          {sanitizedInfotext ? (
-            <div
-              className="rd-rich-text text-[15px] leading-relaxed text-[var(--text-body)]"
-              dangerouslySetInnerHTML={{ __html: sanitizedInfotext }}
-            />
-          ) : (
-            <p className="text-[15px] leading-relaxed text-[var(--text-body)]">
-              {description}
-            </p>
+          <dl className="grid gap-x-8 gap-y-4 text-[16px] sm:grid-cols-2">
+            <Uppgift ikon={<MapPin className="size-4" aria-hidden />} rubrik="Besöksadress">
+              {f.gatuadress || f.postort ? (
+                <>
+                  <address className="not-italic text-[var(--text-strong)]">
+                    {f.gatuadress && <span className="block">{f.gatuadress}</span>}
+                    <span className="block">{[f.postnr, f.postort].filter(Boolean).join(" ")}</span>
+                  </address>
+                  {mapsUrl && (
+                    <a
+                      href={mapsUrl}
+                      target="_blank"
+                      rel="nofollow noopener"
+                      className="mt-1 inline-flex items-center gap-1 text-[15px] text-[var(--brand-ink)] underline"
+                    >
+                      Visa på karta
+                      <ExternalLink className="size-3.5" aria-hidden />
+                    </a>
+                  )}
+                </>
+              ) : (
+                <span className="text-[var(--text-dim)]">Ingen adress registrerad</span>
+              )}
+            </Uppgift>
+            {webbVisad && (
+              <Uppgift ikon={<Globe className="size-4" aria-hidden />} rubrik="Webbplats">
+                <a href={webbVisad} target="_blank" rel="nofollow noopener" className="break-all text-[var(--brand-ink)] underline">
+                  {shortWebb(webbVisad)}
+                </a>
+              </Uppgift>
+            )}
+            {epostVisad && (
+              <Uppgift ikon={<Mail className="size-4" aria-hidden />} rubrik="E-post">
+                <a href={`mailto:${epostVisad}`} className="break-all text-[var(--brand-ink)] underline">
+                  {epostVisad}
+                </a>
+              </Uppgift>
+            )}
+            {kontaktperson && (
+              <Uppgift ikon={<User className="size-4" aria-hidden />} rubrik="Kontaktperson">
+                <span className="text-[var(--text-strong)]">{kontaktperson}</span>
+              </Uppgift>
+            )}
+          </dl>
+        </div>
+      </section>
+
+      {/* ========= BESKRIVNING =========
+          Kundens egen text när det finns en betald profil, annars registrets
+          infotext eller den neutrala registermeningen — aldrig båda, så att
+          sidan inte säger "Om …" två gånger. */}
+      <div className="grid gap-10 lg:grid-cols-[1fr_20rem]">
+        <div className="min-w-0 space-y-8">
+          {overlay && (
+            <SponsradProfil overlay={overlay} namn={name} utkast={Boolean(previewToken)} kompakt />
           )}
-          {f.kontaktperson && (
-            <div className="mt-5 flex items-center gap-3 border-t border-[var(--rule-soft)] pt-4">
-              <span className="inline-flex size-9 items-center justify-center rounded-full bg-[var(--tint-3)] text-[var(--brand-ink)]">
-                <User className="size-4" aria-hidden />
-              </span>
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-[var(--text-dim)]">
-                  Kontaktperson
-                </p>
-                <p className="text-sm font-medium text-[var(--text-strong)]">
-                  {f.kontaktperson}
-                </p>
-              </div>
-            </div>
+
+          {!egenText && (
+            <section aria-labelledby="om-rubrik" className="space-y-3">
+              <h2 id="om-rubrik" className="text-[1.375rem] font-semibold">
+                Om {name}
+              </h2>
+              {sanitizedInfotext ? (
+                <div
+                  className="rd-rich-text max-w-[68ch] text-[17px] leading-relaxed text-[var(--text-body)]"
+                  dangerouslySetInnerHTML={{ __html: sanitizedInfotext }}
+                />
+              ) : (
+                <p className="max-w-[68ch] text-[17px] leading-relaxed text-[var(--text-body)]">{description}</p>
+              )}
+            </section>
           )}
-          {branschName && (
-            <>
-              <h3 className="mt-7 mb-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-dim)]">
-                Bransch
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {kommun && f.ng1 ? (
-                  <Link
-                    href={`/kommun/${kommun.slug}/${branschPageSlug(branschName, f.ng1)}`}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--brand)]/30 bg-[var(--tint-3)] px-3 py-1.5 text-sm font-medium text-[var(--brand-ink)] transition hover:bg-white"
-                  >
-                    {branschName}
-                    <ArrowRight className="size-3.5" aria-hidden />
-                  </Link>
-                ) : (
-                  <span className="inline-flex items-center rounded-full border border-[var(--rule)] bg-[var(--surface-soft)] px-3 py-1.5 text-sm font-medium text-[var(--text-body)]">
-                    {branschName}
-                  </span>
-                )}
-                <Link
-                  href={`/sok?q=${encodeURIComponent(branschName)}`}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--rule)] bg-white px-3 py-1.5 text-sm font-medium text-[var(--text-muted)] transition hover:border-[var(--brand-2)]/40 hover:text-[var(--brand-ink)]"
-                >
-                  {branschName} i hela Sverige
-                </Link>
-              </div>
-            </>
-          )}
-          {sokord.length > 0 && (
-            <>
-              <h3 className="mt-7 mb-2.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--text-dim)]">
-                Tjänster &amp; sökord
-                <span className="font-mono text-[10px] font-normal normal-case tracking-normal text-[var(--text-faint)]">
-                  {sokord.length}
-                </span>
-              </h3>
-              <ul className="flex flex-wrap gap-1.5">
-                {sokord.map((s) => (
+
+          {strukturSokord.length > 0 && (
+            <section aria-labelledby="sokord-rubrik" className="space-y-3">
+              <h2 id="sokord-rubrik" className="text-[1.125rem] font-semibold">
+                Tjänster och sökord
+              </h2>
+              <ul className="flex flex-wrap gap-2">
+                {strukturSokord.map((s) => (
                   <li key={s}>
                     <Link
                       href={`/sok?q=${encodeURIComponent(s)}`}
-                      className="inline-flex items-center rounded-full border border-[var(--rule)] bg-white px-2.5 py-1 text-[13px] font-medium text-[var(--text-body)] transition hover:border-[var(--brand-2)]/45 hover:bg-[var(--tint-2)] hover:text-[var(--brand-ink)]"
-                      title={`Sök ${s}`}
+                      className="inline-flex min-h-9 items-center rounded-md border border-[var(--rule-strong)] px-3 text-[15px] text-[var(--text-body)] transition-colors hover:border-[var(--brand)] hover:text-[var(--brand-ink)]"
                     >
                       {s}
                     </Link>
                   </li>
                 ))}
               </ul>
-            </>
+            </section>
           )}
+
+          <AkutNotis />
         </div>
 
-        {/* Adressblock */}
-        <div className="rd-fade-up rd-fade-up-delay-1 rd-card p-6 sm:p-7">
-          <h2 className="mb-3 text-lg font-semibold text-[var(--text-strong)]">
-            Besöksadress
+        {/* ========= REGISTERFAKTA ========= */}
+        <aside aria-labelledby="fakta-rubrik" className="space-y-3">
+          <h2 id="fakta-rubrik" className="text-[1.125rem] font-semibold">
+            Uppgifter i registret
           </h2>
-          {f.gatuadress || f.postort ? (
-            <>
-              <address className="not-italic">
-                <p className="text-[15px] font-semibold text-[var(--text-strong)]">
-                  {f.gatuadress ?? "—"}
-                </p>
-                <p className="mt-0.5 text-sm text-[var(--text-muted)]">
-                  {[f.postnr, f.postort].filter(Boolean).join(" ") || ""}
-                </p>
-                {kommun && (
-                  <p className="mt-0.5 text-sm text-[var(--text-muted)]">
-                    {kommun.name} kommun, Sverige
-                  </p>
-                )}
-              </address>
-              {mapsUrl && (
-                <a
-                  href={mapsUrl}
-                  target="_blank"
-                  rel="nofollow noopener"
-                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--brand-ink)] hover:underline"
-                >
-                  Öppna i Google Maps
-                  <ExternalLink className="size-3.5" aria-hidden />
-                </a>
-              )}
-            </>
-          ) : (
-            <p className="text-sm text-[var(--text-muted)]">
-              Ingen adress registrerad.
-            </p>
-          )}
-        </div>
-      </section>
-
-      {/* ========= KONTAKT + FÖRETAGSINFO ========= */}
-      <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rd-fade-up rd-fade-up-delay-2 rd-card p-6 sm:p-7">
-          <h2 className="mb-5 text-lg font-semibold text-[var(--text-strong)]">
-            Kontaktuppgifter
-          </h2>
-          <dl className="divide-y divide-[var(--rule-soft)]">
-            <ContactRow
-              icon={<Phone className="size-4" aria-hidden />}
-              label="Telefon"
-              value={visatTelefon}
-              href={visatTelefon ? `tel:${visatTelefon}` : null}
-            />
-            <ContactRow
-              icon={<Mail className="size-4" aria-hidden />}
-              label="E-post"
-              value={f.epostadress}
-              href={f.epostadress ? `mailto:${f.epostadress}` : null}
-            />
-            <ContactRow
-              icon={<Globe className="size-4" aria-hidden />}
-              label="Hemsida"
-              value={shortWebb(webb)}
-              href={webb}
-              external
-            />
-            <ContactRow
-              icon={<MapPin className="size-4" aria-hidden />}
-              label="Adress"
-              value={
-                [
-                  f.gatuadress,
-                  [f.postnr, f.postort].filter(Boolean).join(" "),
-                ]
-                  .filter(Boolean)
-                  .join(", ") || null
-              }
-            />
+          <dl className="divide-y divide-[var(--rule)] border-y border-[var(--rule)] text-[16px]">
+            <Fakta rubrik="Organisationsnummer">
+              {orgnrInfo?.kind === "orgnr" ? (
+                <span className="tabular-nums">{orgnrInfo.value}</span>
+              ) : orgnrInfo?.kind === "hidden" ? (
+                <span className="text-[15px] text-[var(--text-muted)]">{orgnrInfo.value}</span>
+              ) : null}
+            </Fakta>
+            <Fakta rubrik="Juridisk form">{legalForm}</Fakta>
+            <Fakta rubrik="Antal anställda">
+              {f.aeant ? `ca ${f.aeant.toLocaleString("sv-SE")}` : null}
+            </Fakta>
+            <Fakta rubrik="Bransch">{branschName}</Fakta>
+            <Fakta rubrik="Kommun">
+              {kommun ? (
+                <Link href={`/kommun/${kommun.slug}`} className="text-[var(--brand-ink)] underline">
+                  {kommun.name}
+                </Link>
+              ) : null}
+            </Fakta>
           </dl>
-        </div>
-
-        <div className="rd-fade-up rd-fade-up-delay-2 rd-card p-6 sm:p-7">
-          <h2 className="mb-5 text-lg font-semibold text-[var(--text-strong)]">
-            Företagsinformation
-          </h2>
-          <dl className="divide-y divide-[var(--rule-soft)]">
-            <InfoRow
-              icon={<Hash className="size-3.5" aria-hidden />}
-              label="Organisationsnummer"
-              value={
-                orgnrInfo?.kind === "orgnr" ? (
-                  <span className="font-mono tabular-nums">{orgnrInfo.value}</span>
-                ) : orgnrInfo?.kind === "hidden" ? (
-                  <span className="text-xs italic text-[var(--text-muted)]">
-                    {orgnrInfo.value}
-                  </span>
-                ) : null
-              }
-            />
-            <InfoRow
-              icon={<Building2 className="size-3.5" aria-hidden />}
-              label="Juridisk form"
-              value={legalForm}
-            />
-            <InfoRow
-              icon={<Users className="size-3.5" aria-hidden />}
-              label="Antal anställda"
-              value={
-                f.aeant ? (
-                  <span className="font-mono tabular-nums">
-                    ca {f.aeant.toLocaleString("sv-SE")}
-                  </span>
-                ) : null
-              }
-            />
-            <InfoRow
-              icon={<MapPin className="size-3.5" aria-hidden />}
-              label="Kommun"
-              value={
-                kommun ? (
-                  <Link
-                    href={`/kommun/${kommun.slug}`}
-                    className="text-[var(--brand-ink)] hover:underline"
-                  >
-                    {kommun.name}
-                  </Link>
-                ) : null
-              }
-            />
-            <InfoRow
-              icon={<MapPin className="size-3.5" aria-hidden />}
-              label="Postort"
-              value={
-                f.postort ? (
-                  <span className="text-[var(--text-strong)]">{f.postort}</span>
-                ) : null
-              }
-            />
-          </dl>
-          <p className="mt-5 border-t border-[var(--rule-soft)] pt-4 text-xs text-[var(--text-dim)]">
+          <p className="text-[14px] text-[var(--text-dim)]">
             {personalOrgnr
-              ? "Organisationsnummer döljs eftersom det är ett personnummer (enskild firma). Företagsdata kommer från offentliga register."
-              : "Företagsdata kommer från offentliga register och SCB."}
+              ? "Organisationsnumret visas inte eftersom det är ett personnummer (enskild firma). Uppgifterna kommer från offentliga register och SCB."
+              : "Uppgifterna kommer från offentliga register och SCB."}
           </p>
-        </div>
-      </section>
+        </aside>
+      </div>
 
-      {/* ========= LIKNANDE FÖRETAG ========= */}
+      {/* ========= LIKNANDE ========= */}
       {related.length > 0 && kommun && (
-        <section className="rd-fade-up rd-fade-up-delay-3 space-y-4">
-          <div className="flex items-end justify-between gap-3">
-            <div className="space-y-1">
-              <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--brand-2)]">
-                Liknande företag
-              </p>
-              <h2 className="text-xl font-semibold text-[var(--text-strong)] sm:text-2xl">
-                {branschName ? `${branschName} i ${kommun.name}` : `Företag i ${kommun.name}`}
-              </h2>
-            </div>
+        <section aria-labelledby="liknande-rubrik" className="space-y-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h2 id="liknande-rubrik" className="text-[1.375rem] font-semibold">
+              Fler {branschEtikett ? etikettIText(branschEtikett) : "verksamheter"} i {kommun.name}
+            </h2>
             <Link
-              href={
-                branschName && f.ng1
-                  ? `/kommun/${kommun.slug}/${branschPageSlug(branschName, f.ng1)}`
-                  : `/kommun/${kommun.slug}`
-              }
-              className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-[var(--brand-ink)] hover:underline"
+              href={hubbHref ?? `/kommun/${kommun.slug}`}
+              className="inline-flex items-center gap-1 text-[16px] font-medium text-[var(--brand-ink)] underline-offset-4 hover:underline"
             >
-              Visa alla <ArrowRight aria-hidden className="size-3.5" />
+              Visa alla <ArrowRight aria-hidden className="size-4" />
             </Link>
           </div>
           <CompanyCardList>
@@ -683,7 +482,7 @@ export default async function ForetagSida({
                 <CompanyCard
                   foretag={rf}
                   overlay={overlayFor(rf, overlays)}
-                  branschName={branschName}
+                  branschName={branschEtikett}
                   kommunName={kommun.name}
                 />
               </li>
@@ -692,35 +491,21 @@ export default async function ForetagSida({
         </section>
       )}
 
-      {/* ========= FAQ ========= */}
-      <section className="rd-fade-up rd-fade-up-delay-4 space-y-4">
-        <div className="space-y-1">
-          <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--brand-2)]">
-            Vanliga frågor
-          </p>
-          <h2 className="text-xl font-semibold text-[var(--text-strong)] sm:text-2xl">
-            Frågor och svar om {name}
-          </h2>
-        </div>
-        <div className="rd-card divide-y divide-[var(--rule-soft)]">
+      {/* ========= FRÅGOR ========= */}
+      <section aria-labelledby="faq-rubrik" className="space-y-3">
+        <h2 id="faq-rubrik" className="text-[1.375rem] font-semibold">
+          Frågor och svar
+        </h2>
+        <div className="divide-y divide-[var(--rule)] border-y border-[var(--rule)]">
           {faqItems.map((it, i) => (
-            <details
-              key={i}
-              className="group px-5 py-4 sm:px-6"
-              {...(i === 0 ? { open: true } : {})}
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-medium text-[var(--text-strong)]">
+            <details key={i} className="group py-1">
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 text-[17px] font-medium text-[var(--text-strong)]">
                 {it.q}
-                <span
-                  aria-hidden
-                  className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--surface-soft)] text-[var(--text-muted)] transition-transform group-open:rotate-45"
-                >
+                <span aria-hidden className="text-[22px] leading-none text-[var(--text-dim)] transition-transform group-open:rotate-45">
                   +
                 </span>
               </summary>
-              <p className="mt-2.5 text-sm leading-relaxed text-[var(--text-muted)]">
-                {it.a}
-              </p>
+              <p className="max-w-[68ch] pb-4 text-[16px] leading-relaxed text-[var(--text-muted)]">{it.a}</p>
             </details>
           ))}
         </div>
@@ -846,111 +631,32 @@ function buildFaq({
   return items;
 }
 
-function ActionButton({
-  href,
-  icon,
-  label,
-  hint,
-  external = false,
-  variant,
+function Uppgift({
+  ikon,
+  rubrik,
+  children,
 }: {
-  href: string;
-  icon: React.ReactNode;
-  label: string;
-  hint?: string;
-  external?: boolean;
-  variant: "primary" | "secondary" | "ghost";
-}) {
-  const base =
-    "inline-flex h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold transition active:scale-[0.99]";
-  const styles =
-    variant === "primary"
-      ? "bg-[#0c8a3d] text-white shadow-[0_6px_18px_-6px_rgba(12,138,61,0.55)] hover:bg-[#076b2f]"
-      : variant === "secondary"
-        ? "border border-[var(--rule)] bg-white text-[var(--text-strong)] hover:border-[var(--brand-2)]/45 hover:bg-[var(--tint-2)] hover:text-[var(--brand-ink)]"
-        : "text-[var(--text-muted)] hover:bg-[var(--surface-soft)] hover:text-[var(--brand-ink)]";
-  return (
-    <a
-      href={href}
-      {...(external ? { target: "_blank", rel: "nofollow noopener" } : {})}
-      className={`${base} ${styles}`}
-    >
-      {icon}
-      <span>{label}</span>
-      {hint && (
-        <span
-          className={`hidden font-mono text-xs font-normal tabular-nums sm:inline ${
-            variant === "primary" ? "text-white/85" : "text-[var(--text-dim)]"
-          }`}
-        >
-          {hint}
-        </span>
-      )}
-    </a>
-  );
-}
-
-function ContactRow({
-  icon,
-  label,
-  value,
-  href,
-  external = false,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string | null | undefined;
-  href?: string | null;
-  external?: boolean;
+  ikon: React.ReactNode;
+  rubrik: string;
+  children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-4 py-3.5">
-      <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--tint-3)] text-[var(--brand-ink)] ring-1 ring-[var(--brand)]/15">
-        {icon}
-      </span>
-      <div className="min-w-0 flex-1">
-        <dt className="text-[11px] font-medium uppercase tracking-[0.12em] text-[var(--text-dim)]">
-          {label}
-        </dt>
-        <dd className="truncate text-sm text-[var(--text-body)]">
-          {value && href ? (
-            <a
-              href={href}
-              {...(external
-                ? { target: "_blank", rel: "nofollow noopener" }
-                : {})}
-              className="font-medium text-[var(--text-strong)] hover:text-[var(--brand-ink)] hover:underline"
-            >
-              {value}
-            </a>
-          ) : value ? (
-            <span className="font-medium text-[var(--text-strong)]">{value}</span>
-          ) : (
-            <span className="text-[var(--text-faint)]">Ej tillgängligt</span>
-          )}
-        </dd>
-      </div>
+    <div className="space-y-0.5">
+      <dt className="flex items-center gap-2 text-[14px] font-medium text-[var(--text-dim)]">
+        {ikon}
+        {rubrik}
+      </dt>
+      <dd className="pl-6">{children}</dd>
     </div>
   );
 }
 
-function InfoRow({
-  icon,
-  label,
-  value,
-}: {
-  icon?: React.ReactNode;
-  label: string;
-  value: React.ReactNode | null;
-}) {
+function Fakta({ rubrik, children }: { rubrik: string; children: React.ReactNode | null }) {
   return (
-    <div className="flex items-center justify-between gap-3 py-2.5 text-sm">
-      <dt className="inline-flex items-center gap-2 text-[var(--text-muted)]">
-        {icon && <span className="text-[var(--text-dim)]">{icon}</span>}
-        {label}
-      </dt>
-      <dd className="text-right">
-        {value ?? <span className="text-[var(--text-faint)]">–</span>}
+    <div className="flex items-baseline justify-between gap-4 py-2.5">
+      <dt className="text-[var(--text-muted)]">{rubrik}</dt>
+      <dd className="text-right text-[var(--text-strong)]">
+        {children ?? <span className="text-[var(--text-dim)]">–</span>}
       </dd>
     </div>
   );

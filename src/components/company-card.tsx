@@ -1,259 +1,137 @@
 import Link from "next/link";
-import { ArrowRight, Globe, Mail, MapPin, Phone, Sparkles, Users } from "lucide-react";
+import { Globe, Phone } from "lucide-react";
 import { foretagSlug, type Foretag } from "@/lib/queries";
 import type { OverlayProfilRow } from "@/lib/overlay-contract";
 import { visatTelefon } from "@/lib/visat-telefon";
 import {
   displayName,
   employerSize,
-  initialFor,
-  isFeatured,
-  legalFormFor,
-  monogramGradient,
+  formatTelefon,
+  normalizeWebb,
+  profilMarkning,
+  shortWebb,
+  telHref,
 } from "@/lib/foretag-format";
+import { ProfilEtikett } from "@/components/vard-info";
 
 /**
- * Merinfo-stil företagskort:
- *   - Monogram (initial) till vänster med gradient bakgrund
- *   - Namn (stor länk), bransch+ort under
- *   - Badges på rad: anställda, juridisk form, kommun
- *   - Telefon-knapp framträdande (grön) om tel finns
- *   - Sekundära ikoner: webb, e-post
+ * En verksamhet som en rad i en lista.
+ *
+ * Allt man behöver för att välja syns utan klick: namn, typ av vård, adress
+ * och telefonnummer i klartext. Numret skrivs ut även i mobilen — den som
+ * ringer vill se vart samtalet går, och en knapp som bara säger "Ring" döljer
+ * det. Inga monogram, inga färgade storleksbrickor: raden ska gå att skumma.
  */
 export function CompanyCard({
   foretag,
-  rank,
   branschName,
   kommunName,
   showOrt = true,
   /**
    * Den betalda profilen, när företaget har en. Skickas in av listsidan så att
-   * kortet slipper göra ett eget uppslag per rad — listan har redan hela lagret
-   * i minnet (se loadAktivaOverlays).
+   * raden slipper göra ett eget uppslag — listan har redan hela lagret i minnet
+   * (se loadAktivaOverlays).
    */
   overlay = null,
+  /** Rubriknivå för namnet: 2 när listan står direkt under sidans h1. */
+  rubrikNiva = 3,
 }: {
   foretag: Foretag;
+  /** Tas emot för bakåtkompatibilitet; numreringen visas inte längre. */
   rank?: number;
   branschName?: string | null;
   kommunName?: string | null;
   showOrt?: boolean;
   overlay?: OverlayProfilRow | null;
+  rubrikNiva?: 2 | 3;
 }) {
+  const Rubrik = rubrikNiva === 2 ? "h2" : "h3";
   const name = overlay?.popularnamn?.trim() || displayName(foretag);
   // Samma regel som profilsidan: kundens köpta nummer ersätter registrets.
   const telefon = visatTelefon(foretag.tel, overlay);
+  const webb = normalizeWebb(overlay?.hemsida) ?? normalizeWebb(foretag.webb);
   const size = employerSize(foretag.aeant);
-  const legalForm = legalFormFor(foretag);
-  // "Utvald" gäller båda betallagren: registrets poang och overlay-köpets
-  // featured. Ett köp som inte syns i listan är inte levererat.
-  const featured = isFeatured(foretag) || Boolean(overlay?.featured);
+  const markning = profilMarkning(foretag, overlay);
   const href = `/foretag/${foretagSlug(foretag)}`;
-  const orterad =
-    [foretag.gatuadress, foretag.postort].filter(Boolean).join(" · ") ||
-    kommunName ||
-    "Sverige";
+  const adress = [foretag.gatuadress, foretag.postort ?? kommunName]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <article
-      className={`rd-card-row group relative flex items-start gap-4 px-4 py-4 transition-colors sm:px-5 sm:py-5 ${
-        featured ? "rd-card-featured" : ""
+      className={`rd-row relative grid gap-x-6 gap-y-3 px-4 py-4 sm:grid-cols-[1fr_auto] sm:px-5 ${
+        markning === "betald" ? "bg-[var(--surface-warm)]" : ""
       }`}
     >
-      {featured && (
-        <span
-          aria-hidden
-          className="absolute inset-y-0 left-0 w-1 rd-brand-gradient"
-        />
-      )}
-      {rank ? (
-        <span className="mt-1 hidden w-6 shrink-0 text-right font-mono text-xs tabular-nums text-[var(--text-faint)] sm:inline">
-          {rank}
-        </span>
-      ) : null}
-
-      {/* Logotyp för betalande kund, annars monogram. Monogrammet är en
-          platshållare vi ritat själva; har kunden lämnat en riktig logotyp är
-          den alltid bättre. */}
-      {overlay?.logo_url ? (
-        <Link
-          href={href}
-          aria-hidden
-          tabIndex={-1}
-          className="inline-flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[var(--rule)] bg-white p-1 sm:size-14"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+      <div className="flex min-w-0 gap-3">
+        {/* En köpt logotyp är en del av det kunden betalat för att synas med. */}
+        {overlay?.logo_url && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={overlay.logo_url}
             alt=""
             loading="lazy"
             decoding="async"
-            className="size-full object-contain"
+            className="mt-0.5 size-11 shrink-0 rounded-md border border-[var(--rule)] bg-white object-contain p-1"
           />
-        </Link>
-      ) : (
-        <Link
-          href={href}
-          aria-hidden
-          tabIndex={-1}
-          className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl text-lg font-bold text-white shadow-[0_4px_12px_-4px_rgba(225,29,39,0.5)] ring-1 ring-white/40 sm:size-14 sm:text-xl"
-          style={{ backgroundImage: monogramGradient(foretag.cfarnr) }}
-        >
-          {initialFor(name)}
-        </Link>
-      )}
-
-      <div className="min-w-0 flex-1 space-y-1.5">
-        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <Link
-            href={href}
-            className="truncate text-[15px] font-semibold tracking-tight text-[var(--text-strong)] hover:text-[var(--brand-ink)] hover:underline sm:text-base"
-          >
-            {name}
-          </Link>
-          {legalForm && (
-            <span className="hidden font-mono text-[10.5px] font-medium uppercase tracking-[0.14em] text-[var(--text-dim)] sm:inline">
-              {legalForm}
-            </span>
-          )}
-        </div>
-
-        <p className="truncate text-[13px] text-[var(--text-muted)] sm:text-sm">
-          {branschName ? (
-            <>
-              <span className="text-[var(--text-body)]">{branschName}</span>
-              {showOrt && <span aria-hidden> · </span>}
-            </>
-          ) : null}
-          {showOrt ? orterad : null}
-        </p>
-
-        {/* Badges-rad */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-          {featured && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--brand-2)]/45 bg-[var(--tint-3)] px-2 py-0.5 text-[11px] font-semibold text-[var(--brand-ink)]">
-              <Sparkles className="size-3" aria-hidden />
-              Utvald
-            </span>
-          )}
-          {size && (
-            <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${badgeStyleForSize(size.tier)}`}
+        )}
+        <div className="min-w-0 space-y-1">
+          <Rubrik className="text-[1.125rem] font-semibold leading-snug tracking-tight">
+            <Link
+              href={href}
+              className="text-[var(--text-strong)] underline-offset-4 hover:text-[var(--brand-ink)] hover:underline"
             >
-              <Users className="size-3" aria-hidden />
-              {size.label}
-            </span>
-          )}
-          {legalForm && (
-            <span className="inline-flex items-center rounded-full border border-[var(--rule)] bg-white px-2 py-0.5 text-[11px] font-medium text-[var(--text-muted)] sm:hidden">
-              {legalForm}
-            </span>
-          )}
-          {kommunName && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--rule)] bg-[var(--surface-soft)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-muted)]">
-              <MapPin className="size-3" aria-hidden />
-              {kommunName}
-            </span>
+              {name}
+            </Link>
+          </Rubrik>
+          <p className="text-[15px] leading-snug text-[var(--text-muted)]">
+            {branschName && (
+              <span className="font-medium text-[var(--text-body)]">{branschName}</span>
+            )}
+            {branschName && showOrt && adress && <span aria-hidden> · </span>}
+            {showOrt && adress}
+          </p>
+          {(markning || size) && (
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-0.5 text-[14px] text-[var(--text-dim)]">
+              <ProfilEtikett markning={markning} />
+              {size && <span>{size.label}</span>}
+            </p>
           )}
         </div>
       </div>
 
-      {/* Action-kolumn */}
-      <div className="flex shrink-0 flex-col items-end gap-1.5">
-        {telefon && (
+      <div className="flex flex-wrap items-center gap-2 sm:flex-col sm:items-end sm:justify-center">
+        {telefon ? (
           <a
-            href={`tel:${telefon}`}
-            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[#0c8a3d] px-3.5 text-xs font-semibold text-white shadow-[0_4px_12px_-4px_rgba(12,138,61,0.5)] transition hover:bg-[#076b2f] active:scale-[0.98]"
-            aria-label={`Ring ${name}`}
+            href={telHref(telefon)}
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[var(--rule-strong)] bg-white px-3.5 text-[16px] font-semibold text-[var(--text-strong)] transition-colors hover:border-[var(--brand)] hover:text-[var(--brand-ink)]"
+            aria-label={`Ring ${name}, ${formatTelefon(telefon)}`}
           >
-            <Phone className="size-3.5" aria-hidden />
-            <span className="hidden sm:inline">{telefon}</span>
-            <span className="sm:hidden">Ring</span>
+            <Phone aria-hidden className="size-4 text-[var(--brand)]" />
+            {formatTelefon(telefon)}
+          </a>
+        ) : (
+          <span className="text-[15px] text-[var(--text-dim)]">Telefon saknas</span>
+        )}
+        {webb && (
+          <a
+            href={webb}
+            target="_blank"
+            rel="nofollow noopener"
+            className="inline-flex min-h-11 items-center gap-1.5 px-1 text-[15px] text-[var(--brand-ink)] underline-offset-4 hover:underline sm:min-h-0"
+          >
+            <Globe aria-hidden className="size-4" />
+            {shortWebb(webb) ?? "Webbplats"}
           </a>
         )}
-        <div className="flex items-center gap-0.5 text-[var(--text-dim)]">
-          {foretag.webb && (
-            <SmallIconLink
-              href={foretag.webb}
-              external
-              title="Hemsida"
-              icon={<Globe className="size-3.5" aria-hidden />}
-            />
-          )}
-          {foretag.epostadress && (
-            <SmallIconLink
-              href={`mailto:${foretag.epostadress}`}
-              title="E-post"
-              icon={<Mail className="size-3.5" aria-hidden />}
-            />
-          )}
-          <Link
-            href={href}
-            className="ml-0.5 inline-flex h-7 items-center gap-0.5 rounded-md px-2 text-[11px] font-medium text-[var(--brand-ink)] hover:bg-[var(--tint-2)]"
-            aria-label={`Visa profil för ${name}`}
-          >
-            Profil
-            <ArrowRight className="size-3" aria-hidden />
-          </Link>
-        </div>
       </div>
     </article>
   );
 }
 
-function badgeStyleForSize(
-  tier: "solo" | "small" | "mid" | "large" | "xlarge",
-): string {
-  switch (tier) {
-    case "solo":
-      return "border border-[var(--rule)] bg-white text-[var(--text-muted)]";
-    case "small":
-      return "border border-[var(--rule)] bg-[var(--surface-soft)] text-[var(--text-body)]";
-    case "mid":
-      return "border border-[var(--brand)]/25 bg-[var(--tint-2)] text-[var(--brand-ink)]";
-    case "large":
-      return "border border-[var(--brand-2)]/40 bg-[var(--tint-3)] text-[var(--brand-ink)]";
-    case "xlarge":
-      return "rd-brand-gradient text-white";
-  }
-}
-
-function SmallIconLink({
-  href,
-  title,
-  icon,
-  external = false,
-}: {
-  href: string;
-  title: string;
-  icon: React.ReactNode;
-  external?: boolean;
-}) {
+/** Lista med avdelare mellan raderna. */
+export function CompanyCardList({ children }: { children: React.ReactNode }) {
   return (
-    <a
-      href={external ? (href.startsWith("http") ? href : `https://${href}`) : href}
-      title={title}
-      aria-label={title}
-      {...(external ? { target: "_blank", rel: "nofollow noopener" } : {})}
-      className="inline-flex size-7 items-center justify-center rounded-md text-[var(--text-dim)] transition hover:bg-[var(--surface-soft)] hover:text-[var(--brand-ink)]"
-    >
-      {icon}
-    </a>
-  );
-}
-
-/**
- * Lista-wrapper med snygga dividers — vit yta, mjuk skugga, divider mellan
- * kort. Använd för CompanyCard-listor.
- */
-export function CompanyCardList({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <ol className="rd-card overflow-hidden divide-y divide-[var(--rule-soft)]">
-      {children}
-    </ol>
+    <ol className="rd-card divide-y divide-[var(--rule)] overflow-hidden">{children}</ol>
   );
 }
