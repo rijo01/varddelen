@@ -25,18 +25,25 @@
 -- --- 1. Den materialiserade vyn. Rör inte foretag_publik, ingen lås på den. --
 begin;
 
+-- orgnr normaliseras som i foretag_publik.orgnr: samma bolag står i registret
+-- både med tio siffror och med sekelprefixet 16 (rättat i 006b; körd i
+-- klustret som 006 + 006b, en ny miljö kör bara den här filen).
 create materialized view public.arbetsstalle_storlek as
-  with stallen as (
-    select peorgnr, count(*)::integer as antal
+  with nyckel as (
+    select cfarnr,
+      case
+        when length(peorgnr::text) = 12 and "left"(peorgnr::text, 2) = '16' then substr(peorgnr::text, 3)
+        else peorgnr::text
+      end as orgnr
     from public.aesamtable
     where peorgnr is not null and jurform is distinct from 10
-    group by peorgnr
-    having count(*) > 1
+  ),
+  stallen as (
+    select orgnr, count(*)::integer as antal from nyckel group by orgnr having count(*) > 1
   )
-  select s.cfarnr, st.antal
-  from public.aesamtable s
-  join stallen st on st.peorgnr = s.peorgnr
-  where s.jurform is distinct from 10;
+  select n.cfarnr, st.antal
+  from nyckel n
+  join stallen st on st.orgnr = n.orgnr;
 
 -- Unikt: krävs för join-borttagningen och för refresh ... concurrently.
 create unique index arbetsstalle_storlek_cfarnr on public.arbetsstalle_storlek (cfarnr);
