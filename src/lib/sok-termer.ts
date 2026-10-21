@@ -24,6 +24,11 @@ export type SokTerm = {
   q: string;
   /** Alternativa ord som betyder samma sak i registret. */
   synonymer: readonly string[];
+  /**
+   * Kategorin ordet egentligen betyder. Hemtjänstföretag heter sällan
+   * "hemtjänst" (Attendo Care AB), så fritext missar dem; kategorin gör det inte.
+   */
+  kategori?: string;
 };
 
 export const SOK_TERMER: ReadonlyArray<SokTerm> = [
@@ -43,7 +48,7 @@ export const SOK_TERMER: ReadonlyArray<SokTerm> = [
   { label: "Vårdcentral", q: "vårdcentral", synonymer: [] },
   { label: "Tandhygienist", q: "tandhygienist", synonymer: [] },
   { label: "Logoped", q: "logoped", synonymer: [] },
-  { label: "Hemtjänst", q: "hemtjänst", synonymer: ["hemvård", "hemomsorg"] },
+  { label: "Hemtjänst", q: "hemtjänst", synonymer: ["hemvård", "hemomsorg"], kategori: "hemtjanst" },
 ];
 
 /** Normaliserad nyckel: gemener, utan diakritiska tecken på å/ä/ö/é. */
@@ -90,4 +95,5 @@ export const KATEGORI_FORSLAG: ReadonlyArray<{ slug: string; name: string }> = [
   { slug: "hvb", name: "HVB & Behandlingshem" },
   { slug: "apotek", name: "Apotek & medicinsk handel" },
   { slug: "aldreomsorg", name: "Äldreomsorg" },
+  { slug: "hemtjanst", name: "Hemtjänst" },
 ];

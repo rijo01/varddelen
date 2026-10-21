@@ -33,8 +33,12 @@ export const VARD_BRANSCHER: readonly number[] = [
   86222, // Specialistläkarverksamhet inom hudsjukvård
   86221, // Specialistläkarverksamhet inom kirurgi
   87302, // Vård och omsorg i särskilda boendeformer för funktionshindrade
+  88101, // Öppna sociala insatser för äldre personer (hemtjänst) — bara privata, se nedan
+  88102, // Öppna sociala insatser för personer med funktionshinder (personlig assistans m.m.) — bara privata
   88910, // Dagbarnvård och förskoleverksamhet (omsorg)
-  86902, // Verksamhet utförd av sjukgymnaster
+  86902, // Ambulans & sjuktransport. Tidigare kommenterad som "sjukgymnaster",
+         // men mätt 21 okt 2026: av 176 verksamheter har 61 ambulans/sjuktransport
+         // i namnet och ingen sjukgymnast/fysioterapi; resten är mest regioner.
   // Borttagna 2026-05-24 — båda labeled "Kroppsvård" i t_bransch
   // (gym/massage/frisör/solarium), hör inte hemma i en vårdkatalog:
   //   - branschid 96040
@@ -52,6 +56,30 @@ export const VARD_BRANSCHER: readonly number[] = [
   47740, // Specialiserad butikshandel med medicinska och ortopediska artiklar
   46460, // Partihandel med farmaceutiska produkter
 ];
+
+/**
+ * Branscher där bara privata utförare hör hemma i katalogen.
+ *
+ * I 88101/88102 är majoriteten kommunernas egen hemtjänst och LSS-verksamhet
+ * (mätt 21 okt 2026: 2 357 av 3 783 rader har juridisk form 81–84, t.ex.
+ * "STOCKHOLMS KOMMUN" en gång per hemtjänstområde). Samma skäl som när
+ * 84123/84124 togs bort i maj: kommuner är inte vårdföretag. Kvar blir 1 426
+ * privata utförare. Rader utan juridisk form behålls — alla 18 är privata
+ * (Hemi Hemtjänst AB, Aman Care AB m.fl.).
+ *
+ * Övriga branscher påverkas inte: regioner under t.ex. 86902 ligger kvar som
+ * förut.
+ */
+export const ENDAST_PRIVATA_BRANSCHER: readonly number[] = [88101, 88102];
+/** 81 Statlig enhet, 82 Kommun, 83 Kommunalförbund, 84 Region. */
+export const OFFENTLIGA_JURFORMER: readonly string[] = ["81", "82", "83", "84"];
+
+/**
+ * PostgREST-villkor att lägga på VARJE fråga mot foretag_publik bredvid
+ * .in("ng1", VARD_BRANSCHER): "inte en av de privata-branscherna, eller inte
+ * offentlig juridisk form, eller okänd form".
+ */
+export const NISCH_JURFORM_VILLKOR = `ng1.not.in.(${ENDAST_PRIVATA_BRANSCHER.join(",")}),jurform.not.in.(${OFFENTLIGA_JURFORMER.join(",")}),jurform.is.null`;
 
 /** Set-version för O(1) lookup vid guard-kontroller. */
 export const VARD_BRANSCHER_SET: ReadonlySet<number> = new Set(VARD_BRANSCHER);

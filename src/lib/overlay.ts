@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseAnon } from "./supabase";
 import { getSupabaseAdmin } from "./supabase-admin";
 import { branschPageSlug, foretagSlug } from "./queries";
-import { VARD_BRANSCHER } from "./vard-branscher";
+import { NISCH_JURFORM_VILLKOR, VARD_BRANSCHER } from "./vard-branscher";
 import { kommunByCode } from "./kommuner";
 import { getBranschNamesBulk } from "./branscher";
 import { filtreraOverlay, kontaktsparrFilter } from "./kontaktsparr";
@@ -153,6 +153,7 @@ export async function identitetFinns(
     : q.in("orgnr", orgnrVarianter(externalId));
   const { data, error } = await q
     .in("ng1", VARD_BRANSCHER)
+    .or(NISCH_JURFORM_VILLKOR)
     .limit(1);
   if (error) throw new Error(`identitetFinns: ${error.message}`);
   return (data ?? []).length > 0;
@@ -515,7 +516,8 @@ export async function overlayIndexerbaraSokvagar(): Promise<string[]> {
       .from(KATALOG_VY)
       .select("cfarnr,firma,namn")
       .in("cfarnr", cfarnr.map(Number))
-      .in("ng1", VARD_BRANSCHER);
+      .in("ng1", VARD_BRANSCHER)
+      .or(NISCH_JURFORM_VILLKOR);
     träffar.push(...((data ?? []) as typeof träffar));
   }
 
@@ -528,6 +530,7 @@ export async function overlayIndexerbaraSokvagar(): Promise<string[]> {
       .select("cfarnr,firma,namn")
       .in("orgnr", former)
       .in("ng1", VARD_BRANSCHER)
+      .or(NISCH_JURFORM_VILLKOR)
       .limit(500);
     träffar.push(...((data ?? []) as typeof träffar));
   }

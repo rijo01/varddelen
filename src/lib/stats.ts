@@ -97,6 +97,8 @@ export const BRANSCH_LABEL: Readonly<Record<number, string>> = {
   88910: "Omsorg & dagverksamhet",
   88991: "Öppna insatser, missbruk",
   88992: "Öppna insatser, övriga",
+  88101: "Hemtjänst",
+  88102: "Stöd och assistans vid funktionsnedsättning",
   47730: "Apotek",
   47740: "Sjukvårdsartiklar",
   46460: "Partihandel med medicinsk utrustning",

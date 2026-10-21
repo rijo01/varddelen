@@ -22,7 +22,7 @@
  */
 
 import type { LucideIcon } from "lucide-react";
-import { Home, Heart, Accessibility, Stethoscope, Smile, Pill } from "lucide-react";
+import { Home, HouseHeart, Heart, Accessibility, Stethoscope, Smile, Pill } from "lucide-react";
 import { branschTotal } from "./counts";
 import { KATEGORI_FORSLAG } from "./sok-termer";
 
@@ -42,7 +42,10 @@ const KATEGORI_DEFS: ReadonlyArray<KategoriDef> = [
   {
     slug: "halsovard",
     name: "Hälso- & sjukvård",
-    description: "Vårdcentraler, specialistläkare, sjukgymnaster, slutenvård",
+    // "sjukgymnaster" stod här tidigare, på grund av en felaktig kommentar om
+    // 86902 (som är ambulans och sjuktransport). Sjukgymnaster hittas genom
+    // fritextsökningens synonymer, inte genom en egen bransch i kategorin.
+    description: "Vårdcentraler, specialistläkare, slutenvård, ambulans",
     // 86909, 86905, 86212, 86222, 86211, 86903, 86102, 86103, 86221, 86902 = läkare/sjukvård/rehab
     // 2 = företagshälsovård
     ng1: [86909, 86905, 86212, 86222, 86211, 86903, 86102, 86103, 86221, 86902, 2],
@@ -54,7 +57,8 @@ const KATEGORI_DEFS: ReadonlyArray<KategoriDef> = [
     description: "Boende & stöd för personer med funktionshinder",
     // 87201 = utvecklingsstörda LSS, 87202 = fysiska, 87203 = psykiska
     // 87302 = särskilda boendeformer funktionshindrade
-    ng1: [87201, 87202, 87203, 87302],
+    // 88102 = öppna insatser, t.ex. personlig assistans (bara privata utförare)
+    ng1: [87201, 87202, 87203, 87302, 88102],
     icon: Accessibility,
   },
   {
@@ -86,6 +90,15 @@ const KATEGORI_DEFS: ReadonlyArray<KategoriDef> = [
     description: "Särskilda boendeformer för äldre personer",
     ng1: [87100],
     icon: Heart,
+  },
+  {
+    slug: "hemtjanst",
+    name: "Hemtjänst",
+    description: "Privata utförare av hemtjänst och annat stöd i hemmet för äldre",
+    // 88101 = öppna insatser för äldre. Kommunernas egen hemtjänst ingår inte —
+    // se ENDAST_PRIVATA_BRANSCHER i vard-branscher.ts.
+    ng1: [88101],
+    icon: HouseHeart,
   },
 ];
 

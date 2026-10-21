@@ -10,9 +10,11 @@ import {
   normalizeWebb,
   profilMarkning,
   shortWebb,
+  synligAdress,
   telHref,
 } from "@/lib/foretag-format";
 import { ProfilEtikett } from "@/components/vard-info";
+import { delarOrgnr } from "@/lib/flerstalle";
 
 /**
  * En verksamhet som en rad i en lista.
@@ -50,10 +52,13 @@ export function CompanyCard({
   // Samma regel som profilsidan: kundens köpta nummer ersätter registrets.
   const telefon = visatTelefon(foretag.tel, overlay);
   const webb = normalizeWebb(overlay?.hemsida) ?? normalizeWebb(foretag.webb);
-  const size = employerSize(foretag.aeant);
+  // Bolagets antal är inte mottagningens: visa bara när bolaget har ett enda
+  // arbetsställe i katalogen. Se lib/flerstalle.ts.
+  const size = delarOrgnr(foretag.cfarnr) ? null : employerSize(foretag.aeant);
   const markning = profilMarkning(foretag, overlay);
   const href = `/foretag/${foretagSlug(foretag)}`;
-  const adress = [foretag.gatuadress, foretag.postort ?? kommunName]
+  const { gatuadress, postort } = synligAdress(foretag, overlay);
+  const adress = [gatuadress, postort ?? kommunName]
     .filter(Boolean)
     .join(", ");
 

@@ -227,6 +227,21 @@ function readVardBranscher() {
   return out;
 }
 
+/**
+ * Regeln för branscher där bara privata utförare räknas (ENDAST_PRIVATA_
+ * BRANSCHER och OFFENTLIGA_JURFORMER i vard-branscher.ts). Snapshoten måste
+ * räkna exakt det sajtens frågor visar, annars summerar talen inte längre.
+ */
+function readJurformVillkor() {
+  const src = readFileSync(new URL("../src/lib/vard-branscher.ts", import.meta.url), "utf8");
+  const b = src.match(/export const ENDAST_PRIVATA_BRANSCHER[^=]*=\s*\[([^\]]*)\]/);
+  const j = src.match(/export const OFFENTLIGA_JURFORMER[^=]*=\s*\[([^\]]*)\]/);
+  if (!b || !j) throw new Error("Kunde inte parsa ENDAST_PRIVATA_BRANSCHER/OFFENTLIGA_JURFORMER");
+  const branscher = [...b[1].matchAll(/\d+/g)].map((m) => m[0]);
+  const jurformer = [...j[1].matchAll(/\d+/g)].map((m) => m[0]);
+  return `&or=(ng1.not.in.(${branscher.join(",")}),jurform.not.in.(${jurformer.join(",")}),jurform.is.null)`;
+}
+
 /** Samma normalisering som makeSlug i src/lib/kommuner.ts och branschSlug i branscher.ts. */
 function slugify(name) {
   return name
@@ -295,9 +310,15 @@ const VARD = readVardBranscher();
 const KOMMUN_SLUG = readKommuner();
 console.error(`Vård-branscher: ${VARD.length} · kommuner: ${KOMMUN_SLUG.size}`);
 
+// aeant_per_stalle finns först efter kluster/006. Saknas den hoppar kontrollen
+// av arbetsstalle_storlek (längre ner) över, precis som sajten faller tillbaka.
+const HAR_STORLEK = (
+  await fetch(`${SUPA_URL}/rest/v1/foretag_publik?select=aeant_per_stalle&limit=1`, { headers })
+).ok;
 const FORETAG_COLS =
-  "cfarnr,firma,namn,ng1,kommun,aeant,tel,webb,epostadress,kontaktperson,logotyp,poang,infotext";
-const VARD_FILTER = `&ng1=in.(${VARD.join(",")})`;
+  "cfarnr,firma,namn,ng1,kommun,aeant,tel,webb,epostadress,kontaktperson,logotyp,poang,infotext,orgnr,ar_enskild_firma" +
+  (HAR_STORLEK ? ",aeant_per_stalle" : "");
+const VARD_FILTER = `&ng1=in.(${VARD.join(",")})${readJurformVillkor()}`;
 const foretag = await fetchAllByUniqueKey(
   "foretag_publik",
   FORETAG_COLS,
@@ -389,10 +410,19 @@ const harVerifieradKontakt = (r) =>
   hasText(r.logotyp) ||
   (r.poang ?? 0) > 0;
 
+// Enskild firma indexeras aldrig: firmans adress kan vara innehavarens hem.
+// Sidan lever kvar (noindex,follow) utan gatuadress — se mapRow i
+// src/lib/queries.ts. En enskild firma med aktivt overlay-köp indexeras ändå,
+// den vägen går via robotsForForetagMedOverlay och overlayIndexerbaraSokvagar.
 const foretagPass = [];
+let enskildaBortvalda = 0;
 for (const r of foretag) {
   if (r.cfarnr == null) continue;
   if (!(harBeskrivning(r) || harTjanstelista(r) || harVerifieradKontakt(r))) continue;
+  if (r.ar_enskild_firma) {
+    enskildaBortvalda++;
+    continue;
+  }
   foretagPass.push({ cfarnr: r.cfarnr, slug: foretagSlug(r) });
 }
 foretagPass.sort((a, b) => a.cfarnr - b.cfarnr);
@@ -433,10 +463,13 @@ const data = {
     infotext_min_ord: INFOTEXT_MIN_ORD,
     sokord_min: SOKORD_MIN,
     verifierad_kontakt: ["webb", "epostadress", "kontaktperson", "logotyp", "poang>0"],
+    enskild_firma: "aldrig (utom aktivt overlay-köp)",
   },
   counts: {
     foretag_totalt: foretag.length,
     foretag_indexerbara: foretagPass.length,
+    /** Klarade substansgrinden men är enskild firma — noindex. */
+    foretag_enskild_firma_bortvalda: enskildaBortvalda,
     hub_totalt: hubAll.size,
     hub_indexerbara: hubs.length,
     hub_utan_branschnamn: hubSkippedMissingName.size,
@@ -480,13 +513,68 @@ writeFileSync(
   JSON.stringify(countsData, null, 1) + "\n",
 );
 
+/**
+ * Arbetsställen som delar organisationsnummer med minst ett annat i katalogen.
+ *
+ * `aeant` är bolagets antal anställda, inte arbetsställets: alla Praktikertjänst-
+ * mottagningar står som 1 198. För dessa rader visar listorna därför inget
+ * antal. Filen bär bara cfarnr — inga organisationsnummer — och enskilda
+ * firmor räknas aldrig (deras orgnr är ett personnummer och lämnas inte ut).
+ */
+const perOrgnr = new Map();
+for (const r of foretag) {
+  if (r.ar_enskild_firma || !hasText(r.orgnr) || r.cfarnr == null) continue;
+  const k = String(r.orgnr).replace(/\D/g, "");
+  const arr = perOrgnr.get(k);
+  if (arr) arr.push(r.cfarnr);
+  else perOrgnr.set(k, [r.cfarnr]);
+}
+const flerstalle = [];
+let flerstalleBolag = 0;
+for (const arr of perOrgnr.values()) {
+  if (arr.length < 2) continue;
+  flerstalleBolag++;
+  flerstalle.push(...arr);
+}
+flerstalle.sort((a, b) => a - b);
+writeFileSync(
+  new URL("../src/data/flerstalle.json", import.meta.url),
+  JSON.stringify({ generated_at: new Date().toISOString(), cfarnr: flerstalle }) + "\n",
+);
+
 console.error("");
+console.error(`flerställesbolag: ${flerstalleBolag} bolag, ${flerstalle.length} arbetsställen → src/data/flerstalle.json`);
+
+/**
+ * Är arbetsstalle_storlek aktuell? Den materialiserade vyn räknar arbetsställen
+ * per bolag och uppdateras bara med REFRESH (kluster/006). Ett arbetsställe som
+ * här delar orgnr med ett annat MÅSTE ha aeant_per_stalle < aeant när aeant >= 2
+ * — antalet i registret är minst antalet i nischen. Står värdet lika med aeant
+ * känner vyn inte till arbetsstället: då sorteras det på bolagets storlek igen.
+ * Listorna visar aldrig aeant_per_stalle, så felet syns bara i ordningen — men
+ * indexet byggs inte vidare på en vy som ljuger.
+ */
+if (HAR_STORLEK) {
+  const iFler = new Set(flerstalle);
+  const gamla = foretag.filter(
+    (r) => iFler.has(r.cfarnr) && (r.aeant ?? 0) >= 2 && r.aeant_per_stalle >= r.aeant,
+  );
+  if (gamla.length > 0) {
+    throw new Error(
+      `arbetsstalle_storlek är inaktuell: ${gamla.length} arbetsställen saknas (t.ex. cfarnr ${gamla
+        .slice(0, 3)
+        .map((r) => r.cfarnr)
+        .join(", ")}). Kör i klustret: refresh materialized view concurrently public.arbetsstalle_storlek;`,
+    );
+  }
+  console.error("arbetsstalle_storlek: aktuell");
+}
 console.error("=== URVAL ===");
 console.error(`hubbar:   ${hubs.length} av ${hubAll.size} kombinationer i DB`);
 console.error(`  grind FÖRE (räknat under .gte(aeant,0)) : ${gammalGrind.size}`);
 console.error(`  grind EFTER (alla renderade rader)      : ${nyGrind.size}`);
 console.error(`  diff: +${tillkomna.length} / -${bortfallna.length} · ${undertalade} hubbar hade undertalat antal`);
-console.error(`företag:  ${foretagPass.length} av ${foretag.length}`);
+console.error(`företag:  ${foretagPass.length} av ${foretag.length} (${enskildaBortvalda} enskilda firmor bortvalda)`);
 console.error(`  beskrivning >= ${INFOTEXT_MIN_ORD} ord : ${foretag.filter(harBeskrivning).length}`);
 console.error(`  sökord >= ${SOKORD_MIN}               : ${foretag.filter(harTjanstelista).length}`);
 console.error(`  verifierad kontakt          : ${foretag.filter(harVerifieradKontakt).length}`);

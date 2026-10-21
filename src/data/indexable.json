@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-09-07T12:39:08.817Z",
+ "generated_at": "2026-10-21T19:02:53.376Z",
  "rules": {
   "hub_min_foretag": 5,
   "infotext_min_ord": 20,
@@ -10,15 +10,17 @@
    "kontaktperson",
    "logotyp",
    "poang>0"
-  ]
+  ],
+  "enskild_firma": "aldrig (utom aktivt overlay-köp)"
  },
  "counts": {
-  "foretag_totalt": 35528,
-  "foretag_indexerbara": 737,
-  "hub_totalt": 4084,
-  "hub_indexerbara": 1321,
+  "foretag_totalt": 36954,
+  "foretag_indexerbara": 730,
+  "foretag_enskild_firma_bortvalda": 98,
+  "hub_totalt": 4347,
+  "hub_indexerbara": 1398,
   "hub_utan_branschnamn": 0,
-  "hub_indexerbara_fore_aeantfix": 1296
+  "hub_indexerbara_fore_aeantfix": 1365
  },
  "hubs": [
   [
@@ -140,6 +142,10 @@
   [
    "1292|86909",
    "/kommun/angelholm/halso-sjukvard-86909"
+  ],
+  [
+   "1292|88102",
+   "/kommun/angelholm/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1292|46460",
@@ -382,6 +388,10 @@
    "/kommun/boras/halso-sjukvard-86909"
   ],
   [
+   "1490|88102",
+   "/kommun/boras/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "1490|46460",
    "/kommun/boras/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -430,6 +440,10 @@
    "/kommun/borlange/halso-sjukvard-86909"
   ],
   [
+   "2081|88102",
+   "/kommun/borlange/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "2081|86230",
    "/kommun/borlange/tandlakare-86230"
   ],
@@ -464,6 +478,10 @@
   [
    "127|86909",
    "/kommun/botkyrka/halso-sjukvard-86909"
+  ],
+  [
+   "127|88102",
+   "/kommun/botkyrka/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "127|46460",
@@ -512,6 +530,14 @@
   [
    "162|86909",
    "/kommun/danderyd/halso-sjukvard-86909"
+  ],
+  [
+   "162|88101",
+   "/kommun/danderyd/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "162|88102",
+   "/kommun/danderyd/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "162|46460",
@@ -654,6 +680,10 @@
    "/kommun/eskilstuna/halso-sjukvard-86909"
   ],
   [
+   "484|88102",
+   "/kommun/eskilstuna/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "484|86222",
    "/kommun/eskilstuna/specialistlakare-86222"
   ],
@@ -680,6 +710,10 @@
   [
    "1285|86909",
    "/kommun/eslov/halso-sjukvard-86909"
+  ],
+  [
+   "1285|88102",
+   "/kommun/eslov/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1285|46460",
@@ -724,6 +758,10 @@
   [
    "1382|86909",
    "/kommun/falkenberg/halso-sjukvard-86909"
+  ],
+  [
+   "1382|88102",
+   "/kommun/falkenberg/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1382|46460",
@@ -788,6 +826,10 @@
   [
    "2080|86909",
    "/kommun/falun/halso-sjukvard-86909"
+  ],
+  [
+   "2080|88102",
+   "/kommun/falun/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "2080|46460",
@@ -884,6 +926,10 @@
   [
    "2180|86909",
    "/kommun/gavle/halso-sjukvard-86909"
+  ],
+  [
+   "2180|88102",
+   "/kommun/gavle/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "2180|46460",
@@ -1000,6 +1046,14 @@
   [
    "1480|86909",
    "/kommun/goteborg/halso-sjukvard-86909"
+  ],
+  [
+   "1480|88101",
+   "/kommun/goteborg/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "1480|88102",
+   "/kommun/goteborg/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1480|46460",
@@ -1178,6 +1232,10 @@
    "/kommun/halmstad/halso-sjukvard-86909"
   ],
   [
+   "1380|88102",
+   "/kommun/halmstad/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "1380|46460",
    "/kommun/halmstad/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -1238,6 +1296,10 @@
    "/kommun/haninge/halso-sjukvard-86909"
   ],
   [
+   "136|88102",
+   "/kommun/haninge/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "136|46460",
    "/kommun/haninge/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -1276,6 +1338,10 @@
   [
    "2280|86909",
    "/kommun/harnosand/halso-sjukvard-86909"
+  ],
+  [
+   "2280|88102",
+   "/kommun/harnosand/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "2280|86230",
@@ -1344,6 +1410,10 @@
   [
    "1293|86909",
    "/kommun/hassleholm/halso-sjukvard-86909"
+  ],
+  [
+   "1293|88102",
+   "/kommun/hassleholm/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1293|46460",
@@ -1440,6 +1510,10 @@
   [
    "1283|86909",
    "/kommun/helsingborg/halso-sjukvard-86909"
+  ],
+  [
+   "1283|88102",
+   "/kommun/helsingborg/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1283|46460",
@@ -1554,6 +1628,10 @@
    "/kommun/huddinge/halso-sjukvard-86909"
   ],
   [
+   "126|88102",
+   "/kommun/huddinge/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "126|46460",
    "/kommun/huddinge/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -1602,6 +1680,10 @@
    "/kommun/hudiksvall/halso-sjukvard-86909"
   ],
   [
+   "2184|88102",
+   "/kommun/hudiksvall/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "2184|86222",
    "/kommun/hudiksvall/specialistlakare-86222"
   ],
@@ -1632,6 +1714,14 @@
   [
    "123|86909",
    "/kommun/jarfalla/halso-sjukvard-86909"
+  ],
+  [
+   "123|88101",
+   "/kommun/jarfalla/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "123|88102",
+   "/kommun/jarfalla/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "123|46460",
@@ -1684,6 +1774,10 @@
   [
    "680|86909",
    "/kommun/jonkoping/halso-sjukvard-86909"
+  ],
+  [
+   "680|88102",
+   "/kommun/jonkoping/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "680|46460",
@@ -1746,6 +1840,10 @@
    "/kommun/kalmar/halso-sjukvard-86909"
   ],
   [
+   "880|88102",
+   "/kommun/kalmar/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "880|46460",
    "/kommun/kalmar/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -1776,6 +1874,10 @@
   [
    "1082|86909",
    "/kommun/karlshamn/halso-sjukvard-86909"
+  ],
+  [
+   "1082|88102",
+   "/kommun/karlshamn/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1082|46460",
@@ -1842,6 +1944,10 @@
    "/kommun/karlskrona/halso-sjukvard-86909"
   ],
   [
+   "1080|88102",
+   "/kommun/karlskrona/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "1080|46460",
    "/kommun/karlskrona/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -1884,6 +1990,10 @@
   [
    "1780|86909",
    "/kommun/karlstad/halso-sjukvard-86909"
+  ],
+  [
+   "1780|88102",
+   "/kommun/karlstad/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1780|46460",
@@ -1972,6 +2082,10 @@
   [
    "2584|86909",
    "/kommun/kiruna/halso-sjukvard-86909"
+  ],
+  [
+   "2584|88102",
+   "/kommun/kiruna/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1276|86905",
@@ -2064,6 +2178,10 @@
   [
    "1290|86909",
    "/kommun/kristianstad/halso-sjukvard-86909"
+  ],
+  [
+   "1290|88102",
+   "/kommun/kristianstad/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1290|46460",
@@ -2178,6 +2296,10 @@
    "/kommun/kungsbacka/halso-sjukvard-86909"
   ],
   [
+   "1384|88102",
+   "/kommun/kungsbacka/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "1384|46460",
    "/kommun/kungsbacka/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -2288,6 +2410,10 @@
   [
    "1441|86909",
    "/kommun/lerum/halso-sjukvard-86909"
+  ],
+  [
+   "1441|88102",
+   "/kommun/lerum/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1441|46460",
@@ -2442,6 +2568,14 @@
    "/kommun/linkoping/halso-sjukvard-86909"
   ],
   [
+   "580|88101",
+   "/kommun/linkoping/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "580|88102",
+   "/kommun/linkoping/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "580|46460",
    "/kommun/linkoping/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -2558,6 +2692,10 @@
    "/kommun/lulea/halso-sjukvard-86909"
   ],
   [
+   "2580|88102",
+   "/kommun/lulea/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "2580|86222",
    "/kommun/lulea/specialistlakare-86222"
   ],
@@ -2600,6 +2738,10 @@
   [
    "1281|86909",
    "/kommun/lund/halso-sjukvard-86909"
+  ],
+  [
+   "1281|88102",
+   "/kommun/lund/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1281|46460",
@@ -2704,6 +2846,14 @@
   [
    "1280|86909",
    "/kommun/malmo/halso-sjukvard-86909"
+  ],
+  [
+   "1280|88101",
+   "/kommun/malmo/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "1280|88102",
+   "/kommun/malmo/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1280|46460",
@@ -2954,6 +3104,14 @@
    "/kommun/nacka/halso-sjukvard-86909"
   ],
   [
+   "182|88101",
+   "/kommun/nacka/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "182|88102",
+   "/kommun/nacka/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "182|46460",
    "/kommun/nacka/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -3058,6 +3216,14 @@
    "/kommun/norrkoping/halso-sjukvard-86909"
   ],
   [
+   "581|88101",
+   "/kommun/norrkoping/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "581|88102",
+   "/kommun/norrkoping/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "581|46460",
    "/kommun/norrkoping/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -3100,6 +3266,10 @@
   [
    "188|86909",
    "/kommun/norrtalje/halso-sjukvard-86909"
+  ],
+  [
+   "188|88102",
+   "/kommun/norrtalje/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "188|46460",
@@ -3170,6 +3340,10 @@
    "/kommun/nykoping/halso-sjukvard-86909"
   ],
   [
+   "480|88102",
+   "/kommun/nykoping/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "480|46460",
    "/kommun/nykoping/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -3204,6 +3378,10 @@
   [
    "192|86230",
    "/kommun/nynashamn/tandlakare-86230"
+  ],
+  [
+   "2101|88102",
+   "/kommun/ockelbo/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1407|87100",
@@ -3264,6 +3442,14 @@
   [
    "1880|86909",
    "/kommun/orebro/halso-sjukvard-86909"
+  ],
+  [
+   "1880|88101",
+   "/kommun/orebro/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "1880|88102",
+   "/kommun/orebro/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1880|46460",
@@ -3390,6 +3576,14 @@
    "/kommun/osteraker/halso-sjukvard-86909"
   ],
   [
+   "117|88101",
+   "/kommun/osteraker/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "117|88102",
+   "/kommun/osteraker/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "117|86222",
    "/kommun/osteraker/specialistlakare-86222"
   ],
@@ -3424,6 +3618,10 @@
   [
    "2380|86909",
    "/kommun/ostersund/halso-sjukvard-86909"
+  ],
+  [
+   "2380|88102",
+   "/kommun/ostersund/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "2380|86222",
@@ -3528,6 +3726,10 @@
   [
    "2581|86909",
    "/kommun/pitea/halso-sjukvard-86909"
+  ],
+  [
+   "2581|88102",
+   "/kommun/pitea/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "2581|86230",
@@ -3770,6 +3972,10 @@
    "/kommun/skelleftea/halso-sjukvard-86909"
   ],
   [
+   "2482|88102",
+   "/kommun/skelleftea/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "2482|86222",
    "/kommun/skelleftea/specialistlakare-86222"
   ],
@@ -3890,6 +4096,14 @@
    "/kommun/sodertalje/halso-sjukvard-86909"
   ],
   [
+   "181|88101",
+   "/kommun/sodertalje/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "181|88102",
+   "/kommun/sodertalje/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "181|86222",
    "/kommun/sodertalje/specialistlakare-86222"
   ],
@@ -3958,6 +4172,14 @@
    "/kommun/sollentuna/halso-sjukvard-86909"
   ],
   [
+   "163|88101",
+   "/kommun/sollentuna/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "163|88102",
+   "/kommun/sollentuna/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "163|46460",
    "/kommun/sollentuna/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -4004,6 +4226,14 @@
   [
    "184|86909",
    "/kommun/solna/halso-sjukvard-86909"
+  ],
+  [
+   "184|88101",
+   "/kommun/solna/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "184|88102",
+   "/kommun/solna/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "184|46460",
@@ -4154,6 +4384,14 @@
    "/kommun/stockholm/halso-sjukvard-86909"
   ],
   [
+   "180|88101",
+   "/kommun/stockholm/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "180|88102",
+   "/kommun/stockholm/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "180|46460",
    "/kommun/stockholm/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -4188,6 +4426,10 @@
   [
    "2421|86905",
    "/kommun/storuman/halso-sjukvard-86905"
+  ],
+  [
+   "2421|88102",
+   "/kommun/storuman/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "486|87201",
@@ -4254,6 +4496,10 @@
    "/kommun/sundbyberg/halso-sjukvard-86909"
   ],
   [
+   "183|88102",
+   "/kommun/sundbyberg/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "183|46460",
    "/kommun/sundbyberg/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -4296,6 +4542,10 @@
   [
    "2281|86909",
    "/kommun/sundsvall/halso-sjukvard-86909"
+  ],
+  [
+   "2281|88102",
+   "/kommun/sundsvall/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "2281|46460",
@@ -4384,6 +4634,14 @@
   [
    "160|86909",
    "/kommun/taby/halso-sjukvard-86909"
+  ],
+  [
+   "160|88101",
+   "/kommun/taby/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "160|88102",
+   "/kommun/taby/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "160|46460",
@@ -4532,6 +4790,10 @@
   [
    "1287|86909",
    "/kommun/trelleborg/halso-sjukvard-86909"
+  ],
+  [
+   "1287|88102",
+   "/kommun/trelleborg/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1287|86230",
@@ -4714,6 +4976,10 @@
    "/kommun/umea/halso-sjukvard-86909"
   ],
   [
+   "2480|88102",
+   "/kommun/umea/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "2480|46460",
    "/kommun/umea/partihandel-med-medicinsk-utrustning-och-apoteksvaror-46460"
   ],
@@ -4768,6 +5034,10 @@
   [
    "114|86909",
    "/kommun/upplands-vasby/halso-sjukvard-86909"
+  ],
+  [
+   "114|88101",
+   "/kommun/upplands-vasby/oppna-sociala-insatser-for-aldre-personer-88101"
   ],
   [
    "114|46460",
@@ -4828,6 +5098,14 @@
   [
    "380|86909",
    "/kommun/uppsala/halso-sjukvard-86909"
+  ],
+  [
+   "380|88101",
+   "/kommun/uppsala/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "380|88102",
+   "/kommun/uppsala/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "380|46460",
@@ -4896,6 +5174,14 @@
   [
    "115|86909",
    "/kommun/vallentuna/halso-sjukvard-86909"
+  ],
+  [
+   "115|88101",
+   "/kommun/vallentuna/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "115|88102",
+   "/kommun/vallentuna/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "115|86222",
@@ -4986,6 +5272,14 @@
    "/kommun/varberg/halso-sjukvard-86909"
   ],
   [
+   "1383|88101",
+   "/kommun/varberg/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "1383|88102",
+   "/kommun/varberg/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
+  ],
+  [
    "1383|86222",
    "/kommun/varberg/specialistlakare-86222"
   ],
@@ -5004,6 +5298,10 @@
   [
    "120|86909",
    "/kommun/varmdo/halso-sjukvard-86909"
+  ],
+  [
+   "120|88102",
+   "/kommun/varmdo/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "120|46460",
@@ -5088,6 +5386,14 @@
   [
    "1980|86909",
    "/kommun/vasteras/halso-sjukvard-86909"
+  ],
+  [
+   "1980|88101",
+   "/kommun/vasteras/oppna-sociala-insatser-for-aldre-personer-88101"
+  ],
+  [
+   "1980|88102",
+   "/kommun/vasteras/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "1980|46460",
@@ -5188,6 +5494,10 @@
   [
    "780|86909",
    "/kommun/vaxjo/halso-sjukvard-86909"
+  ],
+  [
+   "780|88102",
+   "/kommun/vaxjo/oppna-sociala-insatser-for-personer-med-funktionshinder-88102"
   ],
   [
    "780|46460",
@@ -5339,6 +5649,7 @@
   "11319068": "attendo-11319068",
   "11319100": "nytida-11319100",
   "11321486": "inom-11321486",
+  "11321502": "dildar-omsorg-11321502",
   "11322385": "stiftelsen-vindrosen-polstjarnan-11322385",
   "11324142": "marieborgs-folkhogskola-11324142",
   "11326535": "asallid-assistans-11326535",
@@ -5410,6 +5721,7 @@
   "16383028": "vwr-international-ab-16383028",
   "16495772": "pitehalsan-ab-16495772",
   "16518441": "kullen-gruppbostad-nytida-16518441",
+  "16969503": "assistans-hemtjanst-stockholm-ab-16969503",
   "16969800": "ekekullen-hvb-16969800",
   "16969941": "vastgota-assistans-16969941",
   "17121211": "sos-alarm-sverige-ab-17121211",
@@ -5465,6 +5777,7 @@
   "19302132": "byleskolan-19302132",
   "19328756": "gryning-vard-ab-19328756",
   "19435114": "spec-oron-nas-halssjukdomar-19435114",
+  "19488345": "floragarden-ekonomisk-forening-19488345",
   "19503606": "stodboende-bryggan-19503606",
   "19539782": "barnhabilitering-helsingborg-19539782",
   "19566090": "dianagarden-19566090",
@@ -5523,12 +5836,10 @@
   "22772933": "varnas-behandlingshem-22772933",
   "22922264": "arken-22922264",
   "22984660": "hjularods-gruppboende-22984660",
-  "23167596": "tandlakare-lars-svensson-23167596",
   "23252802": "ab-previa-23252802",
   "23252828": "ab-previa-23252828",
   "23275589": "trollhattans-kommun-23275589",
   "23325764": "vildhussen-hvb-ab-23325764",
-  "23371933": "kyviksgarden-23371933",
   "23511827": "tandlakare-anders-johnson-ab-23511827",
   "23527997": "platavagens-serviceboende-23527997",
   "23544745": "ria-hemmet-23544745",
@@ -5579,7 +5890,6 @@
   "25824129": "bralanda-aldreomsorg-25824129",
   "25832155": "tandlakare-margareta-goralska-25832155",
   "25902115": "elmstahemmet-ab-25902115",
-  "25927831": "kiropraktorgruppen-25927831",
   "26168930": "ivonne-grants-tandlakare-ab-26168930",
   "26272377": "strombacka-rehab-ab-26272377",
   "26452524": "k-rehab-26452524",
@@ -5622,10 +5932,12 @@
   "27398015": "tandlakare-helena-mansson-27398015",
   "27402825": "gruppbostader-27402825",
   "27413103": "swedish-empowerment-center-27413103",
+  "27466077": "misa-ab-27466077",
   "27472281": "solhagagruppen-27472281",
   "27479484": "foreningen-betaniahemmet-27479484",
   "27485440": "finjagarden-ab-27485440",
   "27485838": "aneby-kommun-27485838",
+  "27509801": "curo-hemtjanst-ab-27509801",
   "27521723": "stromvillans-fritidsgard-27521723",
   "27535731": "inom-eken-utslussningsenhet-hossna-27535731",
   "27542299": "vob-syd-ab-27542299",
@@ -5642,20 +5954,17 @@
   "28011781": "team-hellberg-zonterapi-ab-28011781",
   "28022994": "praktikertjanst-28022994",
   "28071801": "agatans-sjukgymnastik-ab-28071801",
-  "28095321": "lars-lavesson-psykologhuset-28095321",
   "28209492": "villa-lindo-behandlingshem-i-kalmar-ab-28209492",
   "28224871": "brosaters-sjukhem-ab-28224871",
   "28310654": "bodafors-behandlings-utslussningsenhet-ab-28310654",
   "28389781": "orana-kristianstad-ab-28389781",
   "28575140": "frosunda-naset-28575140",
-  "28708725": "mias-fotvard-28708725",
   "28753655": "praktikertjanst-ab-28753655",
   "28816304": "familjehemmet-omtanke-28816304",
   "28997815": "a-o-promise-minnesotabehandling-28997815",
   "29171485": "tandlakare-per-erik-gunnarsson-ab-29171485",
   "29247285": "stiftelsen-linden-29247285",
   "29314580": "a-c-a-ambulansservice-cityjour-29314580",
-  "29410412": "orjan-johansson-naprapat-29410412",
   "29478013": "wij-gard-vard-ab-29478013",
   "29499118": "finjagarden-29499118",
   "29598364": "bros-hvb-29598364",
@@ -5663,7 +5972,6 @@
   "29722725": "ove-soderberg-29722725",
   "29769205": "annebergs-behandlingshem-29769205",
   "29789146": "cicerone-boende-for-ensamma-flyktingbarn-29789146",
-  "29789609": "alternativ-praktiken-jim-jensen-29789609",
   "29879160": "venpunkten-ab-29879160",
   "29957073": "saviq-kvinnobehandling-29957073",
   "30012058": "tandlakare-bo-andersen-30012058",
@@ -5684,27 +5992,20 @@
   "30786206": "halsoforum-i-storuman-ab-30786206",
   "30788640": "acevou-ab-30788640",
   "30833537": "praktikertjanst-ab-30833537",
-  "30835227": "solsidan-30835227",
-  "30865604": "ortopedteknisk-service-30865604",
   "31022395": "baggium-ab-31022395",
   "31116924": "forskolan-fantasia-31116924",
   "31143852": "ekeborg-behandlingshem-ekonomisk-forening-31143852",
   "31143944": "foraldraforeningen-yrsa-31143944",
   "31181506": "bokskogens-hem-31181506",
   "31224132": "rosenhill-tonarshem-ab-31224132",
-  "31597693": "strandgatans-psykologmottagning-31597693",
-  "31664154": "dala-naprapat-o-idrottsskadeklinik-31664154",
-  "31707938": "karbyhemmet-31707938",
   "31739469": "praktikertjanst-31739469",
   "31842222": "city-lakarmottagning-orebro-ab-31842222",
   "31883804": "savik-behandlingshem-ab-31883804",
-  "31943012": "gudrun-jintons-psykologmottagning-31943012",
   "32148082": "vi-omsorg-i-sverige-ab-32148082",
   "32158891": "jordnara-vaxa-ab-32158891",
   "32313108": "gammeluddshemmet-ab-32313108",
   "32405557": "i-h-parfym-och-sjukvard-ab-32405557",
   "32420481": "tandhalsan-i-mellerud-32420481",
-  "32444119": "ambis-sjukgymnastik-32444119",
   "32497042": "medic24-ab-32497042",
   "32527525": "ogonlakare-zeidan-al-tarcheh-ab-32527525",
   "32575862": "caremore-32575862",
@@ -5712,65 +6013,42 @@
   "32633554": "inom-kbt-32633554",
   "32656126": "andra-chansen-ab-32656126",
   "32656159": "solhagagruppen-32656159",
-  "32664369": "integrativ-fysioterapi-falun-32664369",
   "32694259": "jokken-32694259",
-  "32836546": "doris-alternativbehandling-32836546",
-  "32893448": "foretagshalsovarden-i-strangnas-32893448",
+  "32744542": "olivia-hemservice-ab-32744542",
+  "32818189": "svensk-assistans-och-handikappservice-ab-32818189",
   "32970782": "bergslagens-behandlings-och-rehabiliterings-center-32970782",
   "33008103": "frihamra-vard-ab-33008103",
   "33044959": "dalby-gruppboende-33044959",
   "33228339": "kraftaverk-ab-33228339",
   "33248907": "aleris-ab-33248907",
   "33250028": "stiftelsen-guldfallen-ekebo-33250028",
-  "33350554": "leg-psykolog-lena-rydbeck-33350554",
-  "33580986": "marianas-familjedaghem-33580986",
-  "33655705": "bo-brautigam-psykologi-33655705",
-  "33692674": "alternativ-medicin-zon-terapi-33692674",
-  "33707472": "dr-birgitta-cokorilo-33707472",
   "33750993": "ericsbo-33750993",
   "33788001": "rubinen-ab-33788001",
   "33824111": "norrkopings-kognitiva-center-ab-33824111",
   "33840844": "emma-soderstrom-33840844",
-  "34072850": "tanums-osteopati-zonterapi-34072850",
-  "34922518": "berghem-hvb-34922518",
-  "34968875": "tandlakaren-i-torsas-ab-34968875",
-  "35396563": "hpl-assistans-ab-35396563",
-  "35599323": "fothalsan-i-perstorp-modehalsan-35599323",
-  "35765304": "kiropraktor-eva-planas-35765304",
-  "35973221": "annettes-fotvard-35973221",
   "36029692": "kampagarden-36029692",
-  "36038057": "villa-marma-36038057",
-  "36088599": "hvb-dammen-36088599",
-  "36108900": "tanja-ponjevic-36108900",
-  "36109148": "chatarinas-zonterapi-36109148",
+  "36033041": "stugknuten-ekonomisk-forening-36033041",
   "36136844": "glantans-behandlingshem-36136844",
-  "36140762": "strangnas-halsocenter-36140762",
-  "36141257": "familjedaghemmet-sussies-barntoffla-36141257",
   "36166916": "skillstreaming-ab-36166916",
   "36170553": "olivlunden-36170553",
-  "36265221": "j-36265221",
-  "36425577": "sune-andersson-s-sociala-natverksbehandling-36425577",
   "36455640": "saltkallegarden-ab-36455640",
+  "36470664": "loki-ab-36470664",
+  "36477024": "omtanken-assistans-i-norden-ab-36477024",
   "36556132": "tandlakare-eva-hellstrom-ab-36556132",
   "36679132": "grimmered-hvb-36679132",
-  "36715100": "sauna-behandlingshem-hvb-36715100",
   "36765675": "boende-sodra-vi-36765675",
   "36841435": "ryds-behandlingshem-ab-36841435",
   "36847010": "attendo-lss-36847010",
   "36849826": "colosseumkliniken-36849826",
-  "37009792": "obacka-mottagningen-37009792",
-  "37028719": "falkenbergs-osteopatklinik-anita-morken-37028719",
-  "37037975": "familjehemenheten-37037975",
   "37148772": "medvindens-behandlingshem-37148772",
   "37151438": "familjegarden-skogsdungen-37151438",
+  "37155330": "nyckelpigans-hemservice-ab-37155330",
   "37211745": "husinge-behandlingshem-37211745",
   "37214889": "essagruppen-hvb-37214889",
-  "37313269": "nettans-med-fotvard-37313269",
+  "37318888": "storsjobygdens-personliga-assistans-ab-37318888",
   "37397833": "tandlakare-anders-quist-ab-37397833",
-  "37400272": "trollhattans-chiroprakter-klinik-37400272",
   "37489176": "u-95-familjehem-ab-37489176",
   "37510757": "exit-stockholm-ab-37510757",
-  "37518065": "furuvagens-gruppbostad-daglig-verksamhet-37518065",
   "37622347": "arabo-familjebehandling-37622347",
   "37629193": "lillalvsgarden-37629193",
   "37675691": "tandlakare-rolf-widman-ab-37675691",
@@ -5781,9 +6059,7 @@
   "38086823": "tursbo-rehab-ab-38086823",
   "38225124": "skogsfamiljen-vardverksamheter-ab-38225124",
   "38277265": "varbacka-plaza-38277265",
-  "38329769": "catoni-lena-legitimerad-psykoterapeut-38329769",
   "38371605": "torneby-stodboende-ab-38371605",
-  "38405171": "farlens-familjedaghem-38405171",
   "38424891": "geriatrik-specialisten-sth-ab-38424891",
   "38427464": "guldlyran-ab-38427464",
   "38427837": "cean-hvb-38427837",
@@ -5796,13 +6072,12 @@
   "38799805": "ga-lopkliniken-ab-38799805",
   "38881033": "karlssons-38881033",
   "38894648": "lp-verksamhetens-ideella-riksforening-38894648",
-  "38911632": "annas-naturmedicinska-praktik-38911632",
   "39045646": "hassela-gotland-ab-svb-39045646",
+  "39107792": "trygg-tillvaro-ab-39107792",
   "39111554": "skogsro-39111554",
   "39240114": "capio-specialisthuset-39240114",
   "39240288": "boa-mellanvard-ab-39240288",
   "39244454": "nytida-ab-ljungbacken-39244454",
-  "39257704": "halmstad-naprapatklinik-39257704",
   "39267224": "misa-ab-39267224",
   "39267786": "staple-ungdomshem-ab-39267786",
   "39270186": "nytida-stod-och-resurs-ab-39270186",
@@ -5810,36 +6085,33 @@
   "39356746": "vision-hvb-39356746",
   "39414289": "kvinnohemmet-rosen-ab-39414289",
   "39420914": "sorgardens-behandlingshem-39420914",
-  "39462361": "helene-s-barntradgard-39462361",
-  "39491824": "eldsjalen-39491824",
   "39505706": "colosseumkliniken-39505706",
   "39506340": "inom-skamingsfors-39506340",
   "39571823": "ringmottagningen-ab-39571823",
-  "39637731": "hippocampus-39637731",
+  "39705389": "hemassistans-i-varberg-ab-39705389",
   "39994603": "ryggbenke-ab-39994603",
   "39999933": "kas-omsorgsverksamhet-ab-39999933",
   "40133696": "namndemansgarden-idavallen-40133696",
   "40141558": "ersta-hemtjanst-osteraker-40141558",
+  "40173460": "trygg-tillvaro-ab-40173460",
+  "40179277": "assistanslotsen-ab-40179277",
   "40205759": "nytida-ab-lenagarden-40205759",
-  "40232951": "fothalsan-katarina-carlsson-40232951",
   "40244238": "medorad-ab-40244238",
-  "40361891": "praktik-oskar-hardin-40361891",
   "40427866": "boras-utvecklingsboende-40427866",
   "40439424": "attendo-40439424",
   "40442147": "goodbite-ab-40442147",
-  "40462152": "carina-florman-tandhygienist-40462152",
   "40478182": "hedens-omvardnadscenter-ab-40478182",
   "40544157": "ergotemp-ab-40544157",
   "40547846": "alvens-grupphem-40547846",
-  "40613820": "ulla-falk-40613820",
   "40734758": "90days-handelsbolag-40734758",
-  "40754673": "fothalsan-40754673",
+  "40822447": "gnosjo-assistans-ab-40822447",
   "40855991": "tandlakar-n-i-ragunda-ab-40855991",
-  "40907156": "gokans-gard-40907156",
   "40931594": "gynekolog-erik-rasmussen-40931594",
   "40950404": "rehabhuset-tomelilla-ab-40950404",
   "41067356": "behandlingshemmet-skeppet-ab-41067356",
   "41070681": "falkopings-specialistlakarmottagning-41070681",
+  "41077116": "proffssystern-i-stockholm-ab-41077116",
+  "41093717": "marks-assistans-ab-41093717",
   "41161613": "ab-nordic-medifield-service-41161613",
   "41185745": "dianova-41185745",
   "41223801": "kvarngarden-41223801",
@@ -5848,35 +6120,30 @@
   "41338666": "inslussen-ab-41338666",
   "41462565": "avstampet-i-norr-ab-41462565",
   "41509688": "hemmabergets-hvb-hem-ab-41509688",
+  "41528886": "inre-kraft-i-norr-ab-41528886",
   "41576901": "crewford-care-ab-41576901",
   "41577081": "femcenter-41577081",
   "41610783": "apoteket-valbo-41610783",
   "41616079": "ringgarden-ab-41616079",
-  "41689977": "fotvardssalongen-mitt-i-city-41689977",
   "41694613": "hultagarden-41694613",
   "41696295": "juniagruppen-ab-41696295",
   "41700709": "minnesota-i-malmo-ab-41700709",
   "41790304": "familjehalsan-vardcentral-41790304",
+  "41808338": "mm-home-service-41808338",
   "41810540": "humlans-hvb-ab-41810540",
   "41823196": "astrid-lewison-konsult-ab-41823196",
   "41826173": "albetol-grimstagatan-41826173",
-  "41872003": "mercy-behandlingshemmet-41872003",
   "41913393": "bergasa-behandlingshem-ab-41913393",
-  "41919028": "maj-magnussons-sjukgymnastik-41919028",
   "41928821": "ekangens-hvb-halvvagshus-ab-41928821",
   "42017889": "ukkc-42017889",
   "42018911": "ab-villa-bjorkudden-42018911",
   "42087478": "rubinen-motivations-och-omvardnadsboende-42087478",
-  "42162016": "stanleys-chiropraktik-42162016",
-  "42199471": "kaderland-samtalskonsult-42199471",
   "42208728": "mjosjo-gard-hvb-ab-42208728",
   "42209585": "fysio-daniel-jusinski-ab-42209585",
   "42356600": "stockholms-stadsmission-42356600",
   "42371492": "aramia-omsorg-ab-42371492",
   "42375469": "bollnas-boende-kooperativ-ekonomisk-forening-42375469",
   "42375535": "selene-kollektivet-42375535",
-  "42392712": "forstarkta-familjehem-ramlosa-42392712",
-  "42393215": "fotparadiset-fotvard-behandlingar-42393215",
   "42421701": "ocd-centret-ab-42421701",
   "42439661": "anglahuset-i-bjorkvik-ab-42439661",
   "42443424": "stationsvagens-gruppbostad-42443424",
@@ -5885,13 +6152,17 @@
   "42748640": "responsgruppen-i-malardalen-ab-42748640",
   "42762591": "ekekullen-hvb-42762591",
   "42762914": "hhs-ab-familjehem-42762914",
-  "42767764": "gnesta-fotvard-42767764",
   "42796581": "sellbergs-behandlingshem-ab-42796581",
   "42811117": "guldstadens-hvb-42811117",
   "42829184": "kongsryds-hvb-ab-42829184",
   "42835843": "extro-ab-42835843",
+  "42910786": "aman-care-ab-42910786",
   "42911404": "tandlakare-kent-rikardsson-42911404",
+  "42961581": "livsanda-vard-och-assistans-i-vastra-gotalands-re-42961581",
+  "42986174": "din-forlangda-arm-sverige-ab-42986174",
   "42986844": "memira-ab-42986844",
+  "43008036": "olivia-personlig-assistans-ab-43008036",
+  "43011089": "trs-assistans-ab-43011089",
   "43026830": "solutionfocus-i-mora-ab-43026830",
   "43028612": "cymbalens-forskola-ab-43028612",
   "43067024": "vasomed-ab-43067024",
@@ -5911,20 +6182,25 @@
   "43678333": "solklart-vard-ab-43678333",
   "43782333": "fjallhalsan-harjedalen-43782333",
   "43797885": "skerfe-kliniken-ab-43797885",
-  "43803733": "fotvardsspecialisten-43803733",
-  "43804145": "fotsidan-43804145",
   "43838812": "salltappans-behandlingshem-ab-43838812",
+  "43847219": "friskvard-hemservice-i-umea-43847219",
+  "43854207": "akedo-omsorg-ab-43854207",
+  "43903764": "furuboda-assistans-ab-43903764",
+  "43951888": "hemtjanst-i-taby-ab-43951888",
   "43962679": "living-nordic-ab-43962679",
+  "43964162": "hemservice-i-halland-ab-43964162",
   "44112381": "svartnas-stodboende-44112381",
   "44116283": "renkronans-behandlingshem-44116283",
   "44127728": "hvilans-skolhem-44127728",
   "44132165": "hoga-kusten-vard-och-omsorg-ab-44132165",
   "44156230": "skargardens-hvb-44156230",
-  "44212900": "curatio-ungdomskonsult-44212900",
   "44225605": "teamtandvarden-onsala-ab-44225605",
+  "44226751": "cr-personlig-assistans-ab-44226751",
   "44238616": "barrstigen-hem-for-ensamkommande-barn-44238616",
+  "44293454": "real-omsorg-i-stor-stad-ab-44293454",
   "44295137": "montessoriforskolan-villa-eken-ab-44295137",
   "44382711": "forskolan-sakina-ek-for-44382711",
+  "44427631": "diro-omsorg-ab-44427631",
   "44554772": "villa-vita-i-mullsjo-ab-44554772",
   "44625515": "joy-psykologteam-handelsbolag-44625515",
   "44662120": "laroriket-larileken-ab-44662120",
@@ -5932,39 +6208,44 @@
   "44761070": "apoteket-sergel-44761070",
   "44826402": "toftanas-stormarknad-ab-44826402",
   "44837623": "domesticus-ab-44837623",
+  "44876647": "mm-assistans-dalarna-ab-44876647",
   "44898419": "ekotopia-44898419",
+  "44908523": "mtg-humanus-ab-44908523",
   "44918084": "cureum-ab-44918084",
   "44929800": "familjestodsgruppen-44929800",
   "44986818": "nils-norrsell-44986818",
   "45072865": "rasmusgarden-ab-45072865",
   "45130606": "orana-asphult-45130606",
-  "45134392": "varius-familjehemsvard-45134392",
+  "45143781": "omtanken-i-skane-ab-45143781",
   "45214483": "ict-relationsinvest-ab-45214483",
-  "45241973": "maritha-johanssons-samtalsmottagning-45241973",
-  "45300977": "fyrens-hvb-45300977",
+  "45408341": "mangkulturell-hemtjanst-45408341",
   "45421971": "norrtaljes-gemensamma-halso-sjukvard-och-omsorgs-45421971",
   "45477791": "brizad-behandlingskonsult-ab-45477791",
   "45507845": "jt-kliniken-ab-45507845",
   "45509288": "tandhalsa-therese-ticander-ab-45509288",
-  "45532181": "anns-medicinska-fotvard-45532181",
+  "45647294": "peter-vybiral-assistansverksamhet-ab-45647294",
   "45660628": "vardcentralen-45660628",
   "45663788": "gnistan-hvb-45663788",
   "45685435": "tandlakare-fahimeh-farahmand-ab-45685435",
   "45725041": "faster-veras-familjekollektiv-ab-45725041",
-  "45736105": "magelungen-gavle-45736105",
   "45743622": "varudden-ab-45743622",
   "45745361": "better-smile-45745361",
+  "45757051": "assistansteamet-i-halland-ab-45757051",
   "45773066": "poldent-ab-45773066",
+  "45784592": "rehabassistans-i-sverige-ab-45784592",
   "45787041": "holmsgarden-omsorg-45787041",
   "45858198": "attendo-45858198",
+  "45868007": "adium-omsorg-ab-45868007",
   "45868387": "asih-tyreso-soderort-ab-45868387",
+  "45870920": "assistans-minan-i-narke-ab-45870920",
   "45885712": "barnmottagningen-baltazar-ab-45885712",
-  "45889797": "ergostyling-45889797",
   "45909454": "paloma-utredning-behandling-ab-45909454",
   "45910833": "tandlakare-anette-olofsson-ab-45910833",
-  "45924636": "paradis-fotklinik-45924636",
+  "45911021": "basic-care-unit-ab-45911021",
+  "45914900": "cederbonds-assistans-ab-45914900",
+  "46000725": "loa-assistans-kalix-46000725",
   "46026977": "familjehemmet-individ-omtanke-46026977",
-  "46039152": "pariza-46039152",
+  "46050324": "varbergs-hemtjanst-boende-ab-46050324",
   "46131033": "memira-ab-46131033",
   "46131058": "memira-ab-46131058",
   "46131066": "memira-ab-46131066",
@@ -5978,12 +6259,8 @@
   "46170957": "colosseumkliniken-46170957",
   "46185476": "russinbacken-ab-46185476",
   "46188504": "city-sjukgymnastikmottagning-46188504",
-  "46198743": "hudlakaren-i-palsjo-skog-46198743",
   "46229308": "finntorpstandlakarna-ab-46229308",
   "46234746": "inom-bjorntorps-hvb-hem-46234746",
-  "46254942": "helena-clip-on-hjalpmedel-46254942",
-  "46294575": "cedar-roingegarden-46294575",
-  "46307799": "libo-care-solbacken-hvb-46307799",
   "46318572": "colosseumkliniken-46318572",
   "46325940": "hans-duvinger-tandlakarpraktik-ab-46325940",
   "46349783": "aramia-omsorg-ab-46349783",
@@ -5994,23 +6271,25 @@
   "46466124": "aktiv-vard-46466124",
   "46514162": "personalkooperativet-skogsfrona-46514162",
   "46623278": "tandlakare-hildenborg-ab-46623278",
+  "46681573": "cl-assistans-ab-46681573",
   "46682720": "tandvardcentralen-akut-mottagning-malmo-ab-46682720",
   "46697629": "harnosands-kommun-46697629",
   "46697744": "inom-tibble-gard-46697744",
-  "46746798": "frosunda-hvb-skabo-46746798",
+  "46791919": "jeta-jon-ab-46791919",
+  "46806477": "svanen-hemtjanst-ab-46806477",
   "46860151": "glob-ekonomisk-forening-46860151",
   "46932406": "praktikertjanst-ab-46932406",
   "46934253": "tyreso-kommun-46934253",
-  "46978656": "stafsinge-hvb-46978656",
-  "47029509": "fotjouren-47029509",
+  "46987400": "cityomsorgen-varberg-ek-for-46987400",
+  "47018239": "a-a-hemtjanst-i-halland-ab-47018239",
   "47045323": "andersson-piltz-ungdomshem-ab-47045323",
   "47059605": "din-kiropraktor-i-dalarna-ab-47059605",
   "47060652": "brightcare-47060652",
   "47077664": "cederangen-utrednings-och-behandlingshem-ab-47077664",
   "47099916": "oasen-47099916",
   "47104393": "coremed-47104393",
-  "47124193": "misa-vasteras-47124193",
   "47130489": "familjehem-i-fokus-47130489",
+  "47156922": "aman-care-ab-47156922",
   "47157854": "memira-ab-47157854",
   "47157862": "memira-ab-47157862",
   "47157888": "memira-ab-47157888",
@@ -6018,7 +6297,6 @@
   "47157904": "memira-ab-47157904",
   "47158894": "omsorgscompagniet-47158894",
   "47175807": "giw-rehab-ab-47175807",
-  "47249586": "skelleftea-kiropraktorklinik-47249586",
   "47259338": "kullabygdens-dbt-hem-47259338",
   "47260047": "dxcm-sweden-ab-47260047",
   "47270301": "attendo-kristina-47270301",
@@ -6027,21 +6305,46 @@
   "47314307": "frosunda-hvb-ungbo-47314307",
   "47315635": "srk-konsultation-ab-47315635",
   "47367628": "befem-laro-mottagningen-47367628",
-  "47471677": "tandlakarna-lofstrom-ab-47471677",
+  "47427331": "slussen-daglig-verksamhet-47427331",
   "47499777": "skogmans-forskolor-ab-47499777",
   "47514955": "domna-dental-ab-47514955",
-  "47660006": "bergbo-hvb-47660006",
-  "47695564": "fenix-47695564",
+  "47544499": "adk-assistans-ab-47544499",
+  "47556956": "hemtjanst-blomman-kb-47556956",
+  "47580865": "hemtjanstakuten-sverige-ab-47580865",
+  "47582234": "tornrosens-assistans-ab-47582234",
+  "47656103": "rik-assistans-i-vasternorrland-ab-47656103",
+  "47659149": "funkass-funktionshindrades-assistans-hb-47659149",
   "47715370": "responsgruppen-i-malardalen-ab-47715370",
   "47730379": "k-rehab-47730379",
   "99000027": "violakliniken-99000027",
   "99000075": "svensk-assistans-och-handikappservice-ab-99000075",
   "99000084": "emt-kliniken-stockholm-99000084",
+  "99000136": "solrosens-assistans-99000136",
+  "99000178": "aman-care-ab-99000178",
+  "99000179": "aman-care-ab-99000179",
   "99000181": "feelgood-foretagshalsovard-ab-99000181",
   "99000187": "tandlakare-elisabet-linderot-99000187",
   "99000209": "glaxosmithkline-ab-99000209",
+  "99000237": "din-hemservice-i-norr-ab-99000237",
+  "99000238": "hemi-hemtjanst-ab-99000238",
+  "99000243": "hemtrevnad-stad-och-hemservice-99000243",
+  "99000244": "klockrent-stad-och-alltjanst-99000244",
+  "99000246": "yp-stadfirma-99000246",
   "99000257": "tossebobarna-ekonomisk-forening-99000257",
+  "99000258": "ekens-hemtjanst-ab-99000258",
+  "99000263": "syster-karins-vard-och-omsorg-ab-99000263",
+  "99000266": "proma-care-ab-99000266",
+  "99000267": "seflem-hemtjanst-ab-99000267",
+  "99000271": "ukna-hemservice-99000271",
+  "99000274": "navida-hemservice-99000274",
+  "99000275": "trygghet-vard-f-b-l-99000275",
+  "99000276": "naimis-vardomsorg-99000276",
+  "99000277": "konvaljens-hemvard-och-stad-ab-99000277",
+  "99000280": "stockholm-service-och-bemanningsforetag-99000280",
+  "99000288": "shanar-vard-och-omsorg-ab-99000288",
   "99000291": "viviann-spang-99000291",
+  "99000295": "bjorka-assistans-ab-99000295",
+  "99000297": "furuboda-assistans-ab-99000297",
   "99000303": "cura-apoteket-flygstaden-99000303",
   "99000440": "spec-oron-nas-halssjukdomar-99000440"
  }

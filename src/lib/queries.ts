@@ -1,7 +1,8 @@
 import { getSupabaseAnon } from "./supabase";
 import { branschSlug } from "./branscher";
-import { VARD_BRANSCHER, VARD_BRANSCHER_SET } from "./vard-branscher";
+import { NISCH_JURFORM_VILLKOR, VARD_BRANSCHER, VARD_BRANSCHER_SET } from "./vard-branscher";
 import { kommunCodesForLan } from "./lan";
+import { storleksKolumn, type Storlekskolumn } from "./storlek";
 import { filtreraSokord, kontaktsparrFilter } from "./kontaktsparr";
 import type { KontaktsparrFilter } from "./overlay-contract";
 
@@ -40,14 +41,17 @@ type AeantFilter = { aeantMin?: number; aeantMax?: number };
  *
  * En vald undre gräns > 0 exkluderar NULL-rader avsiktligt — den som filtrerar
  * på "minst 10 anställda" har bett om just det.
+ *
+ * Spannet gäller arbetsstället (aeant_per_stalle), inte bolaget, när vyn har
+ * kolumnen — se lib/storlek.ts. Samma kolumn som sorteringen.
  */
-function applyAeantFilter<T>(q: T, opts: AeantFilter): T {
+function applyAeantFilter<T>(q: T, opts: AeantFilter, kolumn: Storlekskolumn): T {
   let out = q;
   if (opts.aeantMin && opts.aeantMin > 0) {
-    out = (out as unknown as { gte(c: string, v: number): T }).gte("aeant", opts.aeantMin);
+    out = (out as unknown as { gte(c: string, v: number): T }).gte(kolumn, opts.aeantMin);
   }
   if (opts.aeantMax && opts.aeantMax > 0) {
-    out = (out as unknown as { lte(c: string, v: number): T }).lte("aeant", opts.aeantMax);
+    out = (out as unknown as { lte(c: string, v: number): T }).lte(kolumn, opts.aeantMax);
   }
   return out;
 }
@@ -170,6 +174,11 @@ const COLUMNS_LIST =
  * och `kontaktperson` skrubbas det bort. Se lib/kontaktsparr.ts.
  */
 function mapRow(row: Partial<PublikRow>, kf: KontaktsparrFilter): Foretag {
+  // ENSKILD FIRMA: gatuadress och postnummer lämnar aldrig datalagret. Firmans
+  // adress kan vara innehavarens hem; bara postorten visas. Det enda undantaget
+  // är en adress kunden själv publicerat i en betald profil — se synligAdress()
+  // i lib/foretag-format.ts.
+  const enskild = row.ar_enskild_firma ?? false;
   // Type assertion via Partial: vi accepterar listrader som saknar tunga
   // fält (infotext m.fl.) och defaulta dem till null.
   return {
@@ -177,8 +186,8 @@ function mapRow(row: Partial<PublikRow>, kf: KontaktsparrFilter): Foretag {
     cfarnr: row.cfarnr ?? 0,
     firma: row.firma ?? null,
     namn: row.namn ?? null,
-    gatuadress: row.gatuadress ?? null,
-    postnr: row.postnr ?? null,
+    gatuadress: enskild ? null : (row.gatuadress ?? null),
+    postnr: enskild ? null : (row.postnr ?? null),
     postort: row.postort ?? null,
     tel: kf.falt(row.tel ?? null),
     webb: row.webb ?? null,
@@ -187,7 +196,7 @@ function mapRow(row: Partial<PublikRow>, kf: KontaktsparrFilter): Foretag {
     kommun: row.kommun ?? null,
     aeant: row.aeant ?? null,
     orgnr: row.orgnr ?? null,
-    arEnskildFirma: row.ar_enskild_firma ?? false,
+    arEnskildFirma: enskild,
     orgnrMaskerat: row.orgnr_maskerat ?? null,
     jurform: row.jurform ?? null,
     poang: row.poang ?? null,
@@ -219,7 +228,8 @@ export async function countForetagInKommun(kommunCode: string): Promise<number> 
     .from(VIEW)
     .select("cfarnr", { count: "exact", head: true })
     .eq("kommun", kommunCode)
-    .in("ng1", VARD_BRANSCHER);
+    .in("ng1", VARD_BRANSCHER)
+    .or(NISCH_JURFORM_VILLKOR);
   if (error) {
     console.error("countForetagInKommun", error);
     return 0;
@@ -228,9 +238,10 @@ export async function countForetagInKommun(kommunCode: string): Promise<number> 
 }
 
 /**
- * Största arbetsgivare i en kommun. Utnyttjar indexet
- * `aesamtable(kommun, aeant DESC NULLS LAST)` så att Postgres kan ta
- * topp-N direkt från indexet utan att materialisera hela resultset.
+ * Största verksamheter i en kommun, räknat per arbetsställe (lib/storlek.ts).
+ * Med bolagets aeant hamnade en kedjas alla mottagningar överst. Sorteringen
+ * kan inte längre tas ur indexet `aesamtable(kommun, aeant DESC NULLS LAST)`:
+ * mätt på Stockholm (5 768 rader) 11,7 → 29 ms i databasen.
  * Sekundär sort på cfarnr säkrar deterministisk tie-break.
  */
 export async function listForetagInKommun(
@@ -238,16 +249,16 @@ export async function listForetagInKommun(
   limit = 10,
 ): Promise<Foretag[]> {
   const supa = getSupabaseAnon();
-  // Why ingen poang-sort här: indexet är (kommun, aeant DESC NULLS LAST) —
-  // poang som primär nyckel triggar full-scan på storstäder. "Största
-  // arbetsgivare" är dessutom en objektiv stat, inte search-relevans, så
-  // aeant DESC är rätt sortering.
+  const storlek = await storleksKolumn();
+  // Why ingen poang-sort här: "största verksamheter" är en objektiv stat,
+  // inte search-relevans, så storlek DESC är rätt sortering.
   const { data, error } = await supa
     .from(VIEW)
     .select(COLUMNS_LIST)
     .eq("kommun", kommunCode)
     .in("ng1", VARD_BRANSCHER)
-    .order("aeant", { ascending: false, nullsFirst: false })
+    .or(NISCH_JURFORM_VILLKOR)
+    .order(storlek, { ascending: false, nullsFirst: false })
     .order("cfarnr", { ascending: true })
     .limit(limit);
   if (error || !data) {
@@ -283,6 +294,7 @@ export async function getBranschFordelning(
       .select("ng1,cfarnr")
       .eq("kommun", kommunCode)
       .in("ng1", VARD_BRANSCHER)
+      .or(NISCH_JURFORM_VILLKOR)
       .gt("cfarnr", cursor)
       .order("cfarnr", { ascending: true })
       .limit(1000);
@@ -336,7 +348,8 @@ export async function listForetagInKommunByBransch(
   }
 
   const supa = getSupabaseAnon();
-  // Primär sort: aeant DESC (störst arbetsgivare först).
+  const storlek = await storleksKolumn();
+  // Primär sort: storlek per arbetsställe DESC (lib/storlek.ts).
   // Sekundär: cfarnr ASC — unik över hela vyn och därmed en total ordning.
   // Utan den skulle .range() vara odefinierad vid lika poang+aeant och samma
   // företag kunna dyka upp på två sidor (eller falla mellan dem). `id` duger
@@ -345,13 +358,14 @@ export async function listForetagInKommunByBransch(
     .from(VIEW)
     .select(COLUMNS_LIST)
     .eq("kommun", kommunCode)
-    .eq("ng1", ng1);
-  q = applyAeantFilter(q, opts);
+    .eq("ng1", ng1)
+    .or(NISCH_JURFORM_VILLKOR);
+  q = applyAeantFilter(q, opts, storlek);
 
   // Poäng primärt (betalkunder överst), sedan storlek, sedan cfarnr.
   const { data, error } = await q
     .order("poang", { ascending: false, nullsFirst: false })
-    .order("aeant", { ascending: false, nullsFirst: false })
+    .order(storlek, { ascending: false, nullsFirst: false })
     .order("cfarnr", { ascending: true })
     .range(from, to);
   if (error || !data) {
@@ -435,7 +449,7 @@ export async function findBranschIdsForQuery(
  * Strategi:
  *   1. För enord (t.ex. "byggmästare") slå upp branschid:n i t_bransch.
  *   2. Om bransch-match finns: kör TVÅ parallella queries och slå ihop:
- *        A) ng1.in.(ids) — sorterat på aeant desc (största arbetsgivarna först)
+ *        A) ng1.in.(ids) — sorterat på storlek per arbetsställe (lib/storlek.ts)
  *        B) textSearch på search_vector — namn-träffar (t.ex. "Byggmästare AB"
  *           som inte ligger i en byggbransch-kod)
  *      Dedupa på cfarnr så samma arbetsställe inte syns två gånger.
@@ -529,15 +543,17 @@ async function runKategoriBrowse(
   matchedBransch: null;
 }> {
   const supa = getSupabaseAnon();
+  const storlek = await storleksKolumn();
   let q = supa
     .from(VIEW)
     .select(COLUMNS_LIST)
-    .in("ng1", ng1List as number[]);
+    .in("ng1", ng1List as number[])
+    .or(NISCH_JURFORM_VILLKOR);
   q = applyGeoFilter(q, opts);
-  q = applyAeantFilter(q, opts);
+  q = applyAeantFilter(q, opts, storlek);
   const { data, error } = await q
     .order("poang", { ascending: false, nullsFirst: false })
-    .order("aeant", { ascending: false, nullsFirst: false })
+    .order(storlek, { ascending: false, nullsFirst: false })
     .order("cfarnr", { ascending: true })
     .range(from, to);
   if (error || !data) {
@@ -577,14 +593,19 @@ async function runBranschSearch(
   matchedBransch: string | null;
 }> {
   const supa = getSupabaseAnon();
+  const storlek = await storleksKolumn();
   // Bransch-uppslaget ger redan ids från vård-whitelist (findBranschIdsForQuery
   // filtrerar mot VARD_BRANSCHER), men vi dubbel-konstraint:ar för säkerhet.
-  let qA = supa.from(VIEW).select(COLUMNS_LIST).in("ng1", branschInfo.ids);
+  let qA = supa
+    .from(VIEW)
+    .select(COLUMNS_LIST)
+    .in("ng1", branschInfo.ids)
+    .or(NISCH_JURFORM_VILLKOR);
   qA = applyGeoFilter(qA, opts);
-  qA = applyAeantFilter(qA, opts);
+  qA = applyAeantFilter(qA, opts, storlek);
   const branschQuery = qA
     .order("poang", { ascending: false, nullsFirst: false })
-    .order("aeant", { ascending: false, nullsFirst: false })
+    .order(storlek, { ascending: false, nullsFirst: false })
     .order("cfarnr", { ascending: true })
     .range(from, to);
 
@@ -602,12 +623,13 @@ async function runBranschSearch(
             type: "websearch",
             config: "swedish_unaccent",
           })
-          .in("ng1", VARD_BRANSCHER);
+          .in("ng1", VARD_BRANSCHER)
+          .or(NISCH_JURFORM_VILLKOR);
         qB = applyGeoFilter(qB, opts);
-        qB = applyAeantFilter(qB, opts);
+        qB = applyAeantFilter(qB, opts, storlek);
         return qB
           .order("poang", { ascending: false, nullsFirst: false })
-          .order("aeant", { ascending: false, nullsFirst: false })
+          .order(storlek, { ascending: false, nullsFirst: false })
           .order("cfarnr", { ascending: true })
           .limit(8);
       })()
@@ -685,6 +707,7 @@ async function runTextSearch(
   matchedBransch: string | null;
 }> {
   const supa = getSupabaseAnon();
+  const storlek = await storleksKolumn();
   let q = supa
     .from(VIEW)
     .select(COLUMNS_LIST)
@@ -692,15 +715,16 @@ async function runTextSearch(
       type: "websearch",
       config: "swedish_unaccent",
     })
-    .in("ng1", VARD_BRANSCHER);
+    .in("ng1", VARD_BRANSCHER)
+    .or(NISCH_JURFORM_VILLKOR);
   q = applyGeoFilter(q, opts);
   // Användarens ng1-filter måste också ligga inom vård-whitelist.
   if (opts.ng1 && VARD_BRANSCHER_SET.has(opts.ng1)) q = q.eq("ng1", opts.ng1);
-  q = applyAeantFilter(q, opts);
+  q = applyAeantFilter(q, opts, storlek);
 
   const textQuery = q
     .order("poang", { ascending: false, nullsFirst: false })
-    .order("aeant", { ascending: false, nullsFirst: false })
+    .order(storlek, { ascending: false, nullsFirst: false })
     .order("cfarnr", { ascending: true })
     .range(from, to);
 
@@ -759,14 +783,16 @@ export async function listRelatedForetag(
   // Guard — vi vill aldrig visa "liknande" från en bransch utanför nischen.
   if (!VARD_BRANSCHER_SET.has(ng1)) return [];
   const supa = getSupabaseAnon();
+  const storlek = await storleksKolumn();
   const { data, error } = await supa
     .from(VIEW)
     .select(COLUMNS_LIST)
     .eq("kommun", kommunCode)
     .eq("ng1", ng1)
+    .or(NISCH_JURFORM_VILLKOR)
     .neq("cfarnr", excludeCfarnr)
     .order("poang", { ascending: false, nullsFirst: false })
-    .order("aeant", { ascending: false, nullsFirst: false })
+    .order(storlek, { ascending: false, nullsFirst: false })
     .order("cfarnr", { ascending: true })
     .limit(limit);
   if (error || !data) return [];
@@ -787,6 +813,7 @@ export async function getForetagByCfarnr(cfarnr: number): Promise<Foretag | null
     .select(COLUMNS)
     .eq("cfarnr", cfarnr)
     .in("ng1", VARD_BRANSCHER)
+    .or(NISCH_JURFORM_VILLKOR)
     .limit(1)
     .maybeSingle();
   if (error || !data) {
@@ -874,16 +901,18 @@ async function fetchByCfarnrs(
 ): Promise<Partial<PublikRow>[]> {
   if (cfarnrs.length === 0) return [];
   const supa = getSupabaseAnon();
+  const storlek = await storleksKolumn();
   let q = supa
     .from(VIEW)
     .select(COLUMNS_LIST)
     .in("cfarnr", cfarnrs)
-    .in("ng1", VARD_BRANSCHER);
+    .in("ng1", VARD_BRANSCHER)
+    .or(NISCH_JURFORM_VILLKOR);
   q = applyGeoFilter(q, opts);
-  q = applyAeantFilter(q, opts);
+  q = applyAeantFilter(q, opts, storlek);
   const { data, error } = await q
     .order("poang", { ascending: false, nullsFirst: false })
-    .order("aeant", { ascending: false, nullsFirst: false });
+    .order(storlek, { ascending: false, nullsFirst: false });
   if (error || !data) {
     if (error) console.warn("fetchByCfarnrs", error.message);
     return [];

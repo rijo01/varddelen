@@ -112,6 +112,19 @@ export default async function SokPage({
     }
   }
 
+  // Ett sökord som egentligen är en kategori (hemtjänst) → kategorin, med orten
+  // kvar. Fritext hade bara hittat de få företag som har ordet i namnet.
+  const kategoriTerm = query ? termFor(query)?.kategori : undefined;
+  if (kategoriTerm && !sp.kategori) {
+    const params = new URLSearchParams();
+    params.set("kategori", kategoriTerm);
+    for (const k of ["kommun", "lan", "postort", "aeantMin", "aeantMax"] as const) {
+      const v = sp[k];
+      if (v) params.set(k, v);
+    }
+    redirect(`/sok?${params.toString()}`);
+  }
+
   const kommun = sp.kommun ? kommunBySlug(sp.kommun) : undefined;
   const lan = sp.lan ? lanBySlug(sp.lan) : undefined;
   const postort = sp.postort?.trim() || undefined;

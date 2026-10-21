@@ -12,14 +12,14 @@ export const revalidate = 86400;
 
 /**
  * Snabbvalen: det som söks mest av privatpersoner, plus de omsorgsformer
- * som anhöriga och handläggare letar efter. Hemtjänst saknas tills dess
- * SNI-koder ligger i nischfiltret — i dag ger den bara ett tjugotal träffar.
+ * som anhöriga och handläggare letar efter.
  */
 const SNABBVAL: Array<{ label: string; href: string }> = [
   ...["tandläkare", "fysioterapeut", "psykolog", "vårdcentral", "kiropraktor"].map((q) => {
     const t = SOK_TERMER.find((x) => x.q === q)!;
     return { label: t.label.split(" / ")[0]!, href: `/sok?q=${encodeURIComponent(t.q)}` };
   }),
+  { label: "Hemtjänst", href: "/sok?kategori=hemtjanst" },
   { label: "Äldreboende", href: "/sok?kategori=aldreomsorg" },
   { label: "LSS-boende", href: "/sok?kategori=lss" },
   { label: "HVB-hem", href: "/sok?kategori=hvb" },

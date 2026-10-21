@@ -27,10 +27,12 @@ import {
   orgnrDisplay,
   profilMarkning,
   shortWebb,
+  synligAdress,
   telHref,
 } from "@/lib/foretag-format";
 import { AkutNotis, ProfilEtikett } from "@/components/vard-info";
 import { BRANSCH_LABEL, etikettIText } from "@/lib/stats";
+import { delarOrgnr } from "@/lib/flerstalle";
 import { isPersonalOrgnr } from "@/lib/jurform";
 import { sanitizeInfotext, safeLogotypUrl } from "@/lib/sanitize-html";
 import { SITE_URL } from "@/lib/site";
@@ -129,7 +131,6 @@ export default async function ForetagSida({
   const branschName = f.ng1 ? await getBranschName(f.ng1) : null;
   const name = displayName(f);
   const legalForm = legalFormFor(f);
-  const mapsUrl = googleMapsUrl(f);
   const webb = normalizeWebb(f.webb);
   const orgnrInfo = orgnrDisplay(f);
   const sanitizedInfotext = sanitizeInfotext(f.infotext);
@@ -163,6 +164,13 @@ export default async function ForetagSida({
   const logoUrl = sidhuvudetsLogotyp(overlay, safeLogotypUrl(f.logotyp))?.url ?? null;
 
   const related = ordnaBoostade(oboostadeRelated, overlays);
+
+  // Adressen som visas, i rutan, i JSON-LD, i texten och i FAQ:n. En enskild
+  // firma har ingen gatuadress här (mapRow) — utom den kunden själv publicerat.
+  const fVisad: Foretag = { ...f, ...synligAdress(f, overlay) };
+  // Kartlänk bara till en gatuadress — en länk till bara postorten pekar ut
+  // ingenting och är ingen hjälp.
+  const mapsUrl = fVisad.gatuadress ? googleMapsUrl(fVisad) : null;
 
   // Märkningen: "Betald placering" bara för ett aktuellt köp (overlay.featured),
   // "Komplett profil" för registrets poang. Se profilMarkning().
@@ -224,13 +232,13 @@ export default async function ForetagSida({
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name,
-    ...(f.gatuadress || f.postort
+    ...(fVisad.gatuadress || fVisad.postort
       ? {
           address: {
             "@type": "PostalAddress",
-            streetAddress: f.gatuadress ?? undefined,
-            postalCode: f.postnr ? String(f.postnr) : undefined,
-            addressLocality: f.postort ?? kommun?.name,
+            streetAddress: fVisad.gatuadress ?? undefined,
+            postalCode: fVisad.postnr ? String(fVisad.postnr) : undefined,
+            addressLocality: fVisad.postort ?? kommun?.name,
             addressCountry: "SE",
           },
         }
@@ -248,7 +256,7 @@ export default async function ForetagSida({
   };
 
   // FAQ — kontextuell, dynamisk
-  const faqItems = buildFaq({ name, branschName, kommun: kommun?.name ?? null, f, telefon: visatTelefon });
+  const faqItems = buildFaq({ name, branschName, kommun: kommun?.name ?? null, f: fVisad, telefon: visatTelefon });
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -264,7 +272,7 @@ export default async function ForetagSida({
     name,
     branschName,
     kommun: kommun?.name ?? null,
-    f,
+    f: fVisad,
     legalForm,
   });
 
@@ -334,11 +342,11 @@ export default async function ForetagSida({
 
           <dl className="grid gap-x-8 gap-y-4 text-[16px] sm:grid-cols-2">
             <Uppgift ikon={<MapPin className="size-4" aria-hidden />} rubrik="Besöksadress">
-              {f.gatuadress || f.postort ? (
+              {fVisad.gatuadress || fVisad.postort ? (
                 <>
                   <address className="not-italic text-[var(--text-strong)]">
-                    {f.gatuadress && <span className="block">{f.gatuadress}</span>}
-                    <span className="block">{[f.postnr, f.postort].filter(Boolean).join(" ")}</span>
+                    {fVisad.gatuadress && <span className="block">{fVisad.gatuadress}</span>}
+                    <span className="block">{[fVisad.postnr, fVisad.postort].filter(Boolean).join(" ")}</span>
                   </address>
                   {mapsUrl && (
                     <a
@@ -442,7 +450,7 @@ export default async function ForetagSida({
               ) : null}
             </Fakta>
             <Fakta rubrik="Juridisk form">{legalForm}</Fakta>
-            <Fakta rubrik="Antal anställda">
+            <Fakta rubrik={delarOrgnr(f.cfarnr) ? "Anställda i hela bolaget" : "Antal anställda"}>
               {f.aeant ? `ca ${f.aeant.toLocaleString("sv-SE")}` : null}
             </Fakta>
             <Fakta rubrik="Bransch">{branschName}</Fakta>
