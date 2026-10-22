@@ -174,11 +174,6 @@ const COLUMNS_LIST =
  * och `kontaktperson` skrubbas det bort. Se lib/kontaktsparr.ts.
  */
 function mapRow(row: Partial<PublikRow>, kf: KontaktsparrFilter): Foretag {
-  // ENSKILD FIRMA: gatuadress och postnummer lämnar aldrig datalagret. Firmans
-  // adress kan vara innehavarens hem; bara postorten visas. Det enda undantaget
-  // är en adress kunden själv publicerat i en betald profil — se synligAdress()
-  // i lib/foretag-format.ts.
-  const enskild = row.ar_enskild_firma ?? false;
   // Type assertion via Partial: vi accepterar listrader som saknar tunga
   // fält (infotext m.fl.) och defaulta dem till null.
   return {
@@ -186,8 +181,8 @@ function mapRow(row: Partial<PublikRow>, kf: KontaktsparrFilter): Foretag {
     cfarnr: row.cfarnr ?? 0,
     firma: row.firma ?? null,
     namn: row.namn ?? null,
-    gatuadress: enskild ? null : (row.gatuadress ?? null),
-    postnr: enskild ? null : (row.postnr ?? null),
+    gatuadress: row.gatuadress ?? null,
+    postnr: row.postnr ?? null,
     postort: row.postort ?? null,
     tel: kf.falt(row.tel ?? null),
     webb: row.webb ?? null,
@@ -196,7 +191,7 @@ function mapRow(row: Partial<PublikRow>, kf: KontaktsparrFilter): Foretag {
     kommun: row.kommun ?? null,
     aeant: row.aeant ?? null,
     orgnr: row.orgnr ?? null,
-    arEnskildFirma: enskild,
+    arEnskildFirma: row.ar_enskild_firma ?? false,
     orgnrMaskerat: row.orgnr_maskerat ?? null,
     jurform: row.jurform ?? null,
     poang: row.poang ?? null,

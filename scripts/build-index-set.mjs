@@ -410,19 +410,10 @@ const harVerifieradKontakt = (r) =>
   hasText(r.logotyp) ||
   (r.poang ?? 0) > 0;
 
-// Enskild firma indexeras aldrig: firmans adress kan vara innehavarens hem.
-// Sidan lever kvar (noindex,follow) utan gatuadress — se mapRow i
-// src/lib/queries.ts. En enskild firma med aktivt overlay-köp indexeras ändå,
-// den vägen går via robotsForForetagMedOverlay och overlayIndexerbaraSokvagar.
 const foretagPass = [];
-let enskildaBortvalda = 0;
 for (const r of foretag) {
   if (r.cfarnr == null) continue;
   if (!(harBeskrivning(r) || harTjanstelista(r) || harVerifieradKontakt(r))) continue;
-  if (r.ar_enskild_firma) {
-    enskildaBortvalda++;
-    continue;
-  }
   foretagPass.push({ cfarnr: r.cfarnr, slug: foretagSlug(r) });
 }
 foretagPass.sort((a, b) => a.cfarnr - b.cfarnr);
@@ -463,13 +454,10 @@ const data = {
     infotext_min_ord: INFOTEXT_MIN_ORD,
     sokord_min: SOKORD_MIN,
     verifierad_kontakt: ["webb", "epostadress", "kontaktperson", "logotyp", "poang>0"],
-    enskild_firma: "aldrig (utom aktivt overlay-köp)",
   },
   counts: {
     foretag_totalt: foretag.length,
     foretag_indexerbara: foretagPass.length,
-    /** Klarade substansgrinden men är enskild firma — noindex. */
-    foretag_enskild_firma_bortvalda: enskildaBortvalda,
     hub_totalt: hubAll.size,
     hub_indexerbara: hubs.length,
     hub_utan_branschnamn: hubSkippedMissingName.size,
@@ -574,7 +562,7 @@ console.error(`hubbar:   ${hubs.length} av ${hubAll.size} kombinationer i DB`);
 console.error(`  grind FÖRE (räknat under .gte(aeant,0)) : ${gammalGrind.size}`);
 console.error(`  grind EFTER (alla renderade rader)      : ${nyGrind.size}`);
 console.error(`  diff: +${tillkomna.length} / -${bortfallna.length} · ${undertalade} hubbar hade undertalat antal`);
-console.error(`företag:  ${foretagPass.length} av ${foretag.length} (${enskildaBortvalda} enskilda firmor bortvalda)`);
+console.error(`företag:  ${foretagPass.length} av ${foretag.length}`);
 console.error(`  beskrivning >= ${INFOTEXT_MIN_ORD} ord : ${foretag.filter(harBeskrivning).length}`);
 console.error(`  sökord >= ${SOKORD_MIN}               : ${foretag.filter(harTjanstelista).length}`);
 console.error(`  verifierad kontakt          : ${foretag.filter(harVerifieradKontakt).length}`);

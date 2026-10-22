@@ -1,6 +1,5 @@
 import type { Foretag } from "./queries";
 import { jurformLabel } from "./jurform";
-import type { OverlayProfilRow } from "./overlay-contract";
 
 /**
  * Föredragna juridisk form-namn — använd jurform-koden från databasen om den
@@ -94,32 +93,6 @@ export function googleMapsUrl(parts: {
   if (segments.length < 2) return null;
   const q = encodeURIComponent(segments.join(", "));
   return `https://www.google.com/maps/search/?api=1&query=${q}`;
-}
-
-/**
- * Adressen sajten visar för ett företag — i listraden, på profilsidan och i
- * JSON-LD.
- *
- * För en enskild firma har mapRow redan tagit bort gatuadress och postnummer
- * (adressen kan vara innehavarens hem). Har firman en betald profil med en
- * besöksadress de själva publicerat visas den, eftersom de valt det. Övriga
- * företag får registrets adress som förut.
- */
-export function synligAdress(
-  f: Pick<Foretag, "gatuadress" | "postnr" | "postort" | "arEnskildFirma">,
-  overlay?: Pick<OverlayProfilRow, "adress_override" | "adress_override_besok"> | null,
-): { gatuadress: string | null; postnr: number | null; postort: string | null } {
-  const egen = f.arEnskildFirma
-    ? (overlay?.adress_override_besok ?? overlay?.adress_override ?? null)
-    : null;
-  const gata = egen?.gata?.trim();
-  if (!gata) return { gatuadress: f.gatuadress, postnr: f.postnr, postort: f.postort };
-  const postnr = Number((egen?.postnummer ?? "").replace(/\D/g, ""));
-  return {
-    gatuadress: gata,
-    postnr: postnr > 0 ? postnr : null,
-    postort: egen?.postort?.trim() || f.postort,
-  };
 }
 
 /** Slå in webb-URL till protokoll om saknas. */

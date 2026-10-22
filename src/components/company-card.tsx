@@ -10,7 +10,6 @@ import {
   normalizeWebb,
   profilMarkning,
   shortWebb,
-  synligAdress,
   telHref,
 } from "@/lib/foretag-format";
 import { ProfilEtikett } from "@/components/vard-info";
@@ -57,8 +56,7 @@ export function CompanyCard({
   const size = delarOrgnr(foretag.cfarnr) ? null : employerSize(foretag.aeant);
   const markning = profilMarkning(foretag, overlay);
   const href = `/foretag/${foretagSlug(foretag)}`;
-  const { gatuadress, postort } = synligAdress(foretag, overlay);
-  const adress = [gatuadress, postort ?? kommunName]
+  const adress = [foretag.gatuadress, foretag.postort ?? kommunName]
     .filter(Boolean)
     .join(", ");
 
