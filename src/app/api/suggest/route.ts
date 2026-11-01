@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAnon } from "@/lib/supabase";
 import { foretagSlug } from "@/lib/queries";
-import { harPrivatKontakt, publiktNamn } from "@/lib/kluster/personuppgifter";
+import { harPrivatKontakt, namnsokFarTraffa, publiktNamn } from "@/lib/kluster/personuppgifter";
 import { kontaktsparrFilter } from "@/lib/kontaktsparr";
 import { ALL_KOMMUNER } from "@/lib/kommuner";
 import { TOP_BRANSCHER } from "@/lib/stats";
@@ -157,7 +157,10 @@ export async function GET(req: Request) {
           jurform: number | null;
           poang: number | null;
         }>
-      ).map((rad) => {
+      )
+        // Ägarens namn i search_vector får aldrig hitta en maskerad firma.
+        .filter(namnsokFarTraffa)
+        .map((rad) => {
         // Personnamn ("EFTERNAMN, FÖRNAMN") ersätts med "Enskild firma i <ort>".
         const r = publiktNamn(rad);
         const name = r.firma || r.namn || "Okänt företag";

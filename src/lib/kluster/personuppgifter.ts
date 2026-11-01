@@ -166,6 +166,22 @@ function ortnamn(postort: string | null | undefined): string | null {
   return s.toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (_, f: string, c: string) => f + c.toUpperCase());
 }
 
+/**
+ * Får en NAMNSÖKNING träffa raden?
+ *
+ * `search_vector` innehåller registrets namn. För en enskild firma utan
+ * firmanamn är det ägarens namn, så en sökning på "skogsberg" hittade den
+ * maskerade firman och kopplade ihop personen med firman — fast namnet aldrig
+ * visades. En sådan rad får bara hittas på firmanamnet, och den har inget.
+ * Den hittas därför aldrig på namn, bara via bransch, ort och sökord.
+ *
+ * Används på varje träff från en textsökning mot search_vector (söksidan och
+ * sökförslagen), efter frågan och före visning.
+ */
+export function namnsokFarTraffa(f: NamnRad): boolean {
+  return !arPersonnamn(f);
+}
+
 /** Namnet en enskild firma utan firmanamn visas med. */
 export function enskildFirmaNamn(postort: string | null | undefined): string {
   const ort = ortnamn(postort);
