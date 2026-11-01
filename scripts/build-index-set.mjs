@@ -21,6 +21,8 @@
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { foretagSlug } from "../src/lib/kluster/foretag-slug.ts";
+// Vårdställen med offentlig huvudman sluggas på arbetsställets namn, som på sajten.
+import { medArbetsstallenamn } from "../src/lib/arbetsstalle.ts";
 import { arKund, rensaRegisterrad, rensaSokord } from "../src/lib/kluster/personuppgifter.ts";
 import { rattatBranschnamn } from "../src/lib/kluster/klassning.ts";
 
@@ -405,7 +407,7 @@ const foretagPass = [];
 for (const r of foretag) {
   if (r.cfarnr == null) continue;
   if (!(harBeskrivning(r) || harTjanstelista(r) || harVerifieradKontakt(r))) continue;
-  foretagPass.push({ cfarnr: r.cfarnr, slug: foretagSlug(r) });
+  foretagPass.push({ cfarnr: r.cfarnr, slug: foretagSlug(medArbetsstallenamn(r)) });
 }
 foretagPass.sort((a, b) => a.cfarnr - b.cfarnr);
 

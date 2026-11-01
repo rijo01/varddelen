@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { huvudmanText } from "@/lib/arbetsstalle";
 import { Globe, Phone } from "lucide-react";
 import { foretagSlug, type Foretag } from "@/lib/queries";
 import type { OverlayProfilRow } from "@/lib/overlay-contract";
@@ -90,6 +91,11 @@ export function CompanyCard({
               {name}
             </Link>
           </Rubrik>
+          {foretag.huvudman && (
+            <p className="text-[14px] leading-snug text-[var(--text-muted)]">
+              Drivs av {huvudmanText(foretag.huvudman)}
+            </p>
+          )}
           <p className="text-[15px] leading-snug text-[var(--text-muted)]">
             {yrke && (
               <span className="font-medium text-[var(--text-body)]">{yrke}</span>

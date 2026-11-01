@@ -1,5 +1,7 @@
 import { getSupabaseAnon } from "./supabase";
 import { branschSlug } from "./branscher";
+import { foretagSlug as klusterSlug } from "./kluster/foretag-slug";
+import { medArbetsstallenamn } from "./arbetsstalle";
 import { NISCH_JURFORM_VILLKOR, VARD_BRANSCHER, VARD_BRANSCHER_SET } from "./vard-branscher";
 import { kommunCodesForLan } from "./lan";
 import { storleksklassFor } from "./storleksklass";
@@ -126,6 +128,11 @@ export type Foretag = {
    * overlay-profilen ta rubriken.
    */
   namnDolt?: boolean;
+  /**
+   * Huvudmannen (kommun, region, staten) när `firma` är arbetsställets eget
+   * namn — se lib/arbetsstalle.ts. Visas som sekundär rad.
+   */
+  huvudman?: string | null;
 };
 
 type PublikRow = {
@@ -212,7 +219,8 @@ function mapRad(row: Partial<PublikRow>, kf: KontaktsparrFilter): Foretag {
  * "EFTERNAMN, FÖRNAMN" för andra än kunder (poang > 0). Kunder passerar orörda.
  */
 function mapRow(row: Partial<PublikRow>, kf: KontaktsparrFilter): Foretag {
-  const rad = mapRad(row, kf);
+  // Offentlig huvudman: arbetsställets eget namn, huvudmannen som sekundär rad.
+  const rad = medArbetsstallenamn(mapRad(row, kf));
   return { ...rensaRegisterrad(rad), namnDolt: arPersonnamn(rad) };
 }
 
@@ -940,8 +948,15 @@ async function fetchByCfarnrs(
   return data as Partial<PublikRow>[];
 }
 
-/** Kanonisk slug — delad i klustret, se kluster/foretag-slug.ts. */
-export { foretagSlug } from "./kluster/foretag-slug";
+/**
+ * Kanonisk slug — klustrets (kluster/foretag-slug.ts), med arbetsställets
+ * namn för vårdställen med offentlig huvudman. Alla anropsplatser — listor,
+ * sitemap, overlay-publicering, kontaktspärrens revalidering — går hit, så
+ * länkar och revalidering pekar på samma adress.
+ */
+export function foretagSlug(f: Parameters<typeof klusterSlug>[0]): string {
+  return klusterSlug(medArbetsstallenamn(f));
+}
 
 /** Tolka cfarnr ur en företags-slug. */
 export function parseCfarnrFromSlug(slug: string): number | null {

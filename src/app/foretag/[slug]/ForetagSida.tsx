@@ -2,6 +2,7 @@ import { sidhuvudetsLogotyp } from "@/lib/overlay-contract";
 import type { Metadata } from "next";
 import { visatTelefon as visatTelefonFor } from "@/lib/visat-telefon";
 import Link from "next/link";
+import { huvudmanText } from "@/lib/arbetsstalle";
 import { notFound, permanentRedirect } from "next/navigation";
 import { ArrowRight, ExternalLink, Globe, Mail, MapPin, Phone, User } from "lucide-react";
 import { kommunByCode } from "@/lib/kommuner";
@@ -236,6 +237,10 @@ export default async function ForetagSida({
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name,
+    // Vårdställe med offentlig huvudman: huvudmannen är den juridiska personen.
+    ...(f.huvudman
+      ? { parentOrganization: { "@type": "Organization", name: huvudmanText(f.huvudman) } }
+      : {}),
     ...(f.gatuadress || f.postort
       ? {
           address: {
@@ -301,6 +306,9 @@ export default async function ForetagSida({
           <h1 className="text-[1.875rem] font-bold leading-tight tracking-tight sm:text-[2.25rem]">
             {name}
           </h1>
+          {f.huvudman && (
+            <p className="text-[17px] text-[var(--text-body)]">Drivs av {huvudmanText(f.huvudman)}</p>
+          )}
           <p className="text-[17px] text-[var(--text-muted)]">
             {branschEtikett && hubbHref ? (
               <Link href={hubbHref} className="font-medium text-[var(--brand-ink)] underline-offset-4 hover:underline">

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAnon } from "@/lib/supabase";
 import { foretagSlug } from "@/lib/queries";
+import { medArbetsstallenamn } from "@/lib/arbetsstalle";
 import { harPrivatKontakt, namnsokFarTraffa, publiktNamn } from "@/lib/kluster/personuppgifter";
 import { kontaktsparrFilter } from "@/lib/kontaktsparr";
 import { ALL_KOMMUNER } from "@/lib/kommuner";
@@ -162,7 +163,8 @@ export async function GET(req: Request) {
         .filter(namnsokFarTraffa)
         .map((rad) => {
         // Personnamn ("EFTERNAMN, FÖRNAMN") ersätts med "Enskild firma i <ort>".
-        const r = publiktNamn(rad);
+        // Offentlig huvudman: arbetsställets namn, som på sidan.
+        const r = publiktNamn(medArbetsstallenamn(rad));
         const name = r.firma || r.namn || "Okänt företag";
         return {
           type: "foretag" as const,
