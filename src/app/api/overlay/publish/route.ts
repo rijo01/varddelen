@@ -442,17 +442,17 @@ async function previewUrl(
     /\/$/,
     "",
   );
-  let q = klient.from("foretag_publik").select("cfarnr,firma,namn");
+  let q = klient.from("foretag_publik").select("cfarnr,firma,namn,postort,jurform,poang");
   q =
     entityType === "arbetsstalle"
       ? q.eq("cfarnr", Number(externalId))
       : q.in("orgnr", orgnrVarianter(externalId));
 
   const { data } = await q.limit(1).maybeSingle();
-  const rad = data as { cfarnr: number | null; firma: string | null; namn: string | null } | null;
+  const rad = data as { cfarnr: number | null; firma: string | null; namn: string | null; postort: string | null; jurform: number | null; poang: number | null } | null;
   if (!rad?.cfarnr) return null;
 
-  const slug = foretagSlug({ firma: rad.firma, namn: rad.namn, cfarnr: rad.cfarnr });
+  const slug = foretagSlug({ ...rad, cfarnr: rad.cfarnr });
   return `${bas}/foretag/${slug}/forhandsvisning?preview=${encodeURIComponent(token)}`;
 }
 

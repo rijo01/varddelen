@@ -44,6 +44,7 @@ import {
 } from "@/lib/overlay";
 import { ordnaBoostade, overlayGerSubstans } from "@/lib/overlay-rankning";
 import SponsradProfil from "@/components/sponsrad-profil";
+import { arKund } from "@/lib/kluster/personuppgifter";
 
 type Params = Promise<{ slug: string }>;
 
@@ -128,7 +129,7 @@ export default async function ForetagSida({
 
   const kommun = f.kommun ? kommunByCode(f.kommun) : null;
   const branschName = f.ng1 ? await getBranschName(f.ng1) : null;
-  const name = displayName(f);
+  let name = displayName(f);
   const legalForm = legalFormFor(f);
   const mapsUrl = googleMapsUrl(f);
   const webb = normalizeWebb(f.webb);
@@ -145,7 +146,7 @@ export default async function ForetagSida({
     kommun && f.ng1
       ? listRelatedForetag(kommun.code, f.ng1, f.cfarnr, 6)
       : Promise.resolve([] as Foretag[]),
-    listSokordForCfarnr(f.cfarnr),
+    listSokordForCfarnr(f.cfarnr, arKund(f)),
     previewToken
       ? getOverlayUtkastForForetag(f, previewToken)
       : getOverlayForForetag(f),
@@ -156,6 +157,11 @@ export default async function ForetagSida({
   // alls i förhandsvisningsläget. Att i stället visa den publika sidan hade
   // gjort förhandsvisningen till en självkanonikaliserande dubblett.
   if (previewToken && !overlay) notFound();
+
+  // En enskild firma utan eget firmanamn visas som "Enskild firma i <ort>"
+  // (kluster/personuppgifter). Har kunden själv publicerat ett namn i sin
+  // profil är det det namnet som gäller.
+  if (f.namnDolt && overlay?.popularnamn?.trim()) name = overlay.popularnamn.trim();
 
   // SIDHUVUDETS LOGOTYP: den köpta före registrets. Regeln är kontraktets
   // sidhuvudetsLogotyp() — samma på alla tre klustersajter. Förut visades bara
@@ -329,7 +335,7 @@ export default async function ForetagSida({
                 {formatTelefon(visatTelefon)}
               </a>
             ) : (
-              <p className="text-[16px] text-[var(--text-muted)]">Inget telefonnummer registrerat.</p>
+              <p className="text-[16px] text-[var(--text-muted)]">Inget telefonnummer publicerat.</p>
             )}
           </div>
 

@@ -5,6 +5,7 @@ import { kommunCodesForLan } from "./lan";
 import { storleksKolumn, type Storlekskolumn } from "./storlek";
 import { filtreraSokord, kontaktsparrFilter } from "./kontaktsparr";
 import type { KontaktsparrFilter } from "./overlay-contract";
+import { arPersonnamn, harPrivatKontakt, rensaRegisterrad, rensaSokord } from "./kluster/personuppgifter";
 
 type GeoFilter = { kommun?: string; postort?: string; lan?: string };
 
@@ -121,8 +122,17 @@ export type Foretag = {
   infotext: string | null;
   /** Logotyp-URL (kan vara relativ till gamla servern → validera innan visning). */
   logotyp: string | null;
-  /** Kontaktperson — publikt namn, OK att visa. */
+  /**
+   * Kontaktperson ur registret. Visas bara för kunder (poang > 0); för alla
+   * andra är den null efter mapRow (kluster/personuppgifter).
+   */
   kontaktperson: string | null;
+  /**
+   * Sant när radens enda namn var ett personnamn ("EFTERNAMN, FÖRNAMN") som
+   * ersatts med "Enskild firma i <ort>". Då får en kunds egen popularnamn i
+   * overlay-profilen ta rubriken.
+   */
+  namnDolt?: boolean;
 };
 
 type PublikRow = {
@@ -173,7 +183,7 @@ const COLUMNS_LIST =
  * redan filtrerade värden. Ett spärrat nummer i `tel` blir null; i `infotext`
  * och `kontaktperson` skrubbas det bort. Se lib/kontaktsparr.ts.
  */
-function mapRow(row: Partial<PublikRow>, kf: KontaktsparrFilter): Foretag {
+function mapRad(row: Partial<PublikRow>, kf: KontaktsparrFilter): Foretag {
   // Type assertion via Partial: vi accepterar listrader som saknar tunga
   // fält (infotext m.fl.) och defaulta dem till null.
   return {
@@ -199,6 +209,17 @@ function mapRow(row: Partial<PublikRow>, kf: KontaktsparrFilter): Foretag {
     logotyp: row.logotyp ?? null,
     kontaktperson: kf.skrubba(row.kontaktperson ?? null),
   };
+}
+
+/**
+ * Registerraden som den får visas: kontaktspärren först (mapRad), sedan
+ * klustrets personuppgiftsregel (kluster/personuppgifter.ts) — inga
+ * registertelefonnummer, ingen privat e-post, ingen kontaktperson och inget
+ * "EFTERNAMN, FÖRNAMN" för andra än kunder (poang > 0). Kunder passerar orörda.
+ */
+function mapRow(row: Partial<PublikRow>, kf: KontaktsparrFilter): Foretag {
+  const rad = mapRad(row, kf);
+  return { ...rensaRegisterrad(rad), namnDolt: arPersonnamn(rad) };
 }
 
 /** mapRow med request-filtret bundet, för `.map()`. */
@@ -495,7 +516,8 @@ export async function searchForetag(
   // Kontaktspärren: en sökning PÅ en spärrad uppgift ger noll träffar. Annars
   // vore sajtens sök en väg att koppla ihop numret med bolaget igen, även om
   // numret självt aldrig visas.
-  if ((await kontaktsparrFilter()).sparradFraga(cleaned)) {
+  // Samma för ett telefonnummer eller en privat e-postadress (DE.82).
+  if (harPrivatKontakt(cleaned) || (await kontaktsparrFilter()).sparradFraga(cleaned)) {
     return { rows: [], hasMore: false, page, pageSize };
   }
 
@@ -830,6 +852,9 @@ export async function getForetagByCfarnr(cfarnr: number): Promise<Foretag | null
 async function searchSokordCfarnrs(query: string): Promise<number[]> {
   const cleaned = query.trim();
   if (cleaned.length < 3) return []; // för kort → för många träffar
+  // Ett telefonnummer eller en privat e-postadress slås inte upp baklänges
+  // (kluster/personuppgifter).
+  if (harPrivatKontakt(cleaned)) return [];
   const safe = cleaned.replace(/[%_]/g, " ").trim();
 
   const supa = getSupabaseAnon();
@@ -859,7 +884,7 @@ async function searchSokordCfarnrs(query: string): Promise<number[]> {
  * "Tjänster & sökord"-sektion). Cappar vid 50 unika strängar för att
  * hålla payload liten — bolag med produktkataloger kan ha 100+.
  */
-export async function listSokordForCfarnr(cfarnr: number): Promise<string[]> {
+export async function listSokordForCfarnr(cfarnr: number, kund: boolean): Promise<string[]> {
   const supa = getSupabaseAnon();
   const { data, error } = await supa
     .from("sokordtable")
@@ -883,7 +908,7 @@ export async function listSokordForCfarnr(cfarnr: number): Promise<string[]> {
     out.push(s);
     if (out.length >= 50) break;
   }
-  return filtreraSokord(out, await kontaktsparrFilter());
+  return rensaSokord(filtreraSokord(out, await kontaktsparrFilter()), kund);
 }
 
 /**
@@ -915,23 +940,8 @@ async function fetchByCfarnrs(
   return data as Partial<PublikRow>[];
 }
 
-/**
- * URL-slug för ett företag. cfarnr är ett internt SCB-id och inte
- * personuppgift — säkert att exponera i URL:en.
- */
-export function foretagSlug(f: Pick<Foretag, "firma" | "namn" | "cfarnr">): string {
-  const name = f.firma || f.namn || "foretag";
-  const base = name
-    .toLowerCase()
-    .replace(/å/g, "a")
-    .replace(/ä/g, "a")
-    .replace(/ö/g, "o")
-    .replace(/é/g, "e")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
-  return `${base || "foretag"}-${f.cfarnr}`;
-}
+/** Kanonisk slug — delad i klustret, se kluster/foretag-slug.ts. */
+export { foretagSlug } from "./kluster/foretag-slug";
 
 /** Tolka cfarnr ur en företags-slug. */
 export function parseCfarnrFromSlug(slug: string): number | null {

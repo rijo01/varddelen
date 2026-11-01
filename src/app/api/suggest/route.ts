@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAnon } from "@/lib/supabase";
 import { foretagSlug } from "@/lib/queries";
+import { harPrivatKontakt, publiktNamn } from "@/lib/kluster/personuppgifter";
 import { kontaktsparrFilter } from "@/lib/kontaktsparr";
 import { ALL_KOMMUNER } from "@/lib/kommuner";
 import { TOP_BRANSCHER } from "@/lib/stats";
@@ -78,7 +79,9 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const raw = (url.searchParams.get("q") ?? "").trim();
   // Kontaktspärren: en spärrad uppgift ger inga förslag. Samma grind som /sok.
-  if (raw.length < 2 || (await kontaktsparrFilter()).sparradFraga(raw)) {
+  // Ett telefonnummer eller en privat e-postadress ger inga förslag heller
+  // (kluster/personuppgifter): inget nummer ska kunna slås upp baklänges.
+  if (raw.length < 2 || harPrivatKontakt(raw) || (await kontaktsparrFilter()).sparradFraga(raw)) {
     return NextResponse.json({ suggestions: [] }, {
       headers: { "Cache-Control": "public, max-age=10" },
     });
@@ -132,7 +135,7 @@ export async function GET(req: Request) {
     const storlek = await storleksKolumn();
     const { data, error } = await supa
       .from("foretag_publik")
-      .select("cfarnr,firma,namn,postort,kommun,aeant")
+      .select("cfarnr,firma,namn,postort,kommun,jurform,poang")
       .textSearch("search_vector", raw, {
         type: "websearch",
         config: "swedish_unaccent",
@@ -153,14 +156,18 @@ export async function GET(req: Request) {
           namn: string | null;
           postort: string | null;
           kommun: string | null;
+          jurform: number | null;
+          poang: number | null;
         }>
-      ).map((r) => {
+      ).map((rad) => {
+        // Personnamn ("EFTERNAMN, FÖRNAMN") ersätts med "Enskild firma i <ort>".
+        const r = publiktNamn(rad);
         const name = r.firma || r.namn || "Okänt företag";
         return {
           type: "foretag" as const,
           label: name,
           sub: r.postort || r.kommun || "Sverige",
-          href: `/foretag/${foretagSlug({ firma: r.firma, namn: r.namn, cfarnr: r.cfarnr })}`,
+          href: `/foretag/${foretagSlug(rad)}`,
         };
       });
     }

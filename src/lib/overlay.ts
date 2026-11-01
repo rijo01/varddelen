@@ -420,7 +420,7 @@ export async function overlayRevalidatePaths(
   /** Route handlern skickar in sin egen klient (initierad per anrop). */
   klient: SupabaseClient = getSupabaseAnon(),
 ): Promise<string[]> {
-  let q = klient.from(KATALOG_VY).select("cfarnr,firma,namn,kommun,ng1");
+  let q = klient.from(KATALOG_VY).select("cfarnr,firma,namn,kommun,ng1,postort,jurform,poang");
   q =
     rad.entity_type === "arbetsstalle"
       ? q.eq("cfarnr", Number(rad.external_id))
@@ -435,6 +435,9 @@ export async function overlayRevalidatePaths(
     namn: string | null;
     kommun: string | null;
     ng1: number | null;
+    postort: string | null;
+    jurform: number | null;
+    poang: number | null;
   }>;
 
   // Branschnamnen hämtas i EN fråga. Ett bolagsköp kan träffa hundra
@@ -454,7 +457,7 @@ export async function overlayRevalidatePaths(
 
   for (const r of rader) {
     if (r.cfarnr == null) continue;
-    paths.add(`/foretag/${foretagSlug({ firma: r.firma, namn: r.namn, cfarnr: r.cfarnr })}`);
+    paths.add(`/foretag/${foretagSlug({ ...r, cfarnr: r.cfarnr })}`);
 
     const kommun = r.kommun ? kommunByCode(r.kommun) : undefined;
     if (!kommun) continue;
@@ -509,12 +512,12 @@ export async function overlayIndexerbaraSokvagar(): Promise<string[]> {
   if (cfarnr.length === 0 && orgnr.length === 0) return [];
 
   const klient = getSupabaseAnon();
-  const träffar: Array<{ cfarnr: number | null; firma: string | null; namn: string | null }> = [];
+  const träffar: Array<{ cfarnr: number | null; firma: string | null; namn: string | null; postort: string | null; jurform: number | null; poang: number | null }> = [];
 
   if (cfarnr.length > 0) {
     const { data } = await klient
       .from(KATALOG_VY)
-      .select("cfarnr,firma,namn")
+      .select("cfarnr,firma,namn,postort,jurform,poang")
       .in("cfarnr", cfarnr.map(Number))
       .in("ng1", VARD_BRANSCHER)
       .or(NISCH_JURFORM_VILLKOR);
@@ -527,7 +530,7 @@ export async function overlayIndexerbaraSokvagar(): Promise<string[]> {
     const former = orgnr.flatMap(orgnrVarianter);
     const { data } = await klient
       .from(KATALOG_VY)
-      .select("cfarnr,firma,namn")
+      .select("cfarnr,firma,namn,postort,jurform,poang")
       .in("orgnr", former)
       .in("ng1", VARD_BRANSCHER)
       .or(NISCH_JURFORM_VILLKOR)
@@ -538,7 +541,7 @@ export async function overlayIndexerbaraSokvagar(): Promise<string[]> {
   const ut = new Set<string>();
   for (const r of träffar) {
     if (r.cfarnr == null) continue;
-    ut.add(`/foretag/${foretagSlug({ firma: r.firma, namn: r.namn, cfarnr: r.cfarnr })}`);
+    ut.add(`/foretag/${foretagSlug({ ...r, cfarnr: r.cfarnr })}`);
   }
   return [...ut];
 }

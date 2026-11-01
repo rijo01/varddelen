@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build:index": "node scripts/build-index-set.mjs",
+    "build:index": "tsx scripts/build-index-set.mjs",
     "prebuild": "node scripts/check-sitemap-noindex.mjs",
     "build": "next build",
     "start": "next start",
@@ -35,6 +35,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "tailwindcss": "^4",
+    "tsx": "4.23.15",
     "typescript": "^5"
   }
 }

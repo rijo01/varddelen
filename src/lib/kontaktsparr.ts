@@ -162,13 +162,13 @@ export async function kontaktsparrRevalidatePaths(
 
     const { data: grannar } = await klient
       .from("foretag_publik")
-      .select("cfarnr,firma,namn")
+      .select("cfarnr,firma,namn,postort,jurform,poang")
       .eq("kommun", r.kommun)
       .eq("ng1", r.ng1)
       .limit(500);
-    for (const g of (grannar ?? []) as Array<{ cfarnr: number | null; firma: string | null; namn: string | null }>) {
+    for (const g of (grannar ?? []) as Array<{ cfarnr: number | null; firma: string | null; namn: string | null; postort: string | null; jurform: number | null; poang: number | null }>) {
       if (g.cfarnr == null) continue;
-      paths.add(`/foretag/${foretagSlug({ firma: g.firma, namn: g.namn, cfarnr: g.cfarnr })}`);
+      paths.add(`/foretag/${foretagSlug({ ...g, cfarnr: g.cfarnr })}`);
     }
   }
   return [...paths];

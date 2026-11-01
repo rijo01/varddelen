@@ -1,7 +1,11 @@
 /**
  * Bygger urvalet av indexerbara sidor → src/data/indexable.json.
  *
- * Kör:  node scripts/build-index-set.mjs
+ * Kör:  npm run build:index   (= tsx scripts/build-index-set.mjs)
+ *
+ * tsx behövs för att läsa klustrets delade regler direkt ur src/lib/kluster/
+ * (TypeScript): samma personuppgiftsregel, slug och branschnamn som sajten.
+ * En egen kopia här hade glidit isär — sluggen gjorde det en gång redan.
  * (läser NEXT_PUBLIC_SUPABASE_* ur miljön eller ur .env.local)
  *
  * TVÅ GRINDAR — en per sidtyp. Båda styr BÅDE robots-metan och sitemapen,
@@ -16,6 +20,9 @@
  * Ändra dem HÄR och kör om skriptet — inget annat ska röras.
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { foretagSlug } from "../src/lib/kluster/foretag-slug.ts";
+import { arKund, rensaRegisterrad, rensaSokord } from "../src/lib/kluster/personuppgifter.ts";
+import { rattatBranschnamn } from "../src/lib/kluster/klassning.ts";
 
 // ---------------------------------------------------------------------------
 // Trösklar
@@ -273,21 +280,6 @@ function readKommuner() {
   return out;
 }
 
-/** Samma slug som foretagSlug() i src/lib/queries.ts. */
-function foretagSlug(row) {
-  const name = row.firma || row.namn || "foretag";
-  const base = name
-    .toLowerCase()
-    .replace(/å/g, "a")
-    .replace(/ä/g, "a")
-    .replace(/ö/g, "o")
-    .replace(/é/g, "e")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
-  return `${base || "foretag"}-${row.cfarnr}`;
-}
-
 const hasText = (v) => v != null && String(v).trim() !== "";
 
 /** Ordräkning på infotext med taggarna borttagna — samma text besökaren ser. */
@@ -316,15 +308,17 @@ const HAR_STORLEK = (
   await fetch(`${SUPA_URL}/rest/v1/foretag_publik?select=aeant_per_stalle&limit=1`, { headers })
 ).ok;
 const FORETAG_COLS =
-  "cfarnr,firma,namn,ng1,kommun,aeant,tel,webb,epostadress,kontaktperson,logotyp,poang,infotext,orgnr,ar_enskild_firma" +
+  "cfarnr,firma,namn,ng1,kommun,aeant,tel,webb,epostadress,kontaktperson,logotyp,poang,infotext,orgnr,ar_enskild_firma,postort,jurform" +
   (HAR_STORLEK ? ",aeant_per_stalle" : "");
 const VARD_FILTER = `&ng1=in.(${VARD.join(",")})${readJurformVillkor()}`;
-const foretag = await fetchAllByUniqueKey(
-  "foretag_publik",
-  FORETAG_COLS,
-  VARD_FILTER,
-  "cfarnr",
-);
+// Raderna som sajten visar dem: klustrets personuppgiftsregel (DE.82 m.m.)
+// tillämpas här precis som i mapRow. En sida vars enda substans var en privat
+// e-postadress eller en kontaktperson ur registret har ingen substans kvar på
+// sidan, och ska inte heller räknas som indexerbar.
+const foretag = (
+  await fetchAllByUniqueKey("foretag_publik", FORETAG_COLS, VARD_FILTER, "cfarnr")
+).map((r) => rensaRegisterrad(r));
+const kundCfarnr = new Set(foretag.filter((r) => arKund(r)).map((r) => r.cfarnr));
 
 // Sökord per cfarnr — unika, case-insensitivt, precis som listSokordForCfarnr.
 // sokord=not.is.null: 932 rader saknar sökord och räknas ändå inte. Att
@@ -343,6 +337,8 @@ const sokordCount = new Map();
     if (r.cfarnr == null) continue;
     const s = (r.sokord ?? "").trim().toLowerCase();
     if (!s) continue;
+    // Samma regel som listSokordForCfarnr: ord med en privat uppgift faller bort.
+    if (rensaSokord([s], kundCfarnr.has(r.cfarnr)).length === 0) continue;
     let set = seen.get(r.cfarnr);
     if (!set) seen.set(r.cfarnr, (set = new Set()));
     set.add(s);
@@ -358,7 +354,8 @@ const branschRows = await fetchSinglePage(
 const branschNamn = new Map();
 for (const r of branschRows) {
   if (r.beskrivning && !branschNamn.has(String(r.branschid))) {
-    branschNamn.set(String(r.branschid), r.beskrivning);
+    // Rättade namn (kluster/klassning) före t_bransch — samma som branscher.ts.
+    branschNamn.set(String(r.branschid), rattatBranschnamn(r.branschid) ?? r.beskrivning);
   }
 }
 
