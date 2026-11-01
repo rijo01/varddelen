@@ -1,3 +1,4 @@
+import { bolagJsonLd } from "@/lib/kluster/bolag";
 import type { Metadata } from "next";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { JsonLd, buildBreadcrumb } from "@/components/json-ld";
@@ -33,7 +34,7 @@ export default function KontaktPage() {
     "@type": "Organization",
     name: "Vårddelen",
     url: SITE_URL,
-    identifier: ORG_NUMBER,
+    ...bolagJsonLd("varddelen.se"),
     telephone: PHONE_TEL,
     email: EMAIL,
     contactPoint: [
@@ -46,13 +47,6 @@ export default function KontaktPage() {
         availableLanguage: ["Swedish", "English"],
       },
     ],
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: `c/o QS Group AB, Kivra: ${ORG_NUMBER}`,
-      postalCode: "106 31",
-      addressLocality: "Stockholm",
-      addressCountry: "SE",
-    },
   };
 
   return (

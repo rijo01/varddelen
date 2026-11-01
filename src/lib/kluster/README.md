@@ -13,6 +13,7 @@ att en sajt revaliderar fel adress när en kund publicerar.
 | `klassning.ts` | Rättade branschnamn och yrke per företag. `aesamtable` rörs aldrig. |
 | `anstallda.ts` | Storleksklass (`anstkl`) som intervall. `aeant` är antal arbetsställen. |
 | `register.ts` | Registrets ålder. |
+| `bolag.ts` | Bolaget bakom varje sajt: namn, orgnr, momsnummer och säte i strukturerade data. Ingen Kivra-adress som gatuadress. |
 
 **Källan är hantverkardelen-se.** Ändra bara här och kör sedan:
 

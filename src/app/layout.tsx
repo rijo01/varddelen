@@ -1,3 +1,4 @@
+import { bolagJsonLd } from "@/lib/kluster/bolag";
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { Heart } from "lucide-react";
@@ -41,6 +42,7 @@ export default function RootLayout({
     "@type": "Organization",
     name: "Vårddelen",
     url: SITE_URL,
+    ...bolagJsonLd("varddelen.se"),
     description:
       "Sveriges katalog för vård och omsorg — tandläkare, behandlingshem, apotek, specialistläkare och omsorgsföretag i alla 290 kommuner.",
   };
