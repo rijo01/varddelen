@@ -3,20 +3,13 @@ import { Geist } from "next/font/google";
 import { Heart } from "lucide-react";
 import "./globals.css";
 import { SiteNav, MobileBottomNav } from "@/components/site-nav";
-import { SITE_URL, GA_ID } from "@/lib/site";
-import { COUNTS_GENERATED_AT } from "@/lib/counts";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { SITE_URL } from "@/lib/site";
+import { REGISTER_AR } from "@/lib/kluster/register";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-});
-
-/** "7 september 2026" — när registerurvalet senast sammanställdes. */
-const UPPDATERAD = new Date(COUNTS_GENERATED_AT).toLocaleDateString("sv-SE", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
 });
 
 export const metadata: Metadata = {
@@ -76,7 +69,7 @@ export default function RootLayout({
               </p>
               <p className="max-w-xs text-[15px] text-[var(--text-muted)]">
                 Söktjänst för vård- och omsorgsverksamheter i Sveriges 290
-                kommuner. Uppgifterna kommer från offentliga register.
+                kommuner. Uppgifterna kommer från ett företagsregister från omkring {REGISTER_AR}.
               </p>
             </div>
 
@@ -116,6 +109,7 @@ export default function RootLayout({
                   ["/branscher", "Vårdkategorier"],
                   ["/kommuner", "Alla 290 kommuner"],
                   ["/kontakt", "Kontakt för företag"],
+                  ["/integritetspolicy", "Integritetspolicy"],
                 ].map(([href, label]) => (
                   <li key={href}>
                     <a href={href} className="text-[var(--text-body)] underline-offset-4 hover:text-[var(--brand-ink)] hover:underline">
@@ -128,9 +122,9 @@ export default function RootLayout({
           </div>
           <div className="border-t border-[var(--rule)]">
             <p className="mx-auto max-w-6xl px-4 py-5 text-[14px] text-[var(--text-dim)]">
-              © {new Date().getFullYear()} Vårddelen · Uppgifter från offentliga
-              register, senast sammanställda {UPPDATERAD} · Person- och
-              organisationsnummer för enskilda firmor visas aldrig.
+              © {new Date().getFullYear()} Vårddelen · QS Group AB · Uppgifter ur ett
+              näringslivsregister från omkring {REGISTER_AR} · Personnummer för
+              enskilda firmor visas aldrig.
             </p>
           </div>
         </footer>
@@ -139,7 +133,8 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
-        <GoogleAnalytics gaId={GA_ID} />
+        {/* Cookiefri besöksmätning, se /integritetspolicy. Ingen banner behövs. */}
+        <Analytics />
       </body>
     </html>
   );

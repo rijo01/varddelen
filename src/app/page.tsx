@@ -3,7 +3,8 @@ import { Suspense } from "react";
 import { SearchBar } from "@/components/search-bar";
 import { JsonLd } from "@/components/json-ld";
 import { AkutNotis } from "@/components/vard-info";
-import { TOTAL_FORETAG, TOP_KOMMUNER } from "@/lib/stats";
+import { TOP_KOMMUNER } from "@/lib/stats";
+import { REGISTER_AR } from "@/lib/kluster/register";
 import { VARD_KATEGORIER } from "@/lib/vard-kategorier";
 import { SOK_TERMER } from "@/lib/sok-termer";
 import { SITE_URL } from "@/lib/site";
@@ -25,7 +26,6 @@ const SNABBVAL: Array<{ label: string; href: string }> = [
   { label: "HVB-hem", href: "/sok?kategori=hvb" },
 ];
 
-const fmt = (n: number) => n.toLocaleString("sv-SE");
 
 export default function HomePage() {
   const webSiteJsonLd = {
@@ -54,9 +54,9 @@ export default function HomePage() {
             Hitta vård och omsorg nära dig
           </h1>
           <p className="max-w-2xl text-[18px] text-[var(--text-muted)]">
-            {fmt(TOTAL_FORETAG)} vård- och omsorgsverksamheter i
-            Sveriges 290 kommuner — med adress och telefonnummer, direkt ur
-            offentliga register. Inga betyg, inga påhittade omdömen.
+            Vård- och omsorgsverksamheter i Sveriges 290 kommuner, ur ett
+            företagsregister från omkring {REGISTER_AR}. Inga betyg, inga
+            påhittade omdömen.
           </p>
         </div>
 
@@ -99,7 +99,6 @@ export default function HomePage() {
                   </span>
                   <span className="block text-[15px] text-[var(--text-muted)]">{kat.description}</span>
                 </span>
-                <span className="shrink-0 text-[15px] text-[var(--text-dim)]">{fmt(kat.count)}</span>
               </Link>
             </li>
           ))}
@@ -124,7 +123,6 @@ export default function HomePage() {
                 className="flex min-h-12 items-center justify-between gap-2 text-[16px] text-[var(--text-body)] hover:text-[var(--brand-ink)] hover:underline"
               >
                 {k.kommun.name}
-                <span className="text-[14px] text-[var(--text-dim)]">{fmt(k.count)}</span>
               </Link>
             </li>
           ))}
@@ -139,8 +137,9 @@ export default function HomePage() {
         <div className="space-y-2">
           <h3 className="text-[17px] font-semibold">Uppgifter från register</h3>
           <p className="text-[16px] text-[var(--text-muted)]">
-            Namn, adress, telefon och bransch kommer från offentliga register och
-            SCB. Verksamheter kan själva komplettera sin profil.
+            Namn, adress och bransch kommer från ett företagsregister från
+            omkring {REGISTER_AR}. Telefonnummer visas när verksamheten själv har
+            lämnat dem, och verksamheter kan komplettera sin profil.
           </p>
         </div>
         <div className="space-y-2">

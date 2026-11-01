@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ALL_KOMMUNER } from "@/lib/kommuner";
-import { TOP_KOMMUNER, TOTAL_KOMMUNER, TOTAL_LAN, TOTAL_FORETAG } from "@/lib/stats";
+import { TOP_KOMMUNER, TOTAL_KOMMUNER, TOTAL_LAN } from "@/lib/stats";
+import { REGISTER_AR } from "@/lib/kluster/register";
 import { JsonLd, buildBreadcrumb } from "@/components/json-ld";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { SITE_URL } from "@/lib/site";
@@ -48,7 +49,7 @@ export default function KommunerPage() {
         </h1>
         <p className="text-[18px] leading-relaxed text-[var(--text-body)]">
           Välj kommun för att se verksamheterna där, grupperade efter typ av
-          vård. Totalt {fmt(TOTAL_FORETAG)} verksamheter i {TOTAL_LAN} län.
+          vård. {TOTAL_LAN} län, ur ett register från omkring {REGISTER_AR}.
         </p>
       </header>
 

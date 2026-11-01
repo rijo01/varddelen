@@ -45,6 +45,7 @@ import {
 import { ordnaBoostade, overlayGerSubstans } from "@/lib/overlay-rankning";
 import SponsradProfil from "@/components/sponsrad-profil";
 import { arKund } from "@/lib/kluster/personuppgifter";
+import { REGISTER_AR } from "@/lib/kluster/register";
 
 type Params = Promise<{ slug: string }>;
 
@@ -68,7 +69,7 @@ export async function generateMetadata({
   const title = kommun ? `${name} – ${kommun.name}` : name;
   const description = `${name}${
     kommun ? ` i ${kommun.name} kommun` : ""
-  }${f.gatuadress ? `, ${f.gatuadress}` : ""}. Kontaktuppgifter, bransch och företagsinformation från offentliga register.`;
+  }${f.gatuadress ? `, ${f.gatuadress}` : ""}. Adress, bransch och företagsinformation ur ett register från omkring ${REGISTER_AR}.`;
   return {
     title,
     description,
@@ -463,8 +464,8 @@ export default async function ForetagSida({
           </dl>
           <p className="text-[14px] text-[var(--text-dim)]">
             {personalOrgnr
-              ? "Organisationsnumret visas inte eftersom det är ett personnummer (enskild firma). Uppgifterna kommer från offentliga register och SCB."
-              : "Uppgifterna kommer från offentliga register och SCB."}
+              ? `Organisationsnumret visas inte eftersom det är ett personnummer (enskild firma). Uppgifterna kommer från ett näringslivsregister från omkring ${REGISTER_AR}.`
+              : `Uppgifterna kommer från ett näringslivsregister från omkring ${REGISTER_AR}.`}
           </p>
         </aside>
       </div>
@@ -607,7 +608,7 @@ function buildFaq({
   } else {
     items.push({
       q: `Hur kontaktar jag ${name}?`,
-      a: `Vi har inga publika kontaktuppgifter för ${name} just nu. Företagsuppgifter kan ändras — kontrollera officiella register vid behov.`,
+      a: `Vi har inga publika kontaktuppgifter för ${name} just nu. Uppgifterna kommer från ett register från omkring ${REGISTER_AR} och kan vara ofullständiga eller inaktuella.`,
     });
   }
 
@@ -626,7 +627,7 @@ function buildFaq({
   } else if (f.orgnr) {
     items.push({
       q: `Vad är organisationsnumret för ${name}?`,
-      a: `Organisationsnumret för ${name} är ${f.orgnr}. Uppgiften kommer från officiella register.`,
+      a: `Organisationsnumret för ${name} är ${f.orgnr}. Uppgiften kommer från ett näringslivsregister från omkring ${REGISTER_AR}.`,
     });
   } else {
     items.push({

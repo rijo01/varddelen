@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BRANSCH_LABEL, TOTAL_BRANSCHER, TOTAL_FORETAG } from "@/lib/stats";
+import { BRANSCH_LABEL, TOTAL_BRANSCHER } from "@/lib/stats";
+import { REGISTER_AR } from "@/lib/kluster/register";
 import { VARD_KATEGORIER } from "@/lib/vard-kategorier";
 import { branschNamn, branschTotal } from "@/lib/counts";
 import { SOK_TERMER } from "@/lib/sok-termer";
@@ -15,7 +16,7 @@ const fmt = (n: number) => n.toLocaleString("sv-SE");
 
 export const metadata: Metadata = {
   title: `Vårdkategorier i Sverige`,
-  description: `Bläddra bland ${TOTAL_BRANSCHER} vård- & omsorgskategorier. ${fmt(TOTAL_FORETAG)} registrerade vårdföretag.`,
+  description: `Bläddra bland ${TOTAL_BRANSCHER} vård- & omsorgskategorier. Verksamheter ur ett register från omkring ${REGISTER_AR}.`,
   alternates: { canonical: `${SITE_URL}/branscher` },
 };
 
@@ -39,7 +40,7 @@ export default function BranscherPage() {
           Typer av vård och omsorg
         </h1>
         <p className="text-[18px] leading-relaxed text-[var(--text-body)]">
-          Registrets {fmt(TOTAL_FORETAG)} verksamheter är grupperade i{" "}
+          Verksamheterna i registret (från omkring {REGISTER_AR}) är grupperade i{" "}
           {VARD_KATEGORIER.length} kategorier, byggda på {TOTAL_BRANSCHER} av SCB:s
           branschkoder. Välj en kategori för att se verksamheterna, eller sök på
           ett yrke.
