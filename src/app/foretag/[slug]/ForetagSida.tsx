@@ -46,6 +46,7 @@ import { ordnaBoostade, overlayGerSubstans } from "@/lib/overlay-rankning";
 import SponsradProfil from "@/components/sponsrad-profil";
 import { arKund } from "@/lib/kluster/personuppgifter";
 import { REGISTER_AR } from "@/lib/kluster/register";
+import { yrkeFor } from "@/lib/kluster/klassning";
 
 type Params = Promise<{ slug: string }>;
 
@@ -184,7 +185,7 @@ export default async function ForetagSida({
   const webbVisad = normalizeWebb(overlay?.hemsida) ?? webb;
   const epostVisad = overlay?.epost_override?.trim() || f.epostadress || null;
   const kontaktperson = overlay?.kontaktperson?.trim() || f.kontaktperson || null;
-  const branschEtikett = f.ng1 ? (BRANSCH_LABEL[f.ng1] ?? branschName) : branschName;
+  const branschEtikett = yrkeFor(f) ?? (f.ng1 ? (BRANSCH_LABEL[f.ng1] ?? branschName) : branschName);
   const hubbHref =
     kommun && branschName && f.ng1
       ? `/kommun/${kommun.slug}/${branschPageSlug(branschName, f.ng1)}`

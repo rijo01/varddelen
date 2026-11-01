@@ -13,6 +13,7 @@ import {
 } from "@/lib/foretag-format";
 import { ProfilEtikett } from "@/components/vard-info";
 import { anstallda } from "@/lib/storleksklass";
+import { yrkeFor } from "@/lib/kluster/klassning";
 
 /**
  * En verksamhet som en rad i en lista.
@@ -54,6 +55,8 @@ export function CompanyCard({
   // Arbetsställets storleksklass som intervall (kluster/anstallda.ts) —
   // aldrig `aeant`, som är bolagets antal arbetsställen.
   const size = anstallda(foretag.storleksklass);
+  // Verkligt yrke när koden samlar flera (kluster/klassning), annars listans.
+  const yrke = yrkeFor(foretag) ?? branschName ?? null;
   const markning = profilMarkning(foretag, overlay);
   const href = `/foretag/${foretagSlug(foretag)}`;
   const adress = [foretag.gatuadress, foretag.postort ?? kommunName]
@@ -88,10 +91,10 @@ export function CompanyCard({
             </Link>
           </Rubrik>
           <p className="text-[15px] leading-snug text-[var(--text-muted)]">
-            {branschName && (
-              <span className="font-medium text-[var(--text-body)]">{branschName}</span>
+            {yrke && (
+              <span className="font-medium text-[var(--text-body)]">{yrke}</span>
             )}
-            {branschName && showOrt && adress && <span aria-hidden> · </span>}
+            {yrke && showOrt && adress && <span aria-hidden> · </span>}
             {showOrt && adress}
           </p>
           {(markning || size) && (

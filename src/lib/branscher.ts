@@ -1,4 +1,5 @@
 import { getSupabaseAnon } from "./supabase";
+import { rattatBranschnamn } from "./kluster/klassning";
 
 /**
  * Branschnamn-lookup mot t_bransch via anon-nyckeln.
@@ -13,6 +14,9 @@ const TABLE = "t_bransch";
 export async function getBranschName(code: string | number): Promise<string | null> {
   const id = typeof code === "string" ? Number(code) : code;
   if (!Number.isFinite(id)) return null;
+  // Rättade namn (kluster/klassning) går före t_bransch, som aldrig ändras.
+  const rattat = rattatBranschnamn(id);
+  if (rattat) return rattat;
   const supa = getSupabaseAnon();
   const { data, error } = await supa
     .from(TABLE)
@@ -44,7 +48,8 @@ export async function getBranschNamesBulk(
     .in("branschid", ids);
   if (error || !data) return result;
   for (const row of data as Array<{ branschid: number; beskrivning: string | null }>) {
-    if (row.beskrivning) result.set(String(row.branschid), row.beskrivning);
+    const namn = rattatBranschnamn(row.branschid) ?? row.beskrivning;
+    if (namn) result.set(String(row.branschid), namn);
   }
   return result;
 }
