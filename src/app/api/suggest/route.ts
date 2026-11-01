@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAnon } from "@/lib/supabase";
 import { foretagSlug } from "@/lib/queries";
-import { medArbetsstallenamn } from "@/lib/arbetsstalle";
+import { medArbetsstallenamn, sokArbetsstallen } from "@/lib/arbetsstalle";
 import { harPrivatKontakt, namnsokFarTraffa, publiktNamn } from "@/lib/kluster/personuppgifter";
 import { kontaktsparrFilter } from "@/lib/kontaktsparr";
 import { ALL_KOMMUNER } from "@/lib/kommuner";
@@ -132,7 +132,19 @@ export async function GET(req: Request) {
   let foretagHits: Suggestion[] = [];
   try {
     const supa = getSupabaseAnon();
-    const { data, error } = await supa
+    // Vårdställen med offentlig huvudman på arbetsställets eget namn — det
+    // finns inte i search_vector, så det söks i ögonblicksbilden.
+    const stallenCfarnr = sokArbetsstallen(raw, 5);
+    const stallenFraga =
+      stallenCfarnr.length > 0
+        ? supa
+            .from("foretag_publik")
+            .select("cfarnr,firma,namn,postort,kommun,jurform,poang")
+            .in("cfarnr", stallenCfarnr)
+            .in("ng1", VARD_BRANSCHER)
+            .or(NISCH_JURFORM_VILLKOR)
+        : Promise.resolve({ data: [], error: null });
+    const [{ data: stallenData }, { data, error }] = await Promise.all([stallenFraga, supa
       .from("foretag_publik")
       .select("cfarnr,firma,namn,postort,kommun,jurform,poang")
       .textSearch("search_vector", raw, {
@@ -145,11 +157,16 @@ export async function GET(req: Request) {
       // 1 222 vårdföretag ur autocompleten. Se applyAeantFilter i lib/queries.ts.
       .order("aeant", { ascending: false, nullsFirst: false })
       .order("cfarnr", { ascending: true })
-      .limit(5);
+      .limit(5)]);
 
     if (!error && data) {
+      const ordning = new Map(stallenCfarnr.map((c, i) => [c, i]));
+      const stallen = ((stallenData ?? []) as typeof data)
+        .slice()
+        .sort((x, y) => (ordning.get(x.cfarnr) ?? 99) - (ordning.get(y.cfarnr) ?? 99));
+      const visade = new Set(stallen.map((r) => r.cfarnr));
       foretagHits = (
-        data as Array<{
+        [...stallen, ...data.filter((r) => !visade.has(r.cfarnr))].slice(0, 5) as Array<{
           cfarnr: number;
           firma: string | null;
           namn: string | null;

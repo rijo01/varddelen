@@ -1,7 +1,7 @@
 import { getSupabaseAnon } from "./supabase";
 import { branschSlug } from "./branscher";
 import { foretagSlug as klusterSlug } from "./kluster/foretag-slug";
-import { medArbetsstallenamn } from "./arbetsstalle";
+import { medArbetsstallenamn, sokArbetsstallen } from "./arbetsstalle";
 import { NISCH_JURFORM_VILLKOR, VARD_BRANSCHER, VARD_BRANSCHER_SET } from "./vard-branscher";
 import { kommunCodesForLan } from "./lan";
 import { storleksklassFor } from "./storleksklass";
@@ -531,12 +531,42 @@ export async function searchForetag(
       ? await findBranschIdsForQuery(cleaned)
       : { ids: [] as number[], primaryName: null as string | null };
 
-  if (branschInfo.ids.length > 0) {
-    return runBranschSearch(cleaned, branschInfo, opts, page, pageSize, from, to);
-  }
+  const [res, stallen] = await Promise.all([
+    branschInfo.ids.length > 0
+      ? runBranschSearch(cleaned, branschInfo, opts, page, pageSize, from, to)
+      : // Ren fulltext-sökning (företagsnamn, multi-word, eller bransch saknas)
+        runTextSearch(cleaned, opts, page, pageSize, from, to),
+    page === 1 ? arbetsstalleTraffar(cleaned, opts) : Promise.resolve([] as Foretag[]),
+  ]);
+  if (stallen.length === 0) return res;
+  // Vårdställen som matchar på sitt eget namn först — de är det besökaren
+  // skrev — sedan vyns träffar.
+  const visade = new Set(stallen.map((f) => f.cfarnr));
+  return {
+    ...res,
+    rows: [...stallen, ...res.rows.filter((f) => !visade.has(f.cfarnr))].slice(0, pageSize),
+  };
+}
 
-  // Ren fulltext-sökning (företagsnamn, multi-word, eller bransch saknas)
-  return runTextSearch(cleaned, opts, page, pageSize, from, to);
+/**
+ * Vårdställen med offentlig huvudman som matchar på arbetsställets namn
+ * (lib/arbetsstalle.ts → sokArbetsstallen), med samma filter som sökningen.
+ */
+async function arbetsstalleTraffar(
+  fraga: string,
+  opts: { kommun?: string; lan?: string; postort?: string; ng1?: number; ng1List?: readonly number[]; aeantMin?: number; aeantMax?: number },
+): Promise<Foretag[]> {
+  const cfarnrs = sokArbetsstallen(fraga, 8);
+  if (cfarnrs.length === 0) return [];
+  const rader = (await fetchByCfarnrs(cfarnrs, opts)).filter(
+    (r) =>
+      r.ng1 != null &&
+      (!opts.ng1 || r.ng1 === opts.ng1) &&
+      (!opts.ng1List || opts.ng1List.includes(r.ng1)),
+  );
+  const ordning = new Map(cfarnrs.map((c, i) => [c, i]));
+  rader.sort((a, b) => (ordning.get(a.cfarnr!) ?? 99) - (ordning.get(b.cfarnr!) ?? 99));
+  return rader.map(await mapper());
 }
 
 /**

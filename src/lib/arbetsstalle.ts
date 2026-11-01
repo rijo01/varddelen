@@ -78,3 +78,51 @@ export function huvudmanText(huvudman: string): string {
     )
     .join("");
 }
+
+// ---- Sök ------------------------------------------------------------------
+
+/** Gemener, utan diakritiska tecken: "Ängåsgatan" → "angasgatan". */
+function norm(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "");
+}
+
+let sokindex: Array<{ cfarnr: number; ord: string[]; fras: string }> | null = null;
+
+function byggSokindex() {
+  karta ??= packaUpp();
+  const ut: Array<{ cfarnr: number; ord: string[]; fras: string }> = [];
+  for (const [cfarnr, p] of karta) {
+    // Bara egna namn: en rad som behåller sitt namn finns redan i
+    // search_vector, och ett typnamn ("GRUPPBOSTAD") är ingen namnträff.
+    if (!p.visning || generiska.has(p.visning)) continue;
+    const fras = norm(p.visning);
+    ut.push({ cfarnr, ord: fras.split(/[^\p{L}\p{N}]+/u).filter(Boolean), fras });
+  }
+  return ut;
+}
+
+/**
+ * Vårdställen vars eget namn matchar frågan — namnen finns inte i
+ * search_vector (vyn har bara registrets namn, alltså huvudmannen), så de
+ * söks här, i ögonblicksbilden, och slås ihop med vyns träffar.
+ *
+ * Varje ord i frågan ska börja ett ord i namnet ("marstrand vård" hittar
+ * MARSTRAND VÅRDCENTRAL). Exakt fras först, sedan kortast namn.
+ */
+export function sokArbetsstallen(fraga: string, max = 10): number[] {
+  const q = norm(fraga).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+  if (q.length === 0 || !q.some((o) => o.length >= 3)) return [];
+  sokindex ??= byggSokindex();
+  const fras = q.join(" ");
+  const traffar = sokindex.filter((e) => q.every((t) => e.ord.some((o) => o.startsWith(t))));
+  traffar.sort(
+    (a, b) =>
+      Number(b.fras.includes(fras)) - Number(a.fras.includes(fras)) ||
+      a.ord.length - b.ord.length ||
+      a.cfarnr - b.cfarnr,
+  );
+  return traffar.slice(0, max).map((e) => e.cfarnr);
+}
