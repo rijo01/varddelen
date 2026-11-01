@@ -4,6 +4,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
   LOGO_BUCKET,
   OVERLAY_TABLE,
+  BRANSCH_SIDA_N,
   SAJT,
   STODDA_ENTITY_TYPES,
   STODD_CONTRACT_VERSION,
@@ -422,6 +423,8 @@ async function revalidera(
     klient,
   );
   for (const p of paths) revalidatePath(p);
+  // Listornas sida 2+ (…/sida/N) — se BRANSCH_SIDA_N.
+  revalidatePath(BRANSCH_SIDA_N, "page");
   return paths;
 }
 

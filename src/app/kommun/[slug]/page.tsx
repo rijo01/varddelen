@@ -21,6 +21,15 @@ import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 86400;
 
+/**
+ * Inga kommunsidor byggs i förväg — de renderas vid första anropet och cachas
+ * ett dygn. Utan generateStaticParams var varje anrop `private, no-store`
+ * (1,08–1,11 s, mätt 2026-11-01).
+ */
+export function generateStaticParams(): Array<{ slug: string }> {
+  return [];
+}
+
 const fmt = (n: number) => n.toLocaleString("sv-SE");
 
 type Params = Promise<{ slug: string }>;

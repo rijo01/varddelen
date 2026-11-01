@@ -16,6 +16,16 @@ export const revalidate = 86400;
 
 export { generateMetadata } from "./ForetagSida";
 
+/**
+ * Inga företagssidor byggs i förväg — de renderas vid första anropet och
+ * cachas ett dygn. Next kräver att generateStaticParams finns för att en
+ * dynamisk route ska cachas alls; utan den var varje anrop `private, no-store`
+ * (1,30–1,32 s, mätt 2026-11-01).
+ */
+export function generateStaticParams(): Array<{ slug: string }> {
+  return [];
+}
+
 export default async function ForetagPage({
   params,
 }: {

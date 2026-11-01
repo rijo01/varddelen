@@ -1,6 +1,6 @@
 import { revalidatePath } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { SAJT, STODD_CONTRACT_VERSION } from "@/lib/overlay";
+import { BRANSCH_SIDA_N, SAJT, STODD_CONTRACT_VERSION } from "@/lib/overlay";
 import { KONTAKTSPARR_TABLE, hamtaBerorda, kontaktsparrRevalidatePaths } from "@/lib/kontaktsparr";
 import {
   bedomRevision,
@@ -117,6 +117,8 @@ export async function hanteraKontaktsparr(
   }
   const revalidated = await kontaktsparrRevalidatePaths(berorda, anon);
   for (const p of revalidated) revalidatePath(p);
+  // Listornas sida 2+ (…/sida/N) — en spärrad uppgift kan stå på vilken sida som helst.
+  revalidatePath(BRANSCH_SIDA_N, "page");
 
   const antalBolag = new Set(berorda.map((b) => b.cfarnr ?? `${b.entity_type}:${b.external_id}`)).size;
 

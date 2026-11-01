@@ -41,6 +41,24 @@ const nextConfig: NextConfig = {
       { source: "/:path(.*\\.ashx)", destination: "/", permanent: true },
     ];
   },
+  /**
+   * Kommun × bransch, sida 2+: den publika adressen ?page=N skrivs om till den
+   * interna vägen /sida/N, så att sidan kan vara ISR utan att läsa
+   * searchParams. Före filsystemet (beforeFiles), annars matchar sida 1 först.
+   */
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: "/kommun/:slug/:bransch",
+          has: [{ type: "query", key: "page", value: "(?<sida>\\d{1,4})" }],
+          destination: "/kommun/:slug/:bransch/sida/:sida",
+        },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
 };
 
 export default nextConfig;

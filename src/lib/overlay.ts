@@ -415,6 +415,14 @@ export async function getOverlayUtkastForForetag(
  * Slug och plats slås upp i registret, aldrig i overlay-raden: overlay äger
  * affären, källdatan äger var företaget hör hemma.
  */
+/**
+ * Routemönstret för kommun×bransch-listornas sida 2 och framåt. De är egna
+ * ISR-sidor (next.config.ts skriver om ?page=N dit), och vilken sida ett bolag
+ * hamnar på beror på hela listan — så en publicering eller en kontaktspärr
+ * revaliderar mönstret, inte en enskild sida.
+ */
+export const BRANSCH_SIDA_N = "/kommun/[slug]/[bransch]/sida/[sida]";
+
 export async function overlayRevalidatePaths(
   rad: Pick<OverlayProfilRow, "entity_type" | "external_id">,
   /** Route handlern skickar in sin egen klient (initierad per anrop). */
