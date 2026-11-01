@@ -151,7 +151,7 @@ export default async function KommunPage({ params }: { params: Params }) {
         <section aria-labelledby="storsta-rubrik" className="min-w-0 space-y-3">
           <div className="flex flex-wrap items-baseline justify-between gap-x-4">
             <h2 id="storsta-rubrik" className="text-[1.5rem] font-semibold">
-              Största verksamheterna
+              Flest arbetsställen
             </h2>
             <Link href={`/sok?kommun=${kommun.slug}`} className="text-[16px] font-medium text-[var(--brand-ink)] underline-offset-4 hover:underline">
               Se alla

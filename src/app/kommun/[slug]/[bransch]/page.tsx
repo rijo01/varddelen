@@ -26,7 +26,7 @@ export const revalidate = 86400;
 const fmt = (n: number) => n.toLocaleString("sv-SE");
 
 type Params = Promise<{ slug: string; bransch: string }>;
-type Search = Promise<{ page?: string; aeantMin?: string; aeantMax?: string }>;
+type Search = Promise<{ page?: string }>;
 
 export async function generateMetadata({
   params,
@@ -64,14 +64,6 @@ export async function generateMetadata({
 
 const PAGE_SIZE = 25;
 
-const SIZE_BUCKETS: Array<{ label: string; min?: number; max?: number }> = [
-  { label: "Alla" },
-  { label: "1–9", min: 1, max: 9 },
-  { label: "10–49", min: 10, max: 49 },
-  { label: "50–249", min: 50, max: 249 },
-  { label: "250+", min: 250 },
-];
-
 export default async function BranschPage({
   params,
   searchParams,
@@ -98,25 +90,15 @@ export default async function BranschPage({
   if (branschNameOrNull) {
     const canonicalBransch = branschPageSlug(branschNameOrNull, ng1);
     if (bransch !== canonicalBransch) {
-      // Behåll sid- och storleksparametrar — en omdirigering som tappar dem
-      // skickar besökaren till sida 1 utan filter, vilket ser ut som en bugg.
-      const qs = new URLSearchParams();
-      for (const [k, v] of Object.entries({
-        page: sp.page,
-        aeantMin: sp.aeantMin,
-        aeantMax: sp.aeantMax,
-      })) {
-        if (v) qs.set(k, v);
-      }
-      const suffix = qs.toString() ? `?${qs}` : "";
+      // Behåll sidparametern — en omdirigering som tappar den skickar
+      // besökaren till sida 1, vilket ser ut som en bugg.
+      const suffix = sp.page ? `?page=${encodeURIComponent(sp.page)}` : "";
       permanentRedirect(`/kommun/${kommun.slug}/${canonicalBransch}${suffix}`);
     }
   }
 
   const branschName = branschNameOrNull ?? `SNI ${ng1}`;
   const page = Math.max(1, Number(sp.page) || 1);
-  const aeantMin = sp.aeantMin ? Number(sp.aeantMin) : undefined;
-  const aeantMax = sp.aeantMax ? Number(sp.aeantMax) : undefined;
 
   // Databasen sorterar `poang desc, aeant desc, cfarnr asc`. Overlay-lagret
   // läggs ovanpå den ordningen, inte i stället för den: sorteringen är stabil,
@@ -126,8 +108,6 @@ export default async function BranschPage({
     listForetagInKommunByBransch(kommun.code, ng1, {
       page,
       pageSize: PAGE_SIZE,
-      aeantMin,
-      aeantMax,
     }),
     loadAktivaOverlays(),
   ]);
@@ -152,8 +132,6 @@ export default async function BranschPage({
   function withParams(overrides: Record<string, string | null>): string {
     const merged: Record<string, string | undefined> = {
       page: sp.page,
-      aeantMin: sp.aeantMin,
-      aeantMax: sp.aeantMax,
     };
     for (const [k, v] of Object.entries(overrides)) {
       if (v === null) merged[k] = undefined;
@@ -223,42 +201,12 @@ export default async function BranschPage({
         )}
       </header>
 
-      <nav aria-label="Filtrera på antal anställda" className="flex flex-col gap-2 border-y border-[var(--rule)] py-4 sm:flex-row sm:items-center sm:gap-4">
-        <p className="w-36 shrink-0 text-[15px] font-semibold text-[var(--text-strong)]">Antal anställda</p>
-        <div className="flex flex-wrap gap-2">
-          {SIZE_BUCKETS.map((b) => {
-            const isActive =
-              (aeantMin ?? null) === (b.min ?? null) &&
-              (aeantMax ?? null) === (b.max ?? null);
-            return (
-              <Link
-                key={b.label}
-                href={withParams({
-                  aeantMin: b.min ? String(b.min) : null,
-                  aeantMax: b.max ? String(b.max) : null,
-                  page: null,
-                })}
-                aria-current={isActive ? "true" : undefined}
-                className={`inline-flex min-h-10 items-center rounded-md border px-3 text-[15px] transition-colors ${
-                  isActive
-                    ? "border-[var(--brand)] bg-[var(--tint-2)] font-semibold text-[var(--brand-ink)]"
-                    : "border-[var(--rule-strong)] text-[var(--text-body)] hover:border-[var(--text-dim)]"
-                }`}
-              >
-                {b.label}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
-
       <section aria-label={`${etikett} i ${kommun.name}`} className="space-y-3">
         {rows.length > 0 && <OrdningsNotis />}
         {rows.length === 0 ? (
           <div className="space-y-3 rounded-lg bg-[var(--surface-soft)] p-5 text-[17px]">
             <p>
-              Inga verksamheter inom {etikettIText(etikett)} i {kommun.name} matchar valt
-              filter.
+              Inga verksamheter inom {etikettIText(etikett)} i {kommun.name}.
             </p>
             <Link
               href={`/kommun/${kommun.slug}`}

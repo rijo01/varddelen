@@ -35,8 +35,6 @@ type Search = Promise<{
   bransch?: string;
   /** Kategori-slug från startsidans kort (vard-kategorier.ts). */
   kategori?: string;
-  aeantMin?: string;
-  aeantMax?: string;
   page?: string;
 }>;
 
@@ -85,7 +83,7 @@ export async function generateMetadata({
   return {
     title,
     description:
-      "Sök bland Sveriges vårdföretag — tandläkare, behandlingshem, apotek, specialistläkare och omsorg. Filtrera på kommun, bransch och antal anställda.",
+      "Sök bland Sveriges vårdföretag — tandläkare, behandlingshem, apotek, specialistläkare och omsorg. Filtrera på kommun och bransch.",
     alternates: { canonical: `${SITE_URL}/sok` },
     robots: { index: false, follow: true },
   };
@@ -106,8 +104,6 @@ export default async function SokPage({
       const params = new URLSearchParams();
       params.set("q", delad.q);
       params.set("kommun", delad.kommunSlug);
-      if (sp.aeantMin) params.set("aeantMin", sp.aeantMin);
-      if (sp.aeantMax) params.set("aeantMax", sp.aeantMax);
       redirect(`/sok?${params.toString()}`);
     }
   }
@@ -118,7 +114,7 @@ export default async function SokPage({
   if (kategoriTerm && !sp.kategori) {
     const params = new URLSearchParams();
     params.set("kategori", kategoriTerm);
-    for (const k of ["kommun", "lan", "postort", "aeantMin", "aeantMax"] as const) {
+    for (const k of ["kommun", "lan", "postort"] as const) {
       const v = sp[k];
       if (v) params.set(k, v);
     }
@@ -129,8 +125,6 @@ export default async function SokPage({
   const lan = sp.lan ? lanBySlug(sp.lan) : undefined;
   const postort = sp.postort?.trim() || undefined;
   const ng1 = sp.bransch ? Number(sp.bransch) : undefined;
-  const aeantMin = sp.aeantMin ? Number(sp.aeantMin) : undefined;
-  const aeantMax = sp.aeantMax ? Number(sp.aeantMax) : undefined;
   const kategori = sp.kategori ? getKategoriBySlug(sp.kategori) : null;
 
   const filterState: FilterState = {
@@ -140,8 +134,6 @@ export default async function SokPage({
     lan: sp.lan,
     postort: sp.postort,
     bransch: sp.bransch,
-    aeantMin: sp.aeantMin,
-    aeantMax: sp.aeantMax,
   };
 
   // Title för breadcrumb + JSON-LD speglar antingen sökord eller kategorinamn.
@@ -179,7 +171,7 @@ export default async function SokPage({
       ) : (
         <div className="space-y-6">
           <Suspense
-            key={`${query}|${sp.kategori ?? ""}|${sp.kommun ?? ""}|${sp.lan ?? ""}|${sp.postort ?? ""}|${ng1 ?? ""}|${aeantMin ?? ""}|${aeantMax ?? ""}|${sp.page ?? "1"}`}
+            key={`${query}|${sp.kategori ?? ""}|${sp.kommun ?? ""}|${sp.lan ?? ""}|${sp.postort ?? ""}|${ng1 ?? ""}|${sp.page ?? "1"}`}
             fallback={<ResultsSkeleton />}
           >
             <ResultsAsync
@@ -189,8 +181,6 @@ export default async function SokPage({
               lan={lan}
               postort={postort}
               ng1={ng1}
-              aeantMin={aeantMin}
-              aeantMax={aeantMax}
               pageStr={sp.page}
               filterState={filterState}
               filter={<FilterPanel state={filterState} pathname="/sok" branschLabel={branschLabel} />}
@@ -211,9 +201,8 @@ export default async function SokPage({
 function antalIRegistret(
   ng1s: readonly number[],
   geo: { kommunCode?: string; lanCode?: string; postort?: string },
-  harStorleksfilter: boolean,
 ): number | null {
-  if (ng1s.length === 0 || harStorleksfilter || geo.postort) return null;
+  if (ng1s.length === 0 || geo.postort) return null;
   const kommuner = geo.kommunCode
     ? [geo.kommunCode]
     : geo.lanCode
@@ -234,8 +223,6 @@ async function ResultsAsync({
   lan,
   postort,
   ng1,
-  aeantMin,
-  aeantMax,
   pageStr,
   filterState,
   filter,
@@ -246,8 +233,6 @@ async function ResultsAsync({
   lan: ReturnType<typeof lanBySlug>;
   postort?: string;
   ng1?: number;
-  aeantMin?: number;
-  aeantMax?: number;
   pageStr?: string;
   filterState: FilterState;
   /** Filtren renderas under rubriken, så att träffantalet syns först i mobilen. */
@@ -270,8 +255,6 @@ async function ResultsAsync({
       postort,
       ng1,
       ng1List: kategori?.ng1,
-      aeantMin,
-      aeantMax,
       page,
       pageSize: PAGE_SIZE,
     }),
@@ -300,7 +283,6 @@ async function ResultsAsync({
   const antal = antalIRegistret(
     ng1sForAntal,
     { kommunCode: kommun?.code, lanCode: lan?.code, postort },
-    aeantMin != null || aeantMax != null,
   );
 
   return (
@@ -420,7 +402,7 @@ function IngaTraffar({
   geoText: string;
   filterState: FilterState;
 }) {
-  const harFilter = Boolean(filterState.aeantMin || filterState.aeantMax || filterState.bransch);
+  const harFilter = Boolean(filterState.bransch);
   return (
     <div className="space-y-4 rounded-lg bg-[var(--surface-soft)] p-5 text-[17px]">
       <p className="text-[var(--text-body)]">
@@ -431,7 +413,7 @@ function IngaTraffar({
         {harFilter && (
           <li>
             <Link
-              href={buildHref("/sok", filterState, { aeantMin: null, aeantMax: null, bransch: null, page: null })}
+              href={buildHref("/sok", filterState, { bransch: null, page: null })}
               className="text-[var(--brand-ink)] underline"
             >
               Ta bort filtren

@@ -5,7 +5,6 @@ import type { OverlayProfilRow } from "@/lib/overlay-contract";
 import { visatTelefon } from "@/lib/visat-telefon";
 import {
   displayName,
-  employerSize,
   formatTelefon,
   normalizeWebb,
   profilMarkning,
@@ -13,13 +12,14 @@ import {
   telHref,
 } from "@/lib/foretag-format";
 import { ProfilEtikett } from "@/components/vard-info";
-import { delarOrgnr } from "@/lib/flerstalle";
+import { anstallda } from "@/lib/storleksklass";
 
 /**
  * En verksamhet som en rad i en lista.
  *
  * Allt man behöver för att välja syns utan klick: namn, typ av vård, adress
- * och telefonnummer i klartext. Numret skrivs ut även i mobilen — den som
+ * och telefonnummer i klartext när verksamheten själv har lämnat ett (inga
+ * nummer ur registret, DE.82). Numret skrivs ut även i mobilen — den som
  * ringer vill se vart samtalet går, och en knapp som bara säger "Ring" döljer
  * det. Inga monogram, inga färgade storleksbrickor: raden ska gå att skumma.
  */
@@ -51,9 +51,9 @@ export function CompanyCard({
   // Samma regel som profilsidan: kundens köpta nummer ersätter registrets.
   const telefon = visatTelefon(foretag.tel, overlay);
   const webb = normalizeWebb(overlay?.hemsida) ?? normalizeWebb(foretag.webb);
-  // Bolagets antal är inte mottagningens: visa bara när bolaget har ett enda
-  // arbetsställe i katalogen. Se lib/flerstalle.ts.
-  const size = delarOrgnr(foretag.cfarnr) ? null : employerSize(foretag.aeant);
+  // Arbetsställets storleksklass som intervall (kluster/anstallda.ts) —
+  // aldrig `aeant`, som är bolagets antal arbetsställen.
+  const size = anstallda(foretag.storleksklass);
   const markning = profilMarkning(foretag, overlay);
   const href = `/foretag/${foretagSlug(foretag)}`;
   const adress = [foretag.gatuadress, foretag.postort ?? kommunName]
@@ -113,9 +113,7 @@ export function CompanyCard({
             <Phone aria-hidden className="size-4 text-[var(--brand)]" />
             {formatTelefon(telefon)}
           </a>
-        ) : (
-          <span className="text-[15px] text-[var(--text-dim)]">Telefon saknas</span>
-        )}
+        ) : null}
         {webb && (
           <a
             href={webb}

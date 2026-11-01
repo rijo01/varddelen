@@ -6,7 +6,6 @@ import { kontaktsparrFilter } from "@/lib/kontaktsparr";
 import { ALL_KOMMUNER } from "@/lib/kommuner";
 import { TOP_BRANSCHER } from "@/lib/stats";
 import { NISCH_JURFORM_VILLKOR, VARD_BRANSCHER } from "@/lib/vard-branscher";
-import { storleksKolumn } from "@/lib/storlek";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -132,7 +131,6 @@ export async function GET(req: Request) {
   let foretagHits: Suggestion[] = [];
   try {
     const supa = getSupabaseAnon();
-    const storlek = await storleksKolumn();
     const { data, error } = await supa
       .from("foretag_publik")
       .select("cfarnr,firma,namn,postort,kommun,jurform,poang")
@@ -144,7 +142,7 @@ export async function GET(req: Request) {
       .or(NISCH_JURFORM_VILLKOR)
       // Inget aeant-golv: NULL >= 0 är falskt, så .gte("aeant", 0) tog bort
       // 1 222 vårdföretag ur autocompleten. Se applyAeantFilter i lib/queries.ts.
-      .order(storlek, { ascending: false, nullsFirst: false })
+      .order("aeant", { ascending: false, nullsFirst: false })
       .order("cfarnr", { ascending: true })
       .limit(5);
 

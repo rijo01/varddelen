@@ -302,14 +302,8 @@ const VARD = readVardBranscher();
 const KOMMUN_SLUG = readKommuner();
 console.error(`Vård-branscher: ${VARD.length} · kommuner: ${KOMMUN_SLUG.size}`);
 
-// aeant_per_stalle finns först efter kluster/006. Saknas den hoppar kontrollen
-// av arbetsstalle_storlek (längre ner) över, precis som sajten faller tillbaka.
-const HAR_STORLEK = (
-  await fetch(`${SUPA_URL}/rest/v1/foretag_publik?select=aeant_per_stalle&limit=1`, { headers })
-).ok;
 const FORETAG_COLS =
-  "cfarnr,firma,namn,ng1,kommun,aeant,tel,webb,epostadress,kontaktperson,logotyp,poang,infotext,orgnr,ar_enskild_firma,postort,jurform" +
-  (HAR_STORLEK ? ",aeant_per_stalle" : "");
+  "cfarnr,firma,namn,ng1,kommun,aeant,tel,webb,epostadress,kontaktperson,logotyp,poang,infotext,orgnr,ar_enskild_firma,postort,jurform";
 const VARD_FILTER = `&ng1=in.(${VARD.join(",")})${readJurformVillkor()}`;
 // Raderna som sajten visar dem: klustrets personuppgiftsregel (DE.82 m.m.)
 // tillämpas här precis som i mapRow. En sida vars enda substans var en privat
@@ -498,62 +492,10 @@ writeFileSync(
   JSON.stringify(countsData, null, 1) + "\n",
 );
 
-/**
- * Arbetsställen som delar organisationsnummer med minst ett annat i katalogen.
- *
- * `aeant` är bolagets antal anställda, inte arbetsställets: alla Praktikertjänst-
- * mottagningar står som 1 198. För dessa rader visar listorna därför inget
- * antal. Filen bär bara cfarnr — inga organisationsnummer — och enskilda
- * firmor räknas aldrig (deras orgnr är ett personnummer och lämnas inte ut).
- */
-const perOrgnr = new Map();
-for (const r of foretag) {
-  if (r.ar_enskild_firma || !hasText(r.orgnr) || r.cfarnr == null) continue;
-  const k = String(r.orgnr).replace(/\D/g, "");
-  const arr = perOrgnr.get(k);
-  if (arr) arr.push(r.cfarnr);
-  else perOrgnr.set(k, [r.cfarnr]);
-}
-const flerstalle = [];
-let flerstalleBolag = 0;
-for (const arr of perOrgnr.values()) {
-  if (arr.length < 2) continue;
-  flerstalleBolag++;
-  flerstalle.push(...arr);
-}
-flerstalle.sort((a, b) => a - b);
-writeFileSync(
-  new URL("../src/data/flerstalle.json", import.meta.url),
-  JSON.stringify({ generated_at: new Date().toISOString(), cfarnr: flerstalle }) + "\n",
-);
-
-console.error("");
-console.error(`flerställesbolag: ${flerstalleBolag} bolag, ${flerstalle.length} arbetsställen → src/data/flerstalle.json`);
-
-/**
- * Är arbetsstalle_storlek aktuell? Den materialiserade vyn räknar arbetsställen
- * per bolag och uppdateras bara med REFRESH (kluster/006). Ett arbetsställe som
- * här delar orgnr med ett annat MÅSTE ha aeant_per_stalle < aeant när aeant >= 2
- * — antalet i registret är minst antalet i nischen. Står värdet lika med aeant
- * känner vyn inte till arbetsstället: då sorteras det på bolagets storlek igen.
- * Listorna visar aldrig aeant_per_stalle, så felet syns bara i ordningen — men
- * indexet byggs inte vidare på en vy som ljuger.
- */
-if (HAR_STORLEK) {
-  const iFler = new Set(flerstalle);
-  const gamla = foretag.filter(
-    (r) => iFler.has(r.cfarnr) && (r.aeant ?? 0) >= 2 && r.aeant_per_stalle >= r.aeant,
-  );
-  if (gamla.length > 0) {
-    throw new Error(
-      `arbetsstalle_storlek är inaktuell: ${gamla.length} arbetsställen saknas (t.ex. cfarnr ${gamla
-        .slice(0, 3)
-        .map((r) => r.cfarnr)
-        .join(", ")}). Kör i klustret: refresh materialized view concurrently public.arbetsstalle_storlek;`,
-    );
-  }
-  console.error("arbetsstalle_storlek: aktuell");
-}
+// flerstalle.json och kontrollen av arbetsstalle_storlek (kluster/006) är
+// borttagna 2026-11-01: båda byggde på att `aeant` är antal anställda. Det är
+// bolagets antal arbetsställen. Anställda visas nu som arbetsställets
+// storleksklass, se scripts/hamta-storleksklass.mjs.
 console.error("=== URVAL ===");
 console.error(`hubbar:   ${hubs.length} av ${hubAll.size} kombinationer i DB`);
 console.error(`  grind FÖRE (räknat under .gte(aeant,0)) : ${gammalGrind.size}`);

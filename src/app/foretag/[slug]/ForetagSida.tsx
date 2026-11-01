@@ -31,7 +31,7 @@ import {
 } from "@/lib/foretag-format";
 import { AkutNotis, ProfilEtikett } from "@/components/vard-info";
 import { BRANSCH_LABEL, etikettIText } from "@/lib/stats";
-import { delarOrgnr } from "@/lib/flerstalle";
+import { anstallda, anstalldaMening, anstalldaSchema } from "@/lib/storleksklass";
 import { isPersonalOrgnr } from "@/lib/jurform";
 import { sanitizeInfotext, safeLogotypUrl } from "@/lib/sanitize-html";
 import { SITE_URL } from "@/lib/site";
@@ -137,6 +137,9 @@ export default async function ForetagSida({
   const orgnrInfo = orgnrDisplay(f);
   const sanitizedInfotext = sanitizeInfotext(f.infotext);
   const personalOrgnr = isPersonalOrgnr(f.jurform);
+  // Arbetsställets storleksklass som intervall — aldrig `aeant`, som är
+  // bolagets antal arbetsställen (kluster/anstallda.ts).
+  const size = anstallda(f.storleksklass);
 
   // Hämta liknande företag + sökord parallellt — sokord-queryn är liten
   // (en cfarnr) men ska inte serialiseras efter related-queryn.
@@ -246,7 +249,7 @@ export default async function ForetagSida({
     ...(visatTelefon ? { telephone: visatTelefon } : {}),
     ...(webb ? { url: webb } : {}),
     ...(f.epostadress ? { email: f.epostadress } : {}),
-    ...(f.aeant ? { numberOfEmployees: f.aeant } : {}),
+    ...(size ? { numberOfEmployees: anstalldaSchema(size) } : {}),
     ...(strukturSokord.length > 0
       ? {
           keywords: strukturSokord.join(", "),
@@ -450,8 +453,15 @@ export default async function ForetagSida({
               ) : null}
             </Fakta>
             <Fakta rubrik="Juridisk form">{legalForm}</Fakta>
-            <Fakta rubrik={delarOrgnr(f.cfarnr) ? "Anställda i hela bolaget" : "Antal anställda"}>
-              {f.aeant ? `ca ${f.aeant.toLocaleString("sv-SE")}` : null}
+            <Fakta rubrik="Antal anställda">
+              {size ? (
+                <>
+                  {size.label}
+                  <span className="block text-[13px] text-[var(--text-dim)]">
+                    på arbetsstället, storleksklass ca {REGISTER_AR}
+                  </span>
+                </>
+              ) : null}
             </Fakta>
             <Fakta rubrik="Bransch">{branschName}</Fakta>
             <Fakta rubrik="Kommun">
@@ -545,11 +555,8 @@ function buildDescription({
         : ""
     }${kommun ? ` i ${kommun} kommun` : ""}.`,
   );
-  if (f.aeant && f.aeant > 0) {
-    segs.push(
-      `Företaget har ca ${f.aeant.toLocaleString("sv-SE")} anställda enligt senast tillgängliga uppgifter.`,
-    );
-  }
+  const size = anstallda(f.storleksklass);
+  if (size) segs.push(anstalldaMening(name, size));
   if (f.gatuadress) {
     segs.push(
       `Besöksadress: ${f.gatuadress}${f.postort ? `, ${f.postort}` : ""}.`,
@@ -612,10 +619,11 @@ function buildFaq({
     });
   }
 
-  if (f.aeant) {
+  const size = anstallda(f.storleksklass);
+  if (size) {
     items.push({
       q: `Hur många anställda har ${name}?`,
-      a: `${name} har cirka ${f.aeant.toLocaleString("sv-SE")} anställda enligt senast tillgängliga data.`,
+      a: `${anstalldaMening(name, size)} Registret anger storleken som ett intervall, inte ett exakt antal.`,
     });
   }
 

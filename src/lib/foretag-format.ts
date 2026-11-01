@@ -40,18 +40,6 @@ export function detectLegalForm(rawName: string | null | undefined): string | nu
   return null;
 }
 
-/** Storleksklass baserat på aeant. Returnerar null om aeant saknas eller är 0. */
-export function employerSize(aeant: number | null | undefined):
-  | { label: string; tier: "solo" | "small" | "mid" | "large" | "xlarge" }
-  | null {
-  if (!aeant || aeant <= 0) return null;
-  if (aeant === 1) return { label: "1 anställd", tier: "solo" };
-  if (aeant < 10) return { label: `${aeant} anställda`, tier: "small" };
-  if (aeant < 50) return { label: `${aeant} anställda`, tier: "mid" };
-  if (aeant < 250) return { label: `${aeant} anställda`, tier: "large" };
-  return { label: `${aeant.toLocaleString("sv-SE")} anställda`, tier: "xlarge" };
-}
-
 /** Initial-bokstav för monogram. */
 export function initialFor(rawName: string | null | undefined): string {
   if (!rawName) return "·";

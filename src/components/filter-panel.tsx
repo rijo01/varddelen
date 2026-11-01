@@ -9,18 +9,8 @@ export type FilterState = {
   lan?: string;
   postort?: string;
   bransch?: string;
-  aeantMin?: string;
-  aeantMax?: string;
   page?: string;
 };
-
-const STORLEKAR: Array<{ label: string; min?: string; max?: string }> = [
-  { label: "Alla" },
-  { label: "1–9", min: "1", max: "9" },
-  { label: "10–49", min: "10", max: "49" },
-  { label: "50–249", min: "50", max: "249" },
-  { label: "250+", min: "250" },
-];
 
 /**
  * Filtren ovanför resultatlistan — få val, alla synliga, inga paneler att
@@ -71,22 +61,6 @@ export function FilterPanel({
           ))}
         </FilterRad>
       )}
-
-      <FilterRad rubrik="Antal anställda">
-        {STORLEKAR.map((b) => (
-          <Val
-            key={b.label}
-            href={buildHref(pathname, state, {
-              aeantMin: b.min ?? null,
-              aeantMax: b.max ?? null,
-              page: null,
-            })}
-            active={(state.aeantMin ?? "") === (b.min ?? "") && (state.aeantMax ?? "") === (b.max ?? "")}
-          >
-            {b.label}
-          </Val>
-        ))}
-      </FilterRad>
 
       {aktivaVal.length > 0 && (
         <FilterRad rubrik="Valt">
