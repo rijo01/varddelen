@@ -227,7 +227,7 @@ grant select, insert on kontaktsparr_handelse to service_role;
 comment on table kontaktsparr is
   'Overlay-kontrakt 1.2. Spärr på en kontaktuppgift, tillämpad av sajten vid läsning. Skrivs endast av /api/overlay/publish. INTE publikt läsbar.';
 comment on column kontaktsparr.nyckel is
-  'telefon: E.164-siffror utan plus (46705096502). epost: gemener. Se normaliseraKontakt().';
+  'telefon: E.164-siffror utan plus (46701740623). epost: gemener. Se normaliseraKontakt().';
 comment on column kontaktsparr.arende is
   'Ärendenummer i CRM:et. Aldrig den registrerades namn.';
 
@@ -240,34 +240,34 @@ notify pgrst, 'reload schema';
 
 do $$
 declare
-  m text := kontaktsparr_monster('telefon', '46705096502');
+  m text := kontaktsparr_monster('telefon', '46701740623');
   f text;
 begin
-  foreach f in array array['070-509 65 02','0705096502','+46705096502','0046705096502',
-                           '46705096502','+46 (0)70 509 65 02','70-509 65 02','070-5096502'] loop
-    if kontakt_normalisera_telefon(f) is distinct from '46705096502' then
+  foreach f in array array['070-174 06 23','0701740623','+46701740623','0046701740623',
+                           '46701740623','+46 (0)70 174 06 23','70-174 06 23','070-1740623'] loop
+    if kontakt_normalisera_telefon(f) is distinct from '46701740623' then
       raise exception 'normaliseringen: % gav %', f, kontakt_normalisera_telefon(f);
     end if;
   end loop;
 
-  if kontakt_normalisera_telefon('Ring 070-509 65 02') is not null then
+  if kontakt_normalisera_telefon('Ring 070-174 06 23') is not null then
     raise exception 'normaliseringen: text med ett nummer i är inte ett nummer';
   end if;
 
   -- Hittas i fritext, i alla skrivsätt.
-  foreach f in array array['Ring 070-509 65 02 idag','tel:+46705096502','<a href="tel:0046705096502">',
-                           'mobil 46 70 509 65 02.','070&nbsp;509&nbsp;65&nbsp;02','(070) 509 65 02',
-                           'nr 070.509.65.02'] loop
+  foreach f in array array['Ring 070-174 06 23 idag','tel:+46701740623','<a href="tel:0046701740623">',
+                           'mobil 46 70 174 06 23.','070&nbsp;174&nbsp;06&nbsp;23','(070) 174 06 23',
+                           'nr 070.174.06.23'] loop
     if f !~ m then raise exception 'mönstret missade: %', f; end if;
   end loop;
 
   -- Men inte inuti ett längre nummer, och inte ett grannummer.
-  foreach f in array array['10705096502','07050965021','070-509 65 03','orgnr 5570509650'] loop
+  foreach f in array array['10701740623','07017406231','070-174 06 24','orgnr 5570174062'] loop
     if f ~ m then raise exception 'mönstret träffade fel: %', f; end if;
   end loop;
 
-  if regexp_replace('Ring 070-509 65 02 eller 08-12 34 56', m, '', 'g') <> 'Ring  eller 08-12 34 56' then
-    raise exception 'skrubbningen tog fel: %', regexp_replace('Ring 070-509 65 02 eller 08-12 34 56', m, '', 'g');
+  if regexp_replace('Ring 070-174 06 23 eller 08-12 34 56', m, '', 'g') <> 'Ring  eller 08-12 34 56' then
+    raise exception 'skrubbningen tog fel: %', regexp_replace('Ring 070-174 06 23 eller 08-12 34 56', m, '', 'g');
   end if;
 
   if 'Skriv till Anna.Svensson@Exempel.se!' !~* kontaktsparr_monster('epost', 'anna.svensson@exempel.se') then

@@ -53,7 +53,7 @@ $$;
 
 -- ── Indexet ─────────────────────────────────────────────────────────────────
 -- Siffrorna i alla kontaktbärande kolumner, med `|` som fältgräns — samma
--- uttryck som förfiltret. Ett trigramindex på det gör `like '%705096502%'` till
+-- uttryck som förfiltret. Ett trigramindex på det gör `like '%701740623%'` till
 -- ett indexuppslag i stället för en skanning av 846 000 rader.
 --
 -- Varför det behövs: CRM:et når klustret med ANON-nyckeln (grundprincip 4 — inga

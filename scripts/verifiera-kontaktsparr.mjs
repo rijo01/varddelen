@@ -29,7 +29,7 @@
  * 2. Skarpt fall (läser bara):
  *
  *      npm run kontaktsparr:verifiera -- --url https://varddelen.se \
- *        --fall 0705096502 --sida /foretag/<slug> --namn "IT BITEN DALARNA"
+ *        --fall 0701740623 --sida /foretag/<slug> --namn "IT BITEN DALARNA"
  *
  *    Bevisar att ett spärrat nummer inte returneras: inte på sidan, inte i
  *    JSON-LD, inte i sök eller förslag — och att sidan har genererats om efter
