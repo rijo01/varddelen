@@ -29,6 +29,8 @@ import {
   sentAtArFarsk,
   verifieraPreviewToken,
   provaIdentitet,
+  provpaketFel,
+  PROVPAKET_STATUS,
   identitetSaknas,
   verifyOverlaySignature,
   type EntityType,
@@ -177,6 +179,15 @@ export async function POST(req: Request) {
   // revisionen nedan stoppar OMSPELNING. De skyddar olika saker.
   if (!sentAtArFarsk(body.sent_at)) {
     return svar(401, { ok: false, error: "sent_at ligger utanför tillåtet tidsfönster" });
+  }
+
+  // Provdata (2 nov 2026): ett paket ur CRM:ets prov — "PROV — …" eller orten
+  // Provby — blir aldrig en sida här. Prövas före allt som läser eller skriver
+  // (skapa_om_saknas, logotyp, revalidering). unpublish släpps igenom.
+  const provfel = provpaketFel(body);
+  if (provfel) {
+    console.warn(`[overlay] provpaket avvisat (422): sajt=${body.sajt} external_id=${body.external_id}`);
+    return svar(PROVPAKET_STATUS, { ok: false, error: provfel });
   }
 
   /**

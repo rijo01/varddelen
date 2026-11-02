@@ -544,6 +544,50 @@ export function arEnskildFirmaId(externalId: string): boolean {
   return /^cfar-\d{1,8}$/.test(externalId) || /^ef-[0-9a-f]{24}$/.test(externalId);
 }
 
+// ── Provdata (2 november 2026) ──────────────────────────────────────────────
+
+/**
+ * PROVPAKET: ett paket från CRM:ets prov ska aldrig bli en sida på en riktig
+ * sajt. 2 november 2026 publicerade ett prov fem "PROV — Enskild Provfirma …"
+ * i Provby på åkeriguiden — med `skapa_om_saknas`, alltså nya sidor. CRM:et
+ * spärrar sedan dess själv (bara mock-sajten för provbolag och provkonton);
+ * det här är mottagarens spärr, oberoende av CRM:et.
+ *
+ * Provbolagen heter "PROV — …" (tankstreck, U+2014) och ligger i orten
+ * Provby. Sajten svarar 422 (PROVPAKET_STATUS) med felet nedan. Bara publish
+ * och preview: en `unpublish` släpps igenom, så att en profil som ändå kom ut
+ * går att ta ner.
+ *
+ * Fälten som prövas är de som bär ett namn eller en ort i paketet: `bas`
+ * (namn, ort), `popularnamn` och adressöverskrivningarnas postort.
+ */
+export const PROVPAKET_STATUS = 422;
+export const PROVBOLAG_PREFIX = "PROV —";
+export const PROVORT = "Provby";
+
+export function provpaketFel(body: {
+  action: string;
+  bas?: { namn?: string | null; ort?: string | null } | null;
+  popularnamn?: string | null;
+  adress_override?: { postort?: string } | null;
+  adress_override_post?: { postort?: string } | null;
+  adress_override_besok?: { postort?: string } | null;
+}): string | null {
+  if (body.action === "unpublish") return null;
+  const arProv = (v: string | null | undefined) =>
+    Boolean(v && v.trimStart().toUpperCase().startsWith(PROVBOLAG_PREFIX.toUpperCase()));
+  const arProvort = (v: string | null | undefined) =>
+    Boolean(v && v.trim().toLowerCase() === PROVORT.toLowerCase());
+  if (arProv(body.bas?.namn) || arProv(body.popularnamn)) {
+    return `Provdata publiceras inte: namnet börjar med "${PROVBOLAG_PREFIX}". Provbolag hör hemma på mock-sajten.`;
+  }
+  const orter = [body.bas?.ort, body.adress_override?.postort, body.adress_override_post?.postort, body.adress_override_besok?.postort];
+  if (orter.some(arProvort)) {
+    return `Provdata publiceras inte: orten är ${PROVORT}. Provbolag hör hemma på mock-sajten.`;
+  }
+  return null;
+}
+
 // ── Payload ─────────────────────────────────────────────────────────────────
 
 /**
