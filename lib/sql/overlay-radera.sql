@@ -35,6 +35,9 @@ comment on table public.overlay_foretag_sparr is
 
 alter table public.overlay_foretag_sparr enable row level security;
 revoke all on public.overlay_foretag_sparr from anon, authenticated;
+-- Uttryckligen: klustret har inga default-privilegier (OVERLAY.md), och
+-- endpointen skriver med service role.
+grant select, insert on public.overlay_foretag_sparr to service_role;
 
 create or replace function public.overlay_sparrade_nycklar(p_sajt text)
 returns setof text

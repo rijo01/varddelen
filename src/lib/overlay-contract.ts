@@ -1365,7 +1365,7 @@ export function infotextTillHtml(
 // registret aldrig få tillbaka numret — filtret sitter efter källan.
 //
 // NORMALISERINGEN LIGGER HÄR och delas av CRM:et och varje mottagare. Hade
-// sidorna normaliserat på var sitt sätt hade "+46 70-509 65 02" kunnat vara
+// sidorna normaliserat på var sitt sätt hade "+46 70-174 06 23" kunnat vara
 // spärrat i CRM:et och fritt på sajten. Samma regel finns i SQL i
 // overlay-kontaktsparr.sql, och självtestet bevisar att de två är överens.
 
@@ -1387,8 +1387,8 @@ export type KontaktsparrOp = (typeof KONTAKTSPARR_OPS)[number];
 /**
  * Telefonnummer → E.164-siffror utan plustecken. `null` om det inte är ett nummer.
  *
- *   070-509 65 02 · 0705096502 · +46705096502 · 0046705096502 · 46705096502
- *   +46 (0)70 509 65 02 · 70-509 65 02                       → "46705096502"
+ *   070-174 06 23 · 0701740623 · +46701740623 · 0046701740623 · 46701740623
+ *   +46 (0)70 174 06 23 · 70-174 06 23                       → "46701740623"
  *
  * Sverige är standardlandet: en inledande nolla är ett nationellt nummer, och
  * 7–9 siffror utan prefix är ett nationellt nummer utan nolla. "(0)" tas bort —
@@ -1434,7 +1434,7 @@ export function normaliseraKontakt(typ: KontaktsparrTyp, raw: string | null | un
 
 /**
  * Avgränsare MELLAN siffrorna i ett nummer så som det skrivs i fritext och HTML.
- * Högst tre i rad: "070 - 509 65 02" ska fångas, två nummer med en mening
+ * Högst tre i rad: "070 - 174 06 23" ska fångas, två nummer med en mening
  * emellan ska inte bli ett.
  */
 const SEP = "(?:[\\s./()\\u00a0-]|&nbsp;|&#160;){0,3}";
@@ -1459,7 +1459,7 @@ export function kontaktsparrMonster(typ: KontaktsparrTyp, nyckel: string): strin
     return `(?<![A-Za-z0-9._%+-])${escapeRegex(nyckel)}(?![A-Za-z0-9-])`;
   }
   // Svenskt nummer: landskoden kan stå som +46, 0046, 46 — eller ersättas av en
-  // nolla, eller saknas helt ("70-509 65 02"). Övriga länder: landskoden med
+  // nolla, eller saknas helt ("70-174 06 23"). Övriga länder: landskoden med
   // valfritt + eller 00 framför.
   let prefix: string;
   let rest: string;
