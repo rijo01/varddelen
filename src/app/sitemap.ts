@@ -3,6 +3,7 @@ import { ALL_KOMMUNER } from "@/lib/kommuner";
 import { SITE_URL } from "@/lib/site";
 import { foretagSitemapPaths, hubSitemapPaths } from "@/lib/indexability";
 import { overlayIndexerbaraSokvagar } from "@/lib/overlay";
+import { sparradeCfarnr } from "@/lib/foretag-sparr";
 
 /**
  * Sitemapen listar ENBART sidor som svarar index,follow.
@@ -79,7 +80,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...(await overlayIndexerbaraSokvagar()),
   ]);
 
+  // Urvalet är förberäknat (src/data/indexable.json) och känner bara cfarnr.
+  // Ett raderat bolag (kontrakt 1.6) tas bort här, mot spärren som arbetsställen.
+  const sparrade = await sparradeCfarnr();
   for (const path of foretagssidor) {
+    const cfarnr = Number(/-(\d+)$/.exec(path)?.[1]);
+    if (sparrade.has(cfarnr)) continue;
     entries.push({
       url: `${SITE_URL}${path}`,
       lastModified: now,

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSupabaseAnon } from "@/lib/supabase";
 import { foretagSlug } from "@/lib/queries";
 import { kontaktsparrFilter } from "@/lib/kontaktsparr";
+import { sparradeNycklar, utanSparrade } from "@/lib/foretag-sparr";
 import { ALL_KOMMUNER } from "@/lib/kommuner";
 import { TOP_BRANSCHER } from "@/lib/stats";
 import { NISCH_JURFORM_VILLKOR, VARD_BRANSCHER } from "@/lib/vard-branscher";
@@ -132,7 +133,7 @@ export async function GET(req: Request) {
     const storlek = await storleksKolumn();
     const { data, error } = await supa
       .from("foretag_publik")
-      .select("cfarnr,firma,namn,postort,kommun,aeant")
+      .select("cfarnr,orgnr,firma,namn,postort,kommun,aeant")
       .textSearch("search_vector", raw, {
         type: "websearch",
         config: "swedish_unaccent",
@@ -146,14 +147,18 @@ export async function GET(req: Request) {
       .limit(5);
 
     if (!error && data) {
-      foretagHits = (
+      // Ett raderat bolag (kontrakt 1.6) föreslås aldrig. Se lib/foretag-sparr.ts.
+      const sparrade = await sparradeNycklar();
+      foretagHits = utanSparrade(
         data as Array<{
           cfarnr: number;
+          orgnr: string | null;
           firma: string | null;
           namn: string | null;
           postort: string | null;
           kommun: string | null;
-        }>
+        }>,
+        sparrade,
       ).map((r) => {
         const name = r.firma || r.namn || "Okänt företag";
         return {
