@@ -1,5 +1,5 @@
 /**
- * Overlay-kontraktet, version 1.4.
+ * Overlay-kontraktet, version 1.6.
  *
  * Den här filen och `overlay.sql` är HELA gränssnittet mellan CRM:et och en
  * sajt. CRM:et bygger en payload som validerar mot `overlayPublishRequest`,
@@ -36,7 +36,7 @@ import { z } from "zod";
  * kopia är exakt det som gör att de avvisar ett 1.1-paket — vilket är rätt
  * beteende, men det ska aldrig behöva inträffa.
  */
-export const CONTRACT_VERSION = 1.4;
+export const CONTRACT_VERSION = 1.6;
 
 /** Versionen som bara har v1.0-formen. Skickas till sajter som inte kan mer. */
 export const CONTRACT_VERSION_1_0 = 1;
@@ -81,6 +81,25 @@ export const CONTRACT_VERSION_1_2 = 1.2;
  * Kategorilistan är en ny fråga, se `GET …/api/overlay/kategorier` längst ned.
  */
 export const CONTRACT_VERSION_1_4 = 1.4;
+
+/**
+ * 1.5 (23 oktober 2026): `manuellt_tillagd`. Säljaren har lagt till ett bolag
+ * som sajten känner men inte visar — det står utanför sajtens kvalitetsurval
+ * (åkeriguidens kohort). Mottagaren visar då bolaget ändå, med samma profil som
+ * andra, så länge overlayn är aktiv, och döljer det igen när den avpubliceras
+ * eller går ut. Sajten avgör; CRM:et skickar flaggan också på `unpublish`.
+ *
+ * INTE "GAMLA MOTTAGARE IGNORERAR FÄLTET": schemat är `.strict()`, och en
+ * 1.4-mottagare svarar 400 på en okänd nyckel. AVSÄNDAREN skickar därför
+ * flaggan — och 1.5 — bara till en sajt vars `contract_version >= 1.5`. Alla
+ * andra paket bär sina gamla tal.
+ */
+export const CONTRACT_VERSION_1_5 = 1.5;
+
+/** Kan sajten ta emot `manuellt_tillagd`? Tillkom i 1.5. */
+export function stodjerManuelltTillagd(sajtensVersion: number): boolean {
+  return sajtensVersion >= 1.5;
+}
 
 /** Kan sajten ta emot `telefon_typ` som text? Tillkom i 1.4. */
 export function stodjerV14(sajtensVersion: number): boolean {
@@ -690,6 +709,22 @@ export const overlayProfilSchema = z
 
     /** Vem bolaget är hos CRM:et. Se foretagRefSchema och provaIdentitet(). */
     foretag_ref: foretagRefSchema.optional(),
+
+    // ── Tillägg i 1.5 ────────────────────────────────────────────────────────
+
+    /**
+     * Säljaren har lagt till bolaget på sajten för hand: det finns i sajtens
+     * register men står utanför urvalet sidan visar (kvalitetskohorten).
+     *
+     * `publish`: visa bolaget ÄNDÅ, med samma profil som ett bolag i urvalet —
+     * sida, listningar, sök och sitemap — så länge raden är aktiv och giltig.
+     * `unpublish` (och utgången giltighet): dölj det igen, om det bara syntes
+     * tack vare flaggan. Ett bolag som under tiden kommit in i urvalet syns
+     * som vanligt.
+     *
+     * Följs av `skapa_om_saknas: true` på `publish`. Se CONTRACT_VERSION_1_5.
+     */
+    manuellt_tillagd: z.boolean().optional(),
   })
   .strict();
 export type OverlayProfil = z.infer<typeof overlayProfilSchema>;
@@ -1818,3 +1853,164 @@ export const kategorierResponseSchema = z.object({
   error: z.string().optional(),
 });
 export type KategorierResponse = z.infer<typeof kategorierResponseSchema>;
+
+// ── Radering: "Ta bort företag" (1.6, 2 nov 2026) ───────────────────────────
+//
+// ETT BOLAG SOM BEGÄRT ATT FÖRSVINNA SKA FÖRSVINNA ÖVERALLT, inte bara få sin
+// overlay avpublicerad. Basraden står kvar i registret och klustret — `foretag`
+// och `aesamtable` är read-only och rörs aldrig — så sajten måste själv minnas
+// att bolaget är borta. Det gör den i sin egen spärrtabell
+// (`overlay_foretag_sparr`, overlay-radera.sql), och rendering, listor, sök och
+// sitemap läser den.
+//
+// DELETE <publish_url utan /publish>/<nyckel>
+//
+// Bodyn är JSON (raderaRequestSchema), signerad som en publicering:
+// HMAC-SHA256 över de råa bytesen i SIGNATURE_HEADER, samma `sent_at`-fönster.
+// `nyckel` i sökvägen och i bodyn ska vara samma — sökvägen är för loggar och
+// människor, bodyn är det signerade.
+//
+// NYCKELN är bolagets identitet hos CRM:et, i samma form som `external_id`:
+//
+//   5560472630                         aktiebolag m.fl., orgnr (tio siffror)
+//   cfar-40159162                      enskild firma på sitt arbetsställe
+//   ef-<24 hex>                        enskild firma utan arbetsställe
+//
+// Ett personnummer är ALDRIG en nyckel (provaRaderaNyckel). En enskild firma
+// raderas på cfar- eller ef-handtaget.
+//
+// MOTTAGARENS ORDNING, och den spelar roll:
+//
+//   1. signatur → 401, schema → 400, sajt eller nyckel fel → 400, sent_at → 401,
+//      contract_version högre än sajten kan → 409 (provaRaderaAnrop gör allt).
+//   2. SPÄRREN FÖRST: upsert i overlay_foretag_sparr (sajt, nyckel). Från den
+//      stunden svarar sidan 404, också om något nedan faller.
+//   3. Overlay-raderna för identiteten (båda slotarna, alla statusar), deras
+//      logotyper i bucketen, sajtens egen berikning och sökindexposter.
+//   4. Revalidera profilsidan, listorna den stod i och sitemap.
+//   5. 200 med raderaResponseSchema. Ett nytt anrop med samma nyckel är ett
+//      ofarligt återförsök: 200, nollor, `sparrad: true`.
+//
+// En nyckel på orgnr spärrar ALLA rader sajten har med det numret — också
+// arbetsställen (cfar) som hör till bolaget. arSparradRad() är regeln.
+//
+// AVPUBLICERINGEN GÖRS FÖRST, av CRM:et, med en vanlig `unpublish` per aktiv
+// order. Raderingen är det andra steget, inte en ersättning: revisionen på den
+// avpublicerade raden är vad som hindrar ett gammalt paket från att spelas upp.
+//
+// En hävning finns inte i 1.6. En radering är en GDPR-handling, och ångras den
+// görs det för hand i sajtens databas, med ett beslut bakom.
+
+export const RADERA_VERSION = 1.6;
+
+/** Tabellen i sajtens databas (overlay-radera.sql). */
+export const SPARR_TABELL = "overlay_foretag_sparr";
+
+const RADERA_NYCKEL = /^(?:\d{10}|cfar-\d{1,8}|ef-[0-9a-f]{24})$/;
+
+/** null = giltig raderingsnyckel, annars varför inte. Citerar aldrig numret. */
+export function provaRaderaNyckel(nyckel: string): string | null {
+  if (!RADERA_NYCKEL.test(nyckel)) return "nyckeln är varken orgnr (tio siffror), cfar-<nr> eller ef-<24 hex>";
+  if (/^\d{10}$/.test(nyckel) && arPersonnummer(nyckel)) {
+    return "nyckeln är ett personnummer. En enskild firma raderas på cfar- eller ef-handtaget.";
+  }
+  return null;
+}
+
+export const raderaRequestSchema = z
+  .object({
+    action: z.literal("radera"),
+    sajt: z.string().min(1).max(60),
+    nyckel: z.string().min(1).max(40),
+    /** CRM:ets id för raderingen. Står i sajtens spärrtabell — så går en spärr att spåra till sitt beslut. */
+    radering_id: z.string().uuid(),
+    contract_version: z.number().min(RADERA_VERSION),
+    sent_at: z.string().datetime({ offset: true }),
+  })
+  .strict()
+  .superRefine((d, ctx) => {
+    const fel = provaRaderaNyckel(d.nyckel);
+    if (fel) ctx.addIssue({ code: z.ZodIssueCode.custom, message: fel, path: ["nyckel"] });
+  });
+export type RaderaRequest = z.infer<typeof raderaRequestSchema>;
+
+/**
+ * Sajtens kvitto. Antal, aldrig innehåll — svaret sparas i CRM:ets
+ * raderingslogg och visas vid en GDPR-begäran.
+ */
+export const raderaResponseSchema = z.object({
+  ok: z.boolean(),
+  nyckel: z.string(),
+  /** Står nyckeln i sajtens spärrtabell när svaret skickas? Det är bekräftelsen. */
+  sparrad: z.boolean(),
+  raderat: z.object({
+    overlay: z.number().int().min(0),
+    logotyper: z.number().int().min(0),
+    berikning: z.number().int().min(0),
+    sokindex: z.number().int().min(0),
+  }),
+  revalidated: z.array(z.string()),
+  error: z.string().optional(),
+});
+export type RaderaResponse = z.infer<typeof raderaResponseSchema>;
+
+/** `https://x.se/api/overlay/publish` → `https://x.se/api/overlay/5560472630`. */
+export function raderaUrl(publishUrl: string, nyckel: string): string {
+  return publishUrl.replace(/\/publish\/?$/, `/${encodeURIComponent(nyckel)}`);
+}
+
+/**
+ * Mottagarens hela grind för DELETE …/<nyckel>, i kontraktets ordning.
+ * `stoddVersion` är sajtens STODD_CONTRACT_VERSION.
+ */
+export async function provaRaderaAnrop(p: {
+  raw: string;
+  signatur: string | null | undefined;
+  hemlighet: string;
+  sajt: string;
+  nyckelISokvagen: string;
+  stoddVersion: number;
+}): Promise<{ ok: true; paket: RaderaRequest } | { ok: false; status: 400 | 401 | 409; fel: string }> {
+  if (!(await verifyOverlaySignature(p.raw, p.hemlighet, p.signatur))) {
+    return { ok: false, status: 401, fel: "ogiltig signatur" };
+  }
+  let json: unknown;
+  try {
+    json = JSON.parse(p.raw);
+  } catch {
+    return { ok: false, status: 400, fel: "bodyn är inte JSON" };
+  }
+  const tolkat = raderaRequestSchema.safeParse(json);
+  if (!tolkat.success) {
+    return { ok: false, status: 400, fel: tolkat.error.issues.map((i) => i.message).join("; ") };
+  }
+  const paket = tolkat.data;
+  if (paket.sajt !== p.sajt) return { ok: false, status: 400, fel: `raderingen gäller inte ${p.sajt}` };
+  if (decodeURIComponent(p.nyckelISokvagen) !== paket.nyckel) {
+    return { ok: false, status: 400, fel: "nyckeln i sökvägen och i bodyn skiljer sig" };
+  }
+  if (!sentAtArFarsk(paket.sent_at)) return { ok: false, status: 401, fel: "sent_at saknas eller är för gammal" };
+  if (paket.contract_version > p.stoddVersion) {
+    return { ok: false, status: 409, fel: `sajten kan kontrakt ${p.stoddVersion}, paketet är ${paket.contract_version}` };
+  }
+  return { ok: true, paket };
+}
+
+/**
+ * Är en rad spärrad? En rad bär sitt orgnr och/eller sitt arbetsställe; finns
+ * någon av dess nycklar i spärren är raden borta. Ett orgnr-spärrat bolag tar
+ * alltså med sig alla sina arbetsställen.
+ */
+export function arSparradRad(
+  rad: { orgnr?: string | null; cfar?: string | number | null; external_id?: string | null },
+  sparrade: ReadonlySet<string>
+): boolean {
+  if (sparrade.size === 0) return false;
+  const orgnr = String(rad.orgnr ?? "").replace(/\D/g, "");
+  if (orgnr.length === 10 && sparrade.has(orgnr)) return true;
+  if (orgnr.length === 12 && sparrade.has(orgnr.slice(2))) return true;
+  const cfar = String(rad.cfar ?? "").replace(/\D/g, "");
+  if (cfar && sparrade.has(`cfar-${Number(cfar)}`)) return true;
+  if (rad.external_id && sparrade.has(rad.external_id)) return true;
+  return false;
+}
