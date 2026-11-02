@@ -52,7 +52,14 @@ supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay
 supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay-hardening-001.sql
 supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay-hardening-002-grants.sql
 supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay-v1.1.sql
+supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay-radera.sql
+supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay-radera-grants.sql
 ```
+
+`overlay-radera.sql` är kontraktets spärrtabell (1.6), oförändrad ur CRM:et;
+`overlay-radera-grants.sql` ger `service_role` rätt att skriva i den, av samma
+skäl som grants-filen nedan. Båda körs en gång för klustret — samma filer
+ligger i hantverkardelen och regionsdelen. Se "Ta bort företag".
 
 - `overlay.sql` — kontraktets frysta v1-schema. Ändras aldrig.
 - `overlay-hardening-001.sql` — låser `search_path` på funktionerna.
@@ -170,6 +177,22 @@ båda hållningarna ("sajten avgör själv vad den gör"), och att skriva en rad
 
 En fristående profilsida är en ny route med egna SEO- och sitemap-följder, och
 den är medvetet inte byggd här. Tills den finns är `bas` lagrad men osynlig.
+
+## Ta bort företag (kontrakt 1.6)
+
+`DELETE /api/overlay/<nyckel>` tar bort ett bolag från sajten. Nyckeln är
+orgnr, `cfar-<nr>` eller `ef-<hex>`; en orgnr-nyckel omfattar alla bolagets
+arbetsställen. Endpointen skriver först spärren i `overlay_foretag_sparr`,
+raderar sedan sajtens overlay-rader för identiteten (båda slotarna, alla
+statusar) och deras logotyper i `overlay-logos` (live och utkast), och
+revaliderar profilsidorna, deras listor, grannarnas "liknande" och sitemapen.
+Sajten har ingen egen berikning eller sökindex, så de talen är alltid 0.
+
+Basraden står kvar i klustret. Rendering, listor, sök, förslag och sitemap
+läser spärren genom `src/lib/foretag-sparr.ts` (cachad under taggen
+`overlay-foretag-sparr`, som endpointen revaliderar). Sitemapens förberäknade
+urval (`src/data/indexable.json`) filtreras mot spärren som arbetsställen.
+Saknas tabellen är spärren tom och endpointen svarar 503 utan att radera något.
 
 ## Indexerbarhet och sitemap
 
