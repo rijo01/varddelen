@@ -257,7 +257,10 @@ export async function DELETE(req: Request, ctx: { params: Promise<{ nyckel: stri
   console.info(
     `[radera] sajt=${SAJT} radering_id=${radering_id} overlay=${raderat.overlay} logotyper=${raderat.logotyper}`,
   );
-  return svar(200, { ok: true, nyckel, sparrad: true, raderat, revalidated: [...revalidated] });
+  // Antal per tabell och bucket, för CRM:ets raderingslogg (kvittots per_tabell).
+  // Sajten raderar inget annat: berikningen är crm_profiles, som inte rörs.
+  const per_tabell = { [OVERLAY_TABLE]: raderat.overlay, [`bucket:${LOGO_BUCKET}`]: raderat.logotyper };
+  return svar(200, { ok: true, nyckel, sparrad: true, raderat, per_tabell, revalidated: [...revalidated] });
 }
 
 /**

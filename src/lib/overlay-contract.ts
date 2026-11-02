@@ -1949,6 +1949,12 @@ export const raderaResponseSchema = z.object({
     berikning: z.number().int().min(0),
     sokindex: z.number().int().min(0),
   }),
+  /**
+   * Antal per tabell (och per bucket, som `bucket:<namn>`), för raderingsloggen
+   * vid en GDPR-begäran. Valfritt: ett kvitto utan det är fortfarande giltigt.
+   * Bara de fyra summorna ovan avgör bekräftelsen. Antal, aldrig innehåll.
+   */
+  per_tabell: z.record(z.string().min(1).max(80), z.number().int().min(0)).optional(),
   revalidated: z.array(z.string()),
   error: z.string().optional(),
 });
