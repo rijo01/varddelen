@@ -1,5 +1,14 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Piloten och företagsspärren (kontrakt 1.6)
+
+**Piloten får inte slås på förrän overlay_foretag_sparr, grants och spärrraderna finns i pilotprojektet, och DELETE är provad mot det.**
+
+- Pilotprojektet (`babenztvwzaiesducpja`) ägs av varddelen-pilotens session. Där körs `lib/sql/overlay-radera.sql` och `lib/sql/overlay-radera-grants.sql`, och klustrets rader i `overlay_foretag_sparr` för `sajt = 'varddelen'` förs över.
+- `scripts/pilot-sparrkontroll.mjs` körs i `prebuild` och fäller bygget när `NEXT_PUBLIC_DATAKALLA=pilot` pekar på ett projekt utan spärrtabellen och funktionerna, eller där service role inte kan läsa tabellen. Prov: `npm test` (`test/pilot-sparrkontroll.test.mjs`).
+- Att raderna är överförda och att en signerad DELETE fungerar mot projektet kan bygget inte se — det provas för hand innan piloten slås på.
+- I klusterläget (dagens produktion) gör steget ingenting; spärren ligger i klustret (ymqb), körd 5 nov.
+
 ## Getting Started
 
 First, run the development server:
