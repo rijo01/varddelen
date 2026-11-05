@@ -28,7 +28,8 @@ const read = (p) => readFileSync(new URL(p, root), "utf8");
 const fel = [];
 const varning = [];
 
-const data = JSON.parse(read("src/data/indexable.json"));
+// Samma snapshot som sajten läser (src/lib/datakalla.ts): pilotläget kontrolleras mot indexable.pilot.json.
+const data = JSON.parse(read(process.env.NEXT_PUBLIC_DATAKALLA === "pilot" ? "src/data/indexable.pilot.json" : "src/data/indexable.json"));
 
 // --- 1. Sitemapurvalet är en delmängd av det indexerbara --------------------
 
