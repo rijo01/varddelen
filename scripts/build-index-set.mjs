@@ -1,5 +1,5 @@
 /**
- * Bygger urvalet av indexerbara sidor → src/data/indexable.json.
+ * Bygger urvalet av indexerbara sidor → src/data/indexable.json (pilot: indexable.pilot.json).
  *
  * Kör:  node scripts/build-index-set.mjs
  * (läser NEXT_PUBLIC_SUPABASE_* ur miljön eller ur .env.local)
@@ -57,6 +57,15 @@ function loadEnv() {
   return out;
 }
 const env = loadEnv();
+/**
+ * Datakälla (src/lib/datakalla.ts). "pilot" läser VARD_BRANSCHER_PILOT och
+ * skriver *.pilot.json, så att klustrets snapshotar aldrig skrivs över av en
+ * pilotkörning och tvärtom. Projektet väljs av NEXT_PUBLIC_SUPABASE_URL.
+ */
+const KALLA = env.NEXT_PUBLIC_DATAKALLA === "pilot" ? "pilot" : "kluster";
+const LISTA = KALLA === "pilot" ? "VARD_BRANSCHER_PILOT" : "VARD_BRANSCHER_KLUSTER";
+const SUFFIX = KALLA === "pilot" ? ".pilot.json" : ".json";
+console.error(`Datakälla: ${KALLA}`);
 const SUPA_URL = env.NEXT_PUBLIC_SUPABASE_URL;
 const KEY = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 if (!SUPA_URL || !KEY) {
@@ -215,8 +224,8 @@ async function fetchSinglePage(path, select, filter) {
 
 function readVardBranscher() {
   const src = readFileSync(new URL("../src/lib/vard-branscher.ts", import.meta.url), "utf8");
-  const m = src.match(/export const VARD_BRANSCHER[^=]*=\s*\[([\s\S]*?)\];/);
-  if (!m) throw new Error("Kunde inte parsa VARD_BRANSCHER");
+  const m = src.match(new RegExp(`export const ${LISTA}[^=]*=\\s*\\[([\\s\\S]*?)\\];`));
+  if (!m) throw new Error(`Kunde inte parsa ${LISTA}`);
   const out = [];
   // Bara siffror som står ensamma på raden — siffror i kommentarer ska inte med.
   for (const line of m[1].split("\n")) {
@@ -312,7 +321,8 @@ console.error(`Vård-branscher: ${VARD.length} · kommuner: ${KOMMUN_SLUG.size}`
 
 // aeant_per_stalle finns först efter kluster/006. Saknas den hoppar kontrollen
 // av arbetsstalle_storlek (längre ner) över, precis som sajten faller tillbaka.
-const HAR_STORLEK = (
+// Piloten har ingen arbetsstalle_storlek (vyn bär konstant 1), så kontrollen gäller inte där.
+const HAR_STORLEK = KALLA !== "pilot" && (
   await fetch(`${SUPA_URL}/rest/v1/foretag_publik?select=aeant_per_stalle&limit=1`, { headers })
 ).ok;
 const FORETAG_COLS =
@@ -470,7 +480,7 @@ const data = {
 };
 
 writeFileSync(
-  new URL("../src/data/indexable.json", import.meta.url),
+  new URL(`../src/data/indexable${SUFFIX}`, import.meta.url),
   JSON.stringify(data, null, 1) + "\n",
 );
 
@@ -497,7 +507,7 @@ const countsData = {
   kommun_bransch: Object.fromEntries([...hubAll].sort((a, b) => b[1] - a[1])),
 };
 writeFileSync(
-  new URL("../src/data/counts.json", import.meta.url),
+  new URL(`../src/data/counts${SUFFIX}`, import.meta.url),
   JSON.stringify(countsData, null, 1) + "\n",
 );
 
@@ -526,12 +536,12 @@ for (const arr of perOrgnr.values()) {
 }
 flerstalle.sort((a, b) => a - b);
 writeFileSync(
-  new URL("../src/data/flerstalle.json", import.meta.url),
+  new URL(`../src/data/flerstalle${SUFFIX}`, import.meta.url),
   JSON.stringify({ generated_at: new Date().toISOString(), cfarnr: flerstalle }) + "\n",
 );
 
 console.error("");
-console.error(`flerställesbolag: ${flerstalleBolag} bolag, ${flerstalle.length} arbetsställen → src/data/flerstalle.json`);
+console.error(`flerställesbolag: ${flerstalleBolag} bolag, ${flerstalle.length} arbetsställen → src/data/flerstalle${SUFFIX}`);
 
 /**
  * Är arbetsstalle_storlek aktuell? Den materialiserade vyn räknar arbetsställen
@@ -566,4 +576,4 @@ console.error(`företag:  ${foretagPass.length} av ${foretag.length}`);
 console.error(`  beskrivning >= ${INFOTEXT_MIN_ORD} ord : ${foretag.filter(harBeskrivning).length}`);
 console.error(`  sökord >= ${SOKORD_MIN}               : ${foretag.filter(harTjanstelista).length}`);
 console.error(`  verifierad kontakt          : ${foretag.filter(harVerifieradKontakt).length}`);
-console.error("→ src/data/indexable.json");
+console.error(`→ src/data/indexable${SUFFIX}`);

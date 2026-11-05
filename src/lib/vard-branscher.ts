@@ -1,3 +1,5 @@
+import { AR_PILOT } from "./datakalla";
+
 /**
  * Vårddelen — nischfilter.
  *
@@ -12,7 +14,8 @@
  * VARD_BRANSCHER_SET härifrån.
  */
 
-export const VARD_BRANSCHER: readonly number[] = [
+/** Klustret (SNI 2007). Gäller när NEXT_PUBLIC_DATAKALLA inte är "pilot". */
+export const VARD_BRANSCHER_KLUSTER: readonly number[] = [
   87201, // Boende med särskild service för personer med utvecklingsstörning
   87901, // Heldygnsvård med boende för barn och ungdomar med sociala problem
   87203, // Boende med särskild service för personer med psykiska funktionshinder
@@ -56,6 +59,52 @@ export const VARD_BRANSCHER: readonly number[] = [
   47740, // Specialiserad butikshandel med medicinska och ortopediska artiklar
   46460, // Partihandel med farmaceutiska produkter
 ];
+
+/**
+ * Piloten (SNI 2025, arbetsstalle.sni_primar). Samma lista som VARD_SNI i
+ * infofinder-enrichment/scripts/mata_varddelen.py — ändras de, ändras båda.
+ *
+ * SCB:s officiella nyckel SNI 2007 → SNI 2025 tillämpad på listan ovan, med
+ * Rickards beslut 2026-11-04: 85100 och 86960 bort, 87301 med, intern kod 2
+ * (Företagshälsovård) bort — SCB klassar den som 86212 eller 86999.
+ * Benämningarna är SCB:s.
+ */
+export const VARD_BRANSCHER_PILOT: readonly number[] = [
+  86102, // Specialiserad sluten somatisk hälso- och sjukvård på sjukhus
+  86103, // Specialiserad sluten psykiatrisk hälso- och sjukvård på sjukhus
+  86211, // Primärvårdsmottagningar med läkare m.m.
+  86212, // Annan allmän öppen hälso- och sjukvård, ej primärvård
+  86221, // Specialistläkarverksamhet inom öppenvård, på sjukhus
+  86222, // Specialistläkarverksamhet inom öppenvård, ej på sjukhus
+  86230, // Tandläkarverksamhet
+  86920, // Ambulanstransporter och ambulanssjukvård
+  86930, // Psykologi- och psykoterapiverksamhet, utom läkare
+  86940, // Sjuksköterske- och barnmorskeverksamhet
+  86950, // Fysioterapeutisk verksamhet
+  86991, // Tandhygienistverksamhet
+  86999, // Annan övrig hälso- och sjukvård
+  87100, // Boende med sjuksköterskevård
+  87201, // Boende med särskild service för personer med psykisk funktionsnedsättning
+  87202, // Boende med särskild service för barn och ungdomar med missbruksproblem
+  87203, // Boende med särskild service för vuxna med missbruksproblem
+  87301, // Vård och omsorg i särskilda boendeformer för äldre personer
+  87302, // Vård och omsorg i särskilda boendeformer för personer med fysisk funktionsnedsättning
+  87991, // Heldygnsvård med boende för barn och ungdomar med sociala problem
+  87992, // Omsorg och sociala insatser i övriga boendeformer för vuxna
+  88101, // Öppna sociala insatser för äldre personer — bara privata
+  88102, // Öppna sociala insatser för personer med funktionsnedsättning — bara privata
+  88910, // Dagbarnvård
+  88991, // Öppna sociala insatser för barn och ungdomar med sociala problem
+  88992, // Öppna sociala insatser för vuxna med missbruksproblem
+  46460, // Partihandel med medicinsk utrustning och apoteksvaror
+  47731, // Detaljhandel med apoteksvaror, utom via internet eller postorder
+  47732, // Detaljhandel via internet eller postorder med apoteksvaror
+  47741, // Detaljhandel med medicinska och ortopediska artiklar, utom glasögon och andra optiska artiklar
+  56222, // Centralköksverksamhet för sjukhus, skolor, omsorgs- och andra institutioner
+];
+
+/** Listan sajten filtrerar på — vald av datakällan (lib/datakalla.ts). */
+export const VARD_BRANSCHER: readonly number[] = AR_PILOT ? VARD_BRANSCHER_PILOT : VARD_BRANSCHER_KLUSTER;
 
 /**
  * Branscher där bara privata utförare hör hemma i katalogen.

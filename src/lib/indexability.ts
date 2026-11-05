@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import indexable from "@/data/indexable.json";
+import indexableKluster from "@/data/indexable.json";
+import indexablePilot from "@/data/indexable.pilot.json";
+import { AR_PILOT } from "./datakalla";
+
+/** Snapshoten för datakällan (lib/datakalla.ts); båda byggs av scripts/build-index-set.mjs. */
+const indexable = (AR_PILOT ? indexablePilot : indexableKluster) as typeof indexableKluster;
 
 /**
  * EN källa till sanning för vad som får indexeras och vad som ligger i sitemapen.

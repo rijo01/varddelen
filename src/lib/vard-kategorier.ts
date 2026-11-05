@@ -25,6 +25,7 @@ import type { LucideIcon } from "lucide-react";
 import { Home, HouseHeart, Heart, Accessibility, Stethoscope, Smile, Pill } from "lucide-react";
 import { branschTotal } from "./counts";
 import { KATEGORI_FORSLAG } from "./sok-termer";
+import { AR_PILOT } from "./datakalla";
 
 export type VardKategori = {
   slug: string;
@@ -38,7 +39,22 @@ export type VardKategori = {
 
 type KategoriDef = Omit<VardKategori, "count">;
 
-const KATEGORI_DEFS: ReadonlyArray<KategoriDef> = [
+/**
+ * Pilotens buckets (SNI 2025). Samma kategorier och slugs som klustrets, så
+ * /sok?kategori=… och startsidan ser likadana ut — bara koderna byts.
+ * 88910 Dagbarnvård och 56222 Centralkök ligger, som förut, i ingen bucket.
+ */
+const NG1_PILOT: Readonly<Record<string, readonly number[]>> = {
+  halsovard: [86102, 86103, 86211, 86212, 86221, 86222, 86920, 86930, 86940, 86950, 86999],
+  lss: [87201, 87302, 88102],
+  tandvard: [86230, 86991],
+  hvb: [87202, 87203, 87991, 87992, 88991, 88992],
+  apotek: [46460, 47731, 47732, 47741],
+  aldreomsorg: [87100, 87301],
+  hemtjanst: [88101],
+};
+
+const KATEGORI_DEFS_KLUSTER: ReadonlyArray<KategoriDef> = [
   {
     slug: "halsovard",
     name: "Hälso- & sjukvård",
@@ -101,6 +117,14 @@ const KATEGORI_DEFS: ReadonlyArray<KategoriDef> = [
     icon: HouseHeart,
   },
 ];
+
+const KATEGORI_DEFS: ReadonlyArray<KategoriDef> = AR_PILOT
+  ? KATEGORI_DEFS_KLUSTER.map((k) => {
+      const ng1 = NG1_PILOT[k.slug];
+      if (!ng1) throw new Error(`Pilotbucket saknas för kategori ${k.slug}`);
+      return { ...k, ng1 };
+    })
+  : KATEGORI_DEFS_KLUSTER;
 
 /**
  * Bucketarna får inte överlappa — gör de det dubbelräknas företag i summan
