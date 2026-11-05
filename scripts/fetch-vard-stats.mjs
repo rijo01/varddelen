@@ -14,8 +14,13 @@
 // Kör: node scripts/fetch-vard-stats.mjs > /tmp/vard-stats.json
 import { readFileSync } from "node:fs";
 
+// Pilotläget får aldrig falla tillbaka på klustret: där måste URL:en anges.
 const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ??
-  "https://ymqbimerrvycbknstsai.supabase.co";
+  (process.env.NEXT_PUBLIC_DATAKALLA === "pilot" ? null : "https://ymqbimerrvycbknstsai.supabase.co");
+if (!SUPA_URL) {
+  console.error("Pilotläge: sätt NEXT_PUBLIC_SUPABASE_URL (varddelen-projektet)");
+  process.exit(1);
+}
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 if (!KEY) {
   console.error("Set NEXT_PUBLIC_SUPABASE_ANON_KEY in env");
@@ -28,7 +33,8 @@ const vardSrc = readFileSync(
   "utf8",
 );
 const VARD_BRANSCHER = [];
-const inListMatch = vardSrc.match(/export const VARD_BRANSCHER[^=]*=\s*\[([\s\S]*?)\];/);
+const LISTA = process.env.NEXT_PUBLIC_DATAKALLA === "pilot" ? "VARD_BRANSCHER_PILOT" : "VARD_BRANSCHER_KLUSTER";
+const inListMatch = vardSrc.match(new RegExp(`export const ${LISTA}[^=]*=\\s*\\[([\\s\\S]*?)\\];`));
 if (!inListMatch) {
   console.error("Could not parse VARD_BRANSCHER from vard-branscher.ts");
   process.exit(1);

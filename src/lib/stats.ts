@@ -1,6 +1,7 @@
 import { kommunByCode, type Kommun } from "./kommuner";
 import { branschPageSlug } from "./queries";
 import { VARD_BRANSCHER } from "./vard-branscher";
+import { AR_PILOT } from "./datakalla";
 import {
   TOTAL_FORETAG as SNAPSHOT_TOTAL,
   branschNamn,
@@ -74,7 +75,7 @@ const _TOP_KOMMUNER: KommunStat[] = toppKommuner(25)
  * hubbsidan sedan 308:ar bort, eftersom hubbens kanoniska slug kommer ur
  * t_bransch.
  */
-export const BRANSCH_LABEL: Readonly<Record<number, string>> = {
+const BRANSCH_LABEL_KLUSTER: Readonly<Record<number, string>> = {
   86909: "Hälso- & sjukvård",
   86905: "Hälso- & sjukvård (slutenvård)",
   86212: "Specialistläkare",
@@ -105,6 +106,46 @@ export const BRANSCH_LABEL: Readonly<Record<number, string>> = {
   56293: "Centralkök för omsorgsinstitutioner",
   2: "Företagshälsovård",
 };
+
+/**
+ * Piloten (SNI 2025). SCB:s nya benämningar är unika men långa — etiketterna
+ * nedan är kortformer. Sluggen byggs fortfarande ur t_bransch-namnet.
+ */
+const BRANSCH_LABEL_PILOT: Readonly<Record<number, string>> = {
+  86102: "Sjukhusvård, somatisk",
+  86103: "Sjukhusvård, psykiatrisk",
+  86211: "Vårdcentraler & primärvård",
+  86212: "Öppen hälso- och sjukvård (övrig)",
+  86221: "Specialistläkare (öppenvård, på sjukhus)",
+  86222: "Specialistläkare (öppenvård)",
+  86230: "Tandläkare",
+  86920: "Ambulans & ambulanssjukvård",
+  86930: "Psykologer & psykoterapeuter",
+  86940: "Sjuksköterskor & barnmorskor",
+  86950: "Fysioterapeuter",
+  86991: "Tandhygienister",
+  86999: "Hälso- & sjukvård (övrig)",
+  87100: "Boende med sjuksköterskevård",
+  87201: "Boende, psykisk funktionsnedsättning",
+  87202: "Boende, barn & unga med missbruk",
+  87203: "Boende, vuxna med missbruk",
+  87301: "Äldreboende",
+  87302: "Boende, fysisk funktionsnedsättning",
+  87991: "Heldygnsvård barn & ungdom",
+  87992: "Övriga boendeformer för vuxna",
+  88101: "Hemtjänst",
+  88102: "Stöd och assistans vid funktionsnedsättning",
+  88910: "Dagbarnvård",
+  88991: "Öppna insatser, barn & unga",
+  88992: "Öppna insatser, missbruk",
+  46460: "Partihandel med medicinsk utrustning",
+  47731: "Apotek",
+  47732: "Apotek på nätet",
+  47741: "Sjukvårdsartiklar",
+  56222: "Centralkök för omsorgsinstitutioner",
+};
+
+export const BRANSCH_LABEL: Readonly<Record<number, string>> = AR_PILOT ? BRANSCH_LABEL_PILOT : BRANSCH_LABEL_KLUSTER;
 
 const _TOP_BRANSCHER: BranschStat[] = toppBranscher(25)
   .map((r) => {

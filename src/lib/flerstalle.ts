@@ -1,4 +1,8 @@
-import data from "@/data/flerstalle.json";
+import dataKluster from "@/data/flerstalle.json";
+import dataPilot from "@/data/flerstalle.pilot.json";
+import { AR_PILOT } from "./datakalla";
+
+const data = AR_PILOT ? dataPilot : dataKluster;
 
 /**
  * Arbetsställen vars bolag har fler arbetsställen i katalogen.

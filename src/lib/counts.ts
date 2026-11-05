@@ -1,4 +1,9 @@
-import counts from "@/data/counts.json";
+import countsKluster from "@/data/counts.json";
+import countsPilot from "@/data/counts.pilot.json";
+import { AR_PILOT } from "./datakalla";
+
+/** Snapshoten för datakällan (lib/datakalla.ts); båda byggs av scripts/build-index-set.mjs. */
+const counts = AR_PILOT ? countsPilot : countsKluster;
 
 /**
  * EN källa till alla tal sajten visar.
