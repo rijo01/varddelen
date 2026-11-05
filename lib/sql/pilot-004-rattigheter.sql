@@ -48,7 +48,7 @@ begin
   select string_agg(p.proname, ', ') into x
     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
    where n.nspname = 'public' and has_function_privilege('anon', p.oid, 'execute')
-     and p.proname <> 'kontaktsparr_forfilter';
+     and p.proname not in ('kontaktsparr_forfilter', 'overlay_ar_sparrade');  -- overlay_ar_sparrade: pilot-006 (kontrakt 1.6)
   if x is not null then raise exception 'anon kan köra: %', x; end if;
   raise notice 'pilot-004: anon når bara foretag_publik, t_bransch, sokordtable, overlay_profil (aktiva) och kontaktsparr_forfilter';
 end $$;
