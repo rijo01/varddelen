@@ -14,7 +14,8 @@ import { getSupabaseAdmin } from "./supabase-admin";
  * Service role, men bara mot de tre funktionerna — aldrig mot foretag_publik.
  */
 
-export type TelefonKalla = "kund" | "scb-afr";
+/** kund = profilnivå betald/gratis; kontakt = numret i en kontaktorder (1.7, pilot-009). */
+export type TelefonKalla = "kund" | "kontakt" | "scb-afr";
 
 /** Har arbetsstället ett nummer som får visas? Fail-closed: vid fel → nej. */
 export async function harTelefon(cfarnr: number): Promise<boolean> {
@@ -44,6 +45,6 @@ export async function visaTelefon(
     return null;
   }
   const rad = (Array.isArray(data) ? data[0] : data) as { telefon_norm?: string; kalla?: string } | undefined;
-  if (!rad?.telefon_norm || (rad.kalla !== "kund" && rad.kalla !== "scb-afr")) return null;
-  return { telefon: `+${rad.telefon_norm}`, kalla: rad.kalla };
+  if (!rad?.telefon_norm || (rad.kalla !== "kund" && rad.kalla !== "kontakt" && rad.kalla !== "scb-afr")) return null;
+  return { telefon: `+${rad.telefon_norm}`, kalla: rad.kalla as TelefonKalla };
 }

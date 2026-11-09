@@ -1,5 +1,13 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Är bolaget kund? Fråga profilnivån (kontrakt 1.7)
+
+**Varje kontroll av om ett bolag är kund går via profilnivån, aldrig via "det finns en aktiv overlay-rad".**
+
+- Från 1.7 kan en aktiv rad vara en kontaktorder: bolagets egna publika uppgifter, som inte är köpta. Kund = profilnivå `betald` eller `gratis`. Saknad nivå (rad från före 1.7) = betald. Okänt värde = kontakt.
+- I TypeScript: `overlayVisning(rad)` / `nivaFor(rad)` ur `src/lib/overlay-visning.ts`. I SQL: `to_jsonb(o)->>'profilniva'` med samma regel som `vd_telefon_valj()` i `lib/sql/pilot-009-telefon-niva.sql`.
+- Bakgrund: "Visa nummer" (c9340b5, lagt av sessionen `session_01BoH49UMYnea1wBmNmj2FH5`, 9 nov) räknade varje aktiv rad som kund. En enskild firma med bara en kontaktrad hade då fått sitt SCB-mobilnummer visat. pilot-009 rättar det: med bara en kontaktrad visas bara numret i kontaktpaketet, aldrig registrets. Provet: `lib/sql/prov/pilot-009-prov.sql` (rullas tillbaka).
+
 ## Piloten och företagsspärren (kontrakt 1.6)
 
 **Piloten får inte slås på förrän overlay_foretag_sparr, grants och spärrraderna finns i pilotprojektet, och DELETE är provad mot det.**

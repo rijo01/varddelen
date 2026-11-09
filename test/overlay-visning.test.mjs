@@ -95,3 +95,12 @@ test("varje läsning i lib/overlay.ts går genom tillampaNiva, och sitemapens gr
   assert.match(k, /if \(!visning\?\.etikett\) return null/);
   assert.doesNotMatch(k, />Betald profil</);
 });
+
+test("kundfrågan i SQL går via profilnivån (pilot-009), och telefonen tar emot kalla 'kontakt'", () => {
+  const sql = readFileSync(new URL("lib/sql/pilot-009-telefon-niva.sql", rot), "utf8");
+  assert.match(sql, /kund := har_rad and \(niva is null or niva in \('betald', 'gratis'\)\)/);
+  assert.match(sql, /if har_rad and not kund then[\s\S]{0,200}kalla := 'kontakt'[\s\S]{0,60}return;/);
+  assert.match(sql, /not \(ef and not kund and afr\.typ = 'mobil'\)/);
+  const t = readFileSync(new URL("src/lib/telefon.ts", rot), "utf8");
+  assert.match(t, /"kund" \| "kontakt" \| "scb-afr"/);
+});
