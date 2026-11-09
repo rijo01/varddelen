@@ -1,5 +1,14 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Datakällan: produktionen läser piloten (sedan 9 nov 2026)
+
+**Produktionen (varddelen.se) läser pilotprojektet `babenztvwzaiesducpja`, inte klustret.**
+
+- `NEXT_PUBLIC_DATAKALLA=pilot` och pilotprojektets URL, anon-nyckel och service role sattes i Vercels produktionsmiljö 9 nov 2026 kl. 12:28, enligt lanseringslistan i `~/Projects/VARDDELEN-PILOT-PLAN.md` (avsnitt 20). Första deployen i pilotläge var `dpl_BzspJcLw…` (CLI, 12:28). Sedan dess bygger varje git-deploy i pilotläge; bygglogg: "Datakälla: pilot".
+- **`.env.local` pekar fortfarande på klustret (`ymqbimerrvycbknstsai`)**. Ett lokalt bygge eller en fråga med de lokala nycklarna säger alltså ingenting om produktionen. Kontrollera datakällan i byggloggen.
+- SQL som gäller vårddelens egna rader (overlay_profil, overlay_foretag_sparr, vd_foretag, vd_telefon och telefonfunktionerna) körs i pilotprojektet, i pilotens nummerserie (`lib/sql/pilot-NNN-*.sql`). Klustret delar overlay_profil med hantverkardelen och regionsdelen, men vårddelen läser inte därifrån i pilotläget.
+- CRM:ets `DATASOURCE_VARDDELEN_URL` pekades om till pilotprojektet 9 nov 13:20 (lanseringslistans steg 5).
+
 ## Är bolaget kund? Fråga profilnivån (kontrakt 1.7)
 
 **Varje kontroll av om ett bolag är kund går via profilnivån, aldrig via "det finns en aktiv overlay-rad".**
