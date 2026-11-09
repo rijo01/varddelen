@@ -1,5 +1,6 @@
 import type { OverlayProfilRow } from "./overlay-contract";
 import { overlayFor, type OverlayLager } from "./overlay";
+import { overlayVisning } from "./overlay-visning";
 
 /**
  * Listordningen — REN logik, ingen databas.
@@ -28,7 +29,8 @@ export function arKund(
   f: { cfarnr: number | null; orgnr: string | null; poang: number | null },
   lager: OverlayLager,
 ): boolean {
-  return harPoang(f) || overlayFor(f, lager) != null;
+  // En kontakt- eller gratisrad (1.7) gör inte företaget till kund.
+  return harPoang(f) || Boolean(overlayVisning(overlayFor(f, lager))?.rankning);
 }
 
 /**
@@ -102,6 +104,8 @@ export function kundensSokord(
  */
 export function overlayGerSubstans(rad: OverlayProfilRow | null): boolean {
   if (!rad) return false;
+  // 1.7: en kontaktrad ändrar aldrig indexeringen (overlayVisning).
+  if (!overlayVisning(rad)?.indexering) return false;
   return Boolean(
     rad.info_html ||
       rad.hemsida ||

@@ -54,6 +54,7 @@ supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay
 supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay-v1.1.sql
 supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay-radera.sql
 supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay-radera-grants.sql
+supabase db query --linked --project-ref ymqbimerrvycbknstsai -f lib/sql/overlay-v1.7.sql
 ```
 
 `overlay-radera.sql` är kontraktets spärrtabell (1.6), oförändrad ur CRM:et;
@@ -177,6 +178,49 @@ båda hållningarna ("sajten avgör själv vad den gör"), och att skriva en rad
 
 En fristående profilsida är en ny route med egna SEO- och sitemap-följder, och
 den är medvetet inte byggd här. Tills den finns är `bas` lagrad men osynlig.
+
+## Profilnivån (kontrakt 1.7)
+
+Från 1.7 bär varje paket `profilniva`: `kontakt`, `gratis` eller `betald`
+(beslutet står i `packages/overlay-contract/FORSLAG-1.7.md` i skiffer-crm).
+Sajten litar på nivån, aldrig på vilka fält som råkar vara ifyllda. Allt går
+genom `src/lib/overlay-visning.ts`:
+
+- `tillampaNiva(rad)` körs i VARJE läsning i `lib/overlay.ts` (sida, listor,
+  sök, förhandsvisning). En kontaktrad har efter den bara hemsida, telefon och
+  e-post — ingen logotyp, text, sökord, kategori, featured eller
+  list_priority — och dess telefon ersätter registrets tyst. En gratisrad
+  tappar featured och list_priority.
+- `overlayVisning(rad)` ger besluten: märke, etikett ("Betald profil" /
+  "Uppgifter från företaget" / ingen), rankning, indexering, säljväg.
+  `overlayGerSubstans()` (robots) och sitemapens `harInnehall()` frågar
+  `indexering`: en kontaktrad ändrar aldrig robots eller sitemap.
+
+Utelämnad nivå = en rad från före 1.7 = betald. Okänd nivå = kontakt.
+
+| | kontakt | gratis | betald |
+|---|---|---|---|
+| Profilkortet | inget kort | "Uppgifter från företaget" | "Betald profil" |
+| "Betald placering", lyft i listor | nej | nej | som förut |
+| robots/sitemap | som utan overlay | som betald | som förut |
+
+Vårddelen har ingen "Är det här ditt företag?"-knapp; säljvägen är därför
+oförändrad på alla nivåer. Ett nedlagt arbetsställe blir aldrig synligt genom
+en overlay: sidan finns bara för arbetsställen i registervyn, och `bas` /
+`skapa_om_saknas` renderas inte.
+
+`lib/sql/overlay-v1.7.sql` lägger till `profilniva` och `utokat` (1.7-fälten,
+lagrade men inte renderade) och skriver om `overlay_publicera()` med dem.
+Koden går ut FÖRE filen: `lib/overlay.ts` läser `profilniva` med reserv, och
+mottagarens nya nycklar faller tyst bort i `jsonb_populate_record` tills
+kolumnerna finns. Funktionen delas med hantverkardelen och regionsdelen —
+deras mottagare skickar ingen nivå, och null betyder betald.
+
+`POST /api/overlay/visning` är en signerad TORRKÖRNING: samma signatur,
+schema och versionsgrind som publiceringen, samma två funktioner, och svaret
+är vad sajten skulle göra med paketet — utan att skriva något. CRM:ets
+`prova:kontraktsform` provar nivåerna mot produktionen genom den, eftersom
+provdata aldrig får bli en rad på en riktig sajt.
 
 ## Ta bort företag (kontrakt 1.6)
 

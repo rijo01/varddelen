@@ -8,6 +8,7 @@ import { kommunByCode } from "./kommuner";
 import { getBranschNamesBulk } from "./branscher";
 import { filtreraOverlay, kontaktsparrFilter } from "./kontaktsparr";
 import { sparradeNycklar, utanSparrade } from "./foretag-sparr";
+import { overlayVisning, tillampaNiva } from "./overlay-visning";
 import {
   CONTRACT_VERSION,
   arPubliktSynlig,
@@ -85,6 +86,31 @@ const OVERLAY_COLUMNS =
 
 /** Samma allowlist plus token — ENDAST för förhandsvisningsuppslaget. */
 const UTKAST_COLUMNS = `${OVERLAY_COLUMNS},preview_token` as const;
+
+/**
+ * PROFILNIVÅN (1.7) läses med, men KODEN GÅR UT FÖRE KOLUMNEN
+ * (lib/sql/overlay-v1.7.sql körs efter deployen). Finns kolumnen inte än svarar
+ * PostgREST med ett fel för hela frågan — och ett läsfel här är en betald
+ * profil som försvinner. Frågan görs då om utan kolumnen, och raden tolkas som
+ * betald (utelämnad nivå = före 1.7). Svaret om kolumnen minns en minut.
+ */
+let nivaKolumnSaknadesAt = 0;
+
+function medNiva(kolumner: string): string {
+  return Date.now() - nivaKolumnSaknadesAt < 60_000 ? kolumner : `${kolumner},profilniva`;
+}
+
+async function lasMedNiva<R>(
+  kolumner: string,
+  fraga: (valda: string) => PromiseLike<{ data: R; error: { code?: string; message: string } | null }>,
+): Promise<{ data: R; error: { code?: string; message: string } | null }> {
+  const svar = await fraga(medNiva(kolumner));
+  if (svar.error && /profilniva/.test(svar.error.message)) {
+    nivaKolumnSaknadesAt = Date.now();
+    return fraga(kolumner);
+  }
+  return svar;
+}
 
 /** Loggas en gång, så en ej körd migration inte spammar hela bygget. */
 let saknadTabellLoggad = false;
@@ -224,11 +250,13 @@ export async function getOverlay(
 ): Promise<OverlayProfilRow | null> {
   if (!externalId) return null;
 
-  const { data, error } = await getSupabaseAnon()
-    .from(OVERLAY_TABLE)
-    .select(OVERLAY_COLUMNS)
-    .match(publikOverlayMatch(SAJT, { entity_type: entityType, external_id: externalId }))
-    .maybeSingle();
+  const { data, error } = await lasMedNiva(OVERLAY_COLUMNS, (valda) =>
+    getSupabaseAnon()
+      .from(OVERLAY_TABLE)
+      .select(valda)
+      .match(publikOverlayMatch(SAJT, { entity_type: entityType, external_id: externalId }))
+      .maybeSingle(),
+  );
 
   if (error) {
     hanteraFel(error);
@@ -236,7 +264,7 @@ export async function getOverlay(
   }
   const rad = (data as unknown as OverlayProfilRow | null) ?? null;
   return rad && arPubliktSynlig(rad, idagISO())
-    ? filtreraOverlay(rad, await kontaktsparrFilter())
+    ? tillampaNiva(filtreraOverlay(rad, await kontaktsparrFilter()))
     : null;
 }
 
@@ -258,12 +286,14 @@ export const getOverlayForForetag = cache(async function getOverlayForForetag(f:
   const identiteter = identiteterFor(f);
   if (identiteter.length === 0) return null;
 
-  const { data, error } = await getSupabaseAnon()
-    .from(OVERLAY_TABLE)
-    .select(OVERLAY_COLUMNS)
-    .match(publikOverlayMatch(SAJT))
-    .in("entity_type", identiteter.map((i) => i.entity_type))
-    .in("external_id", identiteter.map((i) => i.external_id));
+  const { data, error } = await lasMedNiva(OVERLAY_COLUMNS, (valda) =>
+    getSupabaseAnon()
+      .from(OVERLAY_TABLE)
+      .select(valda)
+      .match(publikOverlayMatch(SAJT))
+      .in("entity_type", identiteter.map((i) => i.entity_type))
+      .in("external_id", identiteter.map((i) => i.external_id)),
+  );
 
   if (error) {
     hanteraFel(error);
@@ -281,7 +311,7 @@ export const getOverlayForForetag = cache(async function getOverlayForForetag(f:
     const träff = rader.find(
       (r) => r.entity_type === id.entity_type && r.external_id === id.external_id,
     );
-    if (träff) return filtreraOverlay(träff, await kontaktsparrFilter());
+    if (träff) return tillampaNiva(filtreraOverlay(träff, await kontaktsparrFilter()));
   }
   return null;
 });
@@ -303,11 +333,13 @@ export const getOverlayForForetag = cache(async function getOverlayForForetag(f:
 export const loadAktivaOverlays = cache(
   async (): Promise<OverlayLager> => {
     const lager: OverlayLager = { byCfar: new Map(), byOrgnr: new Map() };
-    const { data, error } = await getSupabaseAnon()
-      .from(OVERLAY_TABLE)
-      .select(OVERLAY_COLUMNS)
-      .match(publikOverlayMatch(SAJT))
-      .in("entity_type", STODDA_ENTITY_TYPES as string[]);
+    const { data, error } = await lasMedNiva(OVERLAY_COLUMNS, (valda) =>
+      getSupabaseAnon()
+        .from(OVERLAY_TABLE)
+        .select(valda)
+        .match(publikOverlayMatch(SAJT))
+        .in("entity_type", STODDA_ENTITY_TYPES as string[]),
+    );
 
     if (error) {
       hanteraFel(error);
@@ -317,7 +349,7 @@ export const loadAktivaOverlays = cache(
     const kf = await kontaktsparrFilter();
     for (const orad of (data ?? []) as unknown as OverlayProfilRow[]) {
       if (!arPubliktSynlig(orad, idag)) continue;
-      const rad = filtreraOverlay(orad, kf);
+      const rad = tillampaNiva(filtreraOverlay(orad, kf));
       if (rad.entity_type === "arbetsstalle") lager.byCfar.set(rad.external_id, rad);
       else if (rad.entity_type === "bolag") lager.byOrgnr.set(rad.external_id, rad);
     }
@@ -392,14 +424,16 @@ export async function getOverlayUtkast(
     return null;
   }
 
-  const { data, error } = await admin
-    .from(OVERLAY_TABLE)
-    .select(UTKAST_COLUMNS)
-    .eq("sajt", SAJT)
-    .eq("entity_type", entityType)
-    .eq("external_id", externalId)
-    .eq("status", "utkast")
-    .maybeSingle();
+  const { data, error } = await lasMedNiva(UTKAST_COLUMNS, (valda) =>
+    admin
+      .from(OVERLAY_TABLE)
+      .select(valda)
+      .eq("sajt", SAJT)
+      .eq("entity_type", entityType)
+      .eq("external_id", externalId)
+      .eq("status", "utkast")
+      .maybeSingle(),
+  );
 
   if (error) {
     hanteraFel(error);
@@ -421,7 +455,7 @@ export async function getOverlayUtkast(
   // Kontaktspärren gäller också förhandsvisningen: en säljare ska inte kunna
   // visa en kund ett spärrat nummer på en länk.
   const { preview_token: _token, ...utanToken } = rad;
-  return filtreraOverlay(utanToken as OverlayProfilRow, await kontaktsparrFilter());
+  return tillampaNiva(filtreraOverlay(utanToken as OverlayProfilRow, await kontaktsparrFilter()));
 }
 
 /**
@@ -589,8 +623,13 @@ export async function overlayIndexerbaraSokvagar(): Promise<string[]> {
   return [...ut];
 }
 
-/** Bär raden något besökaren faktiskt kan läsa? */
+/**
+ * Bär raden något besökaren faktiskt kan läsa — och får den påverka
+ * indexeringen? En kontaktrad (1.7) får det aldrig: den ändrar varken robots
+ * eller sitemap, hur många fält den än har.
+ */
 function harInnehall(rad: OverlayProfilRow): boolean {
+  if (!overlayVisning(rad)?.indexering) return false;
   return Boolean(
     rad.info_html ||
       rad.hemsida ||

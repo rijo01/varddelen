@@ -1,5 +1,5 @@
 /**
- * Overlay-kontraktet, version 1.6.
+ * Overlay-kontraktet, version 1.7.
  *
  * Den här filen och `overlay.sql` är HELA gränssnittet mellan CRM:et och en
  * sajt. CRM:et bygger en payload som validerar mot `overlayPublishRequest`,
@@ -36,7 +36,7 @@ import { z } from "zod";
  * kopia är exakt det som gör att de avvisar ett 1.1-paket — vilket är rätt
  * beteende, men det ska aldrig behöva inträffa.
  */
-export const CONTRACT_VERSION = 1.6;
+export const CONTRACT_VERSION = 1.7;
 
 /** Versionen som bara har v1.0-formen. Skickas till sajter som inte kan mer. */
 export const CONTRACT_VERSION_1_0 = 1;
@@ -116,6 +116,52 @@ export function stodjerKontaktsparr(sajtensVersion: number): boolean {
   return sajtensVersion >= 1.2;
 }
 
+/**
+ * 1.7 (beslut 9 nov 2026, FORSLAG-1.7.md): profilnivå, Berika-fälten och
+ * aktiveringens fält. Ett paket till en sajt på 1.7 bär ALLTID `profilniva`
+ * uttryckligen och därmed 1.7. Till en äldre sajt skickas bara betalda
+ * ordrar, i sin gamla form.
+ */
+export const CONTRACT_VERSION_1_7 = 1.7;
+
+/** Kan sajten ta emot `profilniva` och 1.7-fälten? */
+export function stodjerV17(sajtensVersion: number): boolean {
+  return sajtensVersion >= 1.7;
+}
+
+/**
+ * Profilnivåerna (1.7).
+ *
+ *   kontakt — bara telefon, e-post och hemsida. Inga märken, ingen etikett om
+ *             källan, ingen rankningsfördel, oförändrad indexering och
+ *             sitemap. Sajtens säljvägar ("Är det här ditt företag?") är kvar.
+ *   gratis  — aktiveringens gratisår: företagets egna uppgifter med etiketten
+ *             "Uppgifter från företaget". Aldrig "Betald profil", aldrig
+ *             "Verifierad", ingen rankningsfördel. Indexering som betald.
+ *   betald  — som före 1.7.
+ *
+ * Ingen nivå gör ett nedlagt, dolt eller spärrat bolag synligt igen.
+ */
+export const PROFILNIVAER = ["kontakt", "gratis", "betald"] as const;
+export type Profilniva = (typeof PROFILNIVAER)[number];
+
+/**
+ * Nivån som sajten ska visa raden med. Läs ALLTID nivån genom den här.
+ *
+ *   utelämnad (null/undefined) → "betald": raden publicerades före 1.7, och
+ *                                då fanns bara betalda profiler.
+ *   okänd text                 → "kontakt": en nivå en senare version lagt
+ *                                till visas utan märken, aldrig som betald.
+ */
+export function tolkaProfilniva(v: string | null | undefined): Profilniva {
+  if (v === null || v === undefined) return "betald";
+  const t = v.trim().toLowerCase();
+  return (PROFILNIVAER as readonly string[]).includes(t) ? (t as Profilniva) : "kontakt";
+}
+
+/** Fälten en sajt får visa på nivån `kontakt`. Allt annat i raden ignoreras. */
+export const KONTAKTNIVANS_FALT = ["hemsida", "telefon_override", "epost_override"] as const;
+
 // ── Uppräkningar ────────────────────────────────────────────────────────────
 
 /** Vad `external_id` pekar på. Styr vilken källtabell sajten joinar mot. */
@@ -187,6 +233,46 @@ const url = z
     return t.length > 0 ? t : null;
   })
   .nullable();
+
+/** Värdar en `sociala`-länk får peka på (1.7). Underdomäner godtas. */
+export const SOCIALA_VARDAR = {
+  facebook: "facebook.com",
+  instagram: "instagram.com",
+  linkedin: "linkedin.com",
+} as const;
+
+/** En länk till bolagets konto i sociala medier (1.7). */
+export const socialLankSchema = z
+  .object({
+    typ: z.enum(["facebook", "instagram", "linkedin"]),
+    url: z.string().trim().max(500),
+  })
+  .strict()
+  .refine((l) => {
+    try {
+      const u = new URL(l.url);
+      const vard = SOCIALA_VARDAR[l.typ];
+      return u.protocol === "https:" && (u.hostname === vard || u.hostname.endsWith(`.${vard}`));
+    } catch {
+      return false;
+    }
+  }, "url:en måste vara en https-adress hos tjänsten typen anger");
+
+/** Var bolaget verkar (1.7). Ersätter Berikas `omraden` och aktiveringens `verksamhetsomrade`. */
+export const verksamhetsomradeSchema = z
+  .object({
+    typ: z.enum(["orter", "kommuner", "sverige"]),
+    varden: z.array(z.string().trim().min(1).max(80)).max(20).default([]),
+  })
+  .strict();
+
+/** Ett extra nummer bolaget valt att visa (1.7). Bara synliga nummer skickas. */
+export const extraNummerSchema = z
+  .object({
+    nummer: z.string().trim().min(1).max(60),
+    etikett: z.string().trim().min(1).max(40).optional(),
+  })
+  .strict();
 
 /** Frivillig adressöverskrivning. Utelämnade fält faller tillbaka på källdata. */
 export const adressOverrideSchema = z
@@ -725,6 +811,42 @@ export const overlayProfilSchema = z
      * Följs av `skapa_om_saknas: true` på `publish`. Se CONTRACT_VERSION_1_5.
      */
     manuellt_tillagd: z.boolean().optional(),
+
+    // ── Tillägg i 1.7 ────────────────────────────────────────────────────────
+    // ALLA FRIVILLIGA i schemat. CRM:et skickar ändå ALLTID `profilniva` till
+    // en sajt på 1.7; utelämnad nivå förekommer bara på rader från före 1.7.
+
+    /**
+     * Profilnivå. Läses ALLTID med tolkaProfilniva(). En sträng och inte
+     * z.enum: en 1.7-mottagare ska visa en framtida nivå som "kontakt", inte
+     * svara 400.
+     */
+    profilniva: z.string().trim().min(1).max(20).optional(),
+
+    // Berika och aktiveringen. Skickas bara på "gratis" och "betald"; en sajt
+    // ignorerar dem på "kontakt". Inga personnamn i något av fälten.
+    beskrivning: z.string().trim().min(1).max(600).optional(),
+    tjanster: z.array(z.string().trim().min(1).max(80)).max(20).optional(),
+    oppettider: z.string().trim().min(1).max(300).optional(),
+    certifieringar: z.array(z.string().trim().min(1).max(80)).max(15).optional(),
+    sociala: z.array(socialLankSchema).max(6).optional(),
+    verksamhetsomrade: verksamhetsomradeSchema.optional(),
+    grundat: z
+      .number()
+      .int()
+      .min(1800)
+      .refine((ar) => ar <= new Date().getFullYear(), "grundat kan inte ligga i framtiden")
+      .optional(),
+    anstallda: z.string().trim().min(1).max(40).optional(),
+    betyg: z
+      .object({
+        varde: z.number().min(0).max(5),
+        antal: z.number().int().min(0),
+        kalla: z.literal("google"),
+      })
+      .strict()
+      .optional(),
+    extra_nummer: z.array(extraNummerSchema).max(3).optional(),
   })
   .strict();
 export type OverlayProfil = z.infer<typeof overlayProfilSchema>;
@@ -1814,9 +1936,17 @@ export function synlighetUrl(publishUrl: string): string {
 // GET <publish_url utan /publish>/kategorier?sajt=<slug>&sent_at=<iso>
 // Signaturen (SIGNATURE_HEADER) är HMAC över QUERYSTRÄNGEN utan "?", exakt som
 // den skickas — en GET har ingen body. Samma tidsfönster som publiceringen.
-// 404 = sajten har ingen sådan lista, och formuläret blir fritext.
+// 404 eller 405 = sajten har ingen egen lista, och formuläret blir fritext.
+// 405 kommer från 1.6: raderingens route `…/api/overlay/[nyckel]` fångar också
+// vägen `kategorier` och har bara DELETE. Båda svaren betyder samma sak, och
+// ingetEgenKategorilista() är regeln. (Tillagt 5 nov 2026, efter hvb-hem.)
 
 export const KATEGORIER_VERSION = 1.4;
+
+/** Svarar sajten "jag har ingen egen kategorilista"? 404 eller 405 (se ovan). */
+export function ingenEgenKategorilista(status: number): boolean {
+  return status === 404 || status === 405;
+}
 
 /** `https://x.se/api/overlay/publish` → `https://x.se/api/overlay/kategorier`. */
 export function kategorierUrl(publishUrl: string): string {
@@ -1878,6 +2008,11 @@ export type KategorierResponse = z.infer<typeof kategorierResponseSchema>;
 //
 // Ett personnummer är ALDRIG en nyckel (provaRaderaNyckel). En enskild firma
 // raderas på cfar- eller ef-handtaget.
+//
+// KATEGORILISTAN EFTER 1.6. En sajt utan egen kategorilista som tar emot
+// raderingen på `[nyckel]` svarar 405 på GET …/api/overlay/kategorier (routen
+// har bara DELETE). Det betyder detsamma som 404: sajten har ingen egen lista.
+// Se ingenEgenKategorilista().
 //
 // MOTTAGARENS ORDNING, och den spelar roll:
 //

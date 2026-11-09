@@ -3,6 +3,7 @@ import Link from "next/link";
 import { logoMatt } from "@/lib/overlay-contract";
 import type { OverlayProfilRow } from "@/lib/overlay-contract";
 import { normalizeWebb, shortWebb } from "@/lib/foretag-format";
+import { overlayVisning } from "@/lib/overlay-visning";
 
 /**
  * Den betalda profilen — allt kunden köpt, samlat i ett kort.
@@ -80,6 +81,11 @@ export default function SponsradProfil({
   // Ett tomt kort är värre än inget kort: det ser ut som ett fel.
   if (!harInnehall) return null;
 
+  // 1.7: en kontaktrad får inget kort alls — dess tre fält står redan tyst i
+  // sidhuvudet. En gratisrad heter "Uppgifter från företaget", aldrig betald.
+  const visning = overlayVisning(overlay);
+  if (!visning?.etikett) return null;
+
   return (
     <section aria-labelledby="betald-profil-rubrik" className="rd-card overflow-hidden">
       {utkast && (
@@ -93,7 +99,7 @@ export default function SponsradProfil({
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 space-y-1">
             <p className="text-[14px] text-[var(--text-dim)]">
-              <span className="font-semibold text-[var(--brand-ink)]">Betald profil</span> · texten
+              <span className="font-semibold text-[var(--brand-ink)]">{visning.etikett}</span> · texten
               är skriven av verksamheten, inte av Vårddelen.{" "}
               <Link href="#om-ordningen" className="underline">
                 Läs mer

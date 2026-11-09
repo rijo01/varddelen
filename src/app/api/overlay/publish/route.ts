@@ -381,6 +381,14 @@ export async function POST(req: Request) {
     // `bas` LAGRAS, men skriver aldrig i registret. Se OVERLAY.md.
     bas: body.bas ?? null,
     skapa_om_saknas: body.skapa_om_saknas ?? false,
+    // ── 1.7. Nivån lagras som den kom (null = före 1.7 = betald) och läses
+    // ALLTID genom tolkaProfilniva()/tillampaNiva() (lib/overlay-visning.ts).
+    // De nya fälten lagras tillsammans i `utokat`; sajten renderar dem inte än.
+    // Före lib/sql/overlay-v1.7.sql finns kolumnerna inte, och då faller
+    // nycklarna bort i overlay_publicera (jsonb_populate_record) — raden blir
+    // ändå skriven.
+    profilniva: body.profilniva ?? null,
+    utokat: utokat17(body),
     ...logoFalt,
     ...(forUtkast ? {} : { published_at: new Date().toISOString() }),
   };
@@ -420,6 +428,20 @@ export async function POST(req: Request) {
 
   const revalidated = await revalidera(anon, body.entity_type, body.external_id);
   return svar(200, { ok: true, revision: body.revision, revalidated });
+}
+
+/** 1.7-fälten (Berika och aktiveringen) som ett objekt, eller null. */
+function utokat17(body: OverlayPublishRequest): Record<string, unknown> | null {
+  const falt = [
+    "beskrivning", "tjanster", "oppettider", "certifieringar", "sociala",
+    "verksamhetsomrade", "grundat", "anstallda", "betyg", "extra_nummer",
+  ] as const;
+  const ut: Record<string, unknown> = {};
+  for (const f of falt) {
+    const v = (body as Record<string, unknown>)[f];
+    if (v !== undefined && v !== null) ut[f] = v;
+  }
+  return Object.keys(ut).length > 0 ? ut : null;
 }
 
 /** Alla ytor raden påverkar. Deklareras i lib/overlay.ts, inte här. */
