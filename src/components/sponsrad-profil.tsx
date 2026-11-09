@@ -1,6 +1,6 @@
-import { Globe, Mail, MapPin, Phone, User } from "lucide-react";
+import { Globe, Mail, MapPin, User } from "lucide-react";
 import Link from "next/link";
-import { logoMatt, telefontypText } from "@/lib/overlay-contract";
+import { logoMatt } from "@/lib/overlay-contract";
 import type { OverlayProfilRow } from "@/lib/overlay-contract";
 import { normalizeWebb, shortWebb } from "@/lib/foretag-format";
 
@@ -18,17 +18,6 @@ import { normalizeWebb, shortWebb } from "@/lib/foretag-format";
  * och kan därför renderas som HTML här. Den saneras aldrig i CRM:et — sajten
  * litar inte på att avsändaren städat.
  */
-
-/**
- * Etiketten bredvid numret. Sedan kontrakt 1.4 är `telefon_typ` fri text
- * ("Kundtjänst", "Lager") och skrivs ut som den är. Koden "kontakt" heter
- * "Direkt" här, som den alltid gjort på sajten; övriga gamla koder blir ord
- * via kontraktets telefontypText().
- */
-function telefonEtikett(typ: string | null | undefined): string | null {
-  if (typ?.trim() === "kontakt") return "Direkt";
-  return telefontypText(typ);
-}
 
 /** Adressöverskrivning som en rad text, eller null om inget fält är satt. */
 function adressrad(
@@ -69,7 +58,6 @@ export default function SponsradProfil({
   const sokord = (overlay.keywords ?? []).filter((k) => k.trim().length > 0);
   const kategorier = (overlay.kategorier ?? []).filter((k) => k.trim().length > 0);
   const hemsida = normalizeWebb(overlay.hemsida);
-  const telefon = overlay.telefon_override?.trim() || null;
   const epost = overlay.epost_override?.trim() || null;
 
   // Post- och besöksadress var för sig (1.1). Faller tillbaka på den odelade
@@ -85,7 +73,6 @@ export default function SponsradProfil({
     kategorier.length > 0 ||
     hemsida ||
     overlay.kontaktperson ||
-    telefon ||
     epost ||
     besok ||
     post;
@@ -202,22 +189,9 @@ export default function SponsradProfil({
           </div>
         )}
 
-        {!kompakt && (telefon || epost || hemsida) && (
+        {!kompakt && (epost || hemsida) && (
           <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-[var(--rule)] pt-4 text-[16px]">
-            {telefon && (
-              <a
-                href={`tel:${telefon.replace(/\s+/g, "")}`}
-                className="inline-flex items-center gap-1.5 font-medium text-[var(--brand-ink)] underline"
-              >
-                <Phone className="size-4 shrink-0" aria-hidden />
-                {telefon}
-                {telefonEtikett(overlay.telefon_typ) && (
-                  <span className="text-[14px] font-normal text-[var(--text-dim)]">
-                    {telefonEtikett(overlay.telefon_typ)}
-                  </span>
-                )}
-              </a>
-            )}
+            {/* Kundens nummer visas via "Visa nummer" i sidhuvudet, aldrig i HTML:en (2026-11-09). */}
             {epost && (
               <a href={`mailto:${epost}`} className="inline-flex items-center gap-1.5 font-medium text-[var(--brand-ink)] underline">
                 <Mail className="size-4 shrink-0" aria-hidden />

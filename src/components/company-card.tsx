@@ -1,16 +1,13 @@
 import Link from "next/link";
-import { Globe, Phone } from "lucide-react";
+import { Globe } from "lucide-react";
 import { foretagSlug, type Foretag } from "@/lib/queries";
 import type { OverlayProfilRow } from "@/lib/overlay-contract";
-import { visatTelefon } from "@/lib/visat-telefon";
 import {
   displayName,
   employerSize,
-  formatTelefon,
   normalizeWebb,
   profilMarkning,
   shortWebb,
-  telHref,
 } from "@/lib/foretag-format";
 import { ProfilEtikett } from "@/components/vard-info";
 import { delarOrgnr } from "@/lib/flerstalle";
@@ -48,8 +45,6 @@ export function CompanyCard({
 }) {
   const Rubrik = rubrikNiva === 2 ? "h2" : "h3";
   const name = overlay?.popularnamn?.trim() || displayName(foretag);
-  // Samma regel som profilsidan: kundens köpta nummer ersätter registrets.
-  const telefon = visatTelefon(foretag.tel, overlay);
   const webb = normalizeWebb(overlay?.hemsida) ?? normalizeWebb(foretag.webb);
   // Bolagets antal är inte mottagningens: visa bara när bolaget har ett enda
   // arbetsställe i katalogen. Se lib/flerstalle.ts.
@@ -104,18 +99,7 @@ export function CompanyCard({
       </div>
 
       <div className="flex flex-wrap items-center gap-2 sm:flex-col sm:items-end sm:justify-center">
-        {telefon ? (
-          <a
-            href={telHref(telefon)}
-            className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[var(--rule-strong)] bg-white px-3.5 text-[16px] font-semibold text-[var(--text-strong)] transition-colors hover:border-[var(--brand)] hover:text-[var(--brand-ink)]"
-            aria-label={`Ring ${name}, ${formatTelefon(telefon)}`}
-          >
-            <Phone aria-hidden className="size-4 text-[var(--brand)]" />
-            {formatTelefon(telefon)}
-          </a>
-        ) : (
-          <span className="text-[15px] text-[var(--text-dim)]">Telefon saknas</span>
-        )}
+        {/* Telefonnumret visas bara bakom "Visa nummer" på profilsidan (beslut 2026-11-09). */}
         {webb && (
           <a
             href={webb}

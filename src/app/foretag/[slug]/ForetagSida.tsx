@@ -1,9 +1,10 @@
 import { sidhuvudetsLogotyp } from "@/lib/overlay-contract";
 import type { Metadata } from "next";
-import { visatTelefon as visatTelefonFor } from "@/lib/visat-telefon";
+import { harTelefon } from "@/lib/telefon";
+import { VisaNummer } from "@/components/visa-nummer";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { ArrowRight, ExternalLink, Globe, Mail, MapPin, Phone, User } from "lucide-react";
+import { ArrowRight, ExternalLink, Globe, Mail, MapPin, User } from "lucide-react";
 import { kommunByCode } from "@/lib/kommuner";
 import {
   branschPageSlug,
@@ -20,14 +21,12 @@ import { Breadcrumb } from "@/components/breadcrumb";
 import { CompanyCard, CompanyCardList } from "@/components/company-card";
 import {
   displayName,
-  formatTelefon,
   googleMapsUrl,
   legalFormFor,
   normalizeWebb,
   orgnrDisplay,
   profilMarkning,
   shortWebb,
-  telHref,
 } from "@/lib/foretag-format";
 import { AkutNotis, ProfilEtikett } from "@/components/vard-info";
 import { BRANSCH_LABEL, etikettIText } from "@/lib/stats";
@@ -141,7 +140,7 @@ export default async function ForetagSida({
   // Overlay: den betalda profilen. I förhandsvisning läses UTKASTET i stället
   // för den publicerade raden — samma rendering, annan källa, så att säljaren
   // ser exakt vad kunden kommer att se.
-  const [oboostadeRelated, sokord, overlay, overlays] = await Promise.all([
+  const [oboostadeRelated, sokord, overlay, overlays, telefonFinns] = await Promise.all([
     kommun && f.ng1
       ? listRelatedForetag(kommun.code, f.ng1, f.cfarnr, 6)
       : Promise.resolve([] as Foretag[]),
@@ -150,6 +149,8 @@ export default async function ForetagSida({
       ? getOverlayUtkastForForetag(f, previewToken)
       : getOverlayForForetag(f),
     loadAktivaOverlays(),
+    // "Visa nummer": sidan får bara veta OM ett nummer finns — aldrig numret.
+    harTelefon(f.cfarnr),
   ]);
 
   // Ett utkast som inte finns, eller en token som inte håller, ger ingen sida
@@ -170,7 +171,7 @@ export default async function ForetagSida({
   const markning = profilMarkning(f, overlay);
 
   // Kontaktuppgifterna som visas överst — kundens egna före registrets, med
-  // samma regel för telefonen som listraderna (visatTelefon).
+  // telefonen går via "Visa nummer" (se nedan).
   const webbVisad = normalizeWebb(overlay?.hemsida) ?? webb;
   const epostVisad = overlay?.epost_override?.trim() || f.epostadress || null;
   const kontaktperson = overlay?.kontaktperson?.trim() || f.kontaktperson || null;
@@ -182,14 +183,10 @@ export default async function ForetagSida({
   const egenText = Boolean(overlay?.info_html);
 
   /**
-   * Vilket telefonnummer sidan visar i huvudet.
-   *
-   * `dolj_andra_nummer` är kundens köpta rätt att ersätta registrets nummer med
-   * sitt eget — men bara NÄR DE FAKTISKT LÄMNAT ETT. Utan den spärren hade en
-   * kund som kryssat i rutan och sedan tömt sitt nummerfält fått en sida helt
-   * utan telefonnummer, vilket är motsatsen till vad de betalade för.
+   * Telefonnumret visas ALDRIG i sidans HTML, JSON-LD eller RSC-payload
+   * (beslut 2026-11-09). Knappen "Visa nummer" hämtar det från
+   * POST /api/telefon/<cfarnr>. Kundens eget nummer går samma väg, före SCB:s.
    */
-  const visatTelefon = visatTelefonFor(f.tel, overlay);
 
   /**
    * Sökorden i strukturerad data. Kundens egna ord först, dubbletter bort
@@ -236,7 +233,6 @@ export default async function ForetagSida({
           },
         }
       : {}),
-    ...(visatTelefon ? { telephone: visatTelefon } : {}),
     ...(webb ? { url: webb } : {}),
     ...(f.epostadress ? { email: f.epostadress } : {}),
     ...(f.aeant ? { numberOfEmployees: f.aeant } : {}),
@@ -249,7 +245,7 @@ export default async function ForetagSida({
   };
 
   // FAQ — kontextuell, dynamisk
-  const faqItems = buildFaq({ name, branschName, kommun: kommun?.name ?? null, f, telefon: visatTelefon });
+  const faqItems = buildFaq({ name, branschName, kommun: kommun?.name ?? null, f, telefonFinns });
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -320,16 +316,15 @@ export default async function ForetagSida({
         </h2>
         <div className="grid gap-6 md:grid-cols-[auto_1fr] md:gap-10">
           <div className="space-y-2">
-            {visatTelefon ? (
-              <a
-                href={telHref(visatTelefon)}
-                className="inline-flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-lg bg-[var(--brand)] px-6 text-[19px] font-semibold text-white transition-colors hover:bg-[var(--brand-2)] sm:w-auto"
-              >
-                <Phone aria-hidden className="size-5" />
-                {formatTelefon(visatTelefon)}
-              </a>
+            {telefonFinns ? (
+              <VisaNummer cfarnr={f.cfarnr} namn={name} />
             ) : (
-              <p className="text-[16px] text-[var(--text-muted)]">Inget telefonnummer registrerat.</p>
+              <p className="text-[16px] text-[var(--text-muted)]">
+                Är detta er verksamhet?{" "}
+                <Link href={`/kontakt?cfarnr=${f.cfarnr}`} className="font-semibold text-[var(--brand)] underline">
+                  Lägg till ert nummer
+                </Link>
+              </p>
             )}
           </div>
 
@@ -556,14 +551,14 @@ function buildFaq({
   branschName,
   kommun,
   f,
-  telefon,
+  telefonFinns,
 }: {
   name: string;
   branschName: string | null;
   kommun: string | null;
   f: Foretag;
-  /** Numret sidan visar — visatTelefon(), aldrig f.tel. FAQ:n hamnar också i JSON-LD. */
-  telefon: string | null;
+  /** Finns ett nummer bakom "Visa nummer"? Numret självt står aldrig i FAQ:n (den hamnar i JSON-LD). */
+  telefonFinns: boolean;
 }): FaqItem[] {
   const items: FaqItem[] = [];
 
@@ -589,9 +584,9 @@ function buildFaq({
     });
   }
 
-  if (telefon || f.epostadress || f.webb) {
+  if (telefonFinns || f.epostadress || f.webb) {
     const ch: string[] = [];
-    if (telefon) ch.push(`telefon ${telefon}`);
+    if (telefonFinns) ch.push("telefon (tryck på Visa nummer ovan)");
     if (f.epostadress) ch.push(`e-post ${f.epostadress}`);
     if (f.webb) ch.push(`hemsida ${f.webb}`);
     items.push({
